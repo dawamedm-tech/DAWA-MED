@@ -1,0 +1,75 @@
+import React from 'react';
+import { Language } from '../types';
+import { TRANSLATIONS } from '../data/translations';
+
+interface BrandLogoProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  showTagline?: boolean;
+  language?: Language;
+  className?: string;
+  isLightOnDark?: boolean;
+}
+
+export const BrandLogo: React.FC<BrandLogoProps> = ({
+  size = 'md',
+  showTagline = false,
+  language = 'en',
+  className = '',
+  isLightOnDark = false,
+}) => {
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
+  const iconSizes = {
+    sm: 'w-7 h-7 text-sm rounded-lg',
+    md: 'w-10 h-10 text-xl rounded-xl',
+    lg: 'w-12 h-12 text-2xl rounded-2xl',
+    xl: 'w-16 h-16 text-3xl rounded-2xl',
+  };
+
+  const textSizes = {
+    sm: 'text-base font-bold',
+    md: 'text-2xl font-black leading-none tracking-tighter',
+    lg: 'text-3xl font-black leading-none tracking-tighter',
+    xl: 'text-4xl font-black leading-none tracking-tighter',
+  };
+
+  const taglineSizes = {
+    sm: 'text-[9px]',
+    md: 'text-[10px]',
+    lg: 'text-xs',
+    xl: 'text-sm',
+  };
+
+  return (
+    <div className={`flex items-center gap-2.5 select-none ${className}`} id="dawa-brand-logo-container">
+      {/* Brand Icon: Sleek Forest green box with white 'D' and cross mark accent */}
+      <div
+        className={`${iconSizes[size]} relative flex items-center justify-center ${
+          isLightOnDark ? 'bg-[#52B788]' : 'bg-[#2D6A4F]'
+        } shadow-sm shadow-[#2D6A4F]/20 shrink-0 font-bold text-white transition-transform group-hover:scale-105`}
+        id="dawa-brand-icon"
+      >
+        <span>D</span>
+        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#74C69D] border-2 border-white" />
+      </div>
+
+      {/* Brand Name & Tagline */}
+      <div className="flex flex-col">
+        <div className={textSizes[size]}>
+          <span className={isLightOnDark ? 'text-white' : 'text-[#2D6A4F]'}>
+            DAWA
+          </span>
+          <span className={isLightOnDark ? 'text-[#95D5B2]' : 'text-[#74C69D]'}>
+            MED
+          </span>
+        </div>
+        
+        {showTagline && (
+          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-widest whitespace-nowrap mt-0.5`}>
+            {t.tagline}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};

@@ -1,0 +1,6 @@
+{
+  "name": "DAWA MED",
+  "description": "Digital Medicine Access & Delivery Platform connecting patients to licensed pharmacies across Africa. Your Medicine. Delivered.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
