@@ -196,16 +196,16 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
               </div>
 
               {/* Guarantees row */}
-              <div className="pt-6 grid grid-cols-3 gap-3 border-t border-white/10 text-[11px] sm:text-xs text-[#D8F3DC]">
-                <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+              <div className="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-white/10 text-xs text-[#D8F3DC]">
+                <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <CheckCircle2 className="w-4 h-4 text-[#74C69D] shrink-0" />
                   <span>{isAr ? '100% صيدليات مرخصة' : '100% Licensed Pharmacies'}</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+                <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <ThermometerSnowflake className="w-4 h-4 text-[#74C69D] shrink-0" />
                   <span>{isAr ? 'سلسلة تبريد (2-8°C)' : 'Insulated Cold-Chain (2-8°C)'}</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+                <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <Lock className="w-4 h-4 text-[#74C69D] shrink-0" />
                   <span>{isAr ? 'خصوصية طبية مشفرة' : 'Encrypted Medical Privacy'}</span>
                 </div>

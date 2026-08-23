@@ -3,11 +3,66 @@ export type UserRole =
   | 'pharmacy' 
   | 'driver' 
   | 'admin' 
+  | 'support'
+  | 'super_admin'
   | 'subscription' 
   | 'website'
-  | 'super_admin'
   | 'pharmacy_admin'
   | 'system_admin';
+
+export type Permission = 
+  | 'users.view'
+  | 'users.edit'
+  | 'users.delete'
+  | 'pharmacies.view'
+  | 'pharmacies.register'
+  | 'pharmacies.approve'
+  | 'pharmacies.reject'
+  | 'pharmacies.suspend'
+  | 'medicines.view'
+  | 'medicines.create'
+  | 'medicines.edit'
+  | 'medicines.approve'
+  | 'medicines.reject'
+  | 'medicines.suspend'
+  | 'inventory.view'
+  | 'inventory.manage'
+  | 'orders.view'
+  | 'orders.create'
+  | 'orders.manage'
+  | 'orders.dispense'
+  | 'prescriptions.upload'
+  | 'prescriptions.review'
+  | 'prescriptions.view_audit'
+  | 'payments.view'
+  | 'payments.initiate'
+  | 'payments.refund'
+  | 'support.view'
+  | 'support.manage'
+  | 'support.reply'
+  | 'settings.view'
+  | 'settings.manage'
+  | 'audit.view';
+
+export type MedicineApprovalStatus = 
+  | 'draft'
+  | 'pending_approval'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'changes_requested'
+  | 'suspended'
+  | 'archived';
+
+export type PharmacyApprovalStatus = 
+  | 'pending'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'more_info_required'
+  | 'suspended';
+
+export type AccountStatus = 'active' | 'pending' | 'suspended' | 'blocked' | 'deleted';
 
 export type Language = 'en' | 'ar' | 'fr' | 'sw';
 
@@ -61,6 +116,22 @@ export interface Medicine {
   indications: string[];
   storageCondition: string;
   availablePharmacyIds: string[];
+  
+  // Approval Workflow Fields (Mandatory for Dawa Med Compliance)
+  approvalStatus: MedicineApprovalStatus;
+  submittedByPharmacyId?: string;
+  submittedByPharmacyName?: string;
+  submittedAt?: string;
+  reviewedByAdminId?: string;
+  reviewedByAdminName?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  changeRequestNotes?: string;
+  batchNumber?: string;
+  expiryDate?: string;
+  activeIngredient?: string;
+  regulatoryApprovalNumber?: string;
+  documentUrls?: string[];
 }
 
 export type OrderStatus = 
@@ -161,15 +232,18 @@ export interface Order {
 export interface PharmacyPartner {
   id: string;
   name: string;
+  legalName?: string;
   licenseNumber: string;
   city: string;
   countryCode: string;
   pharmacistInCharge: string;
+  pharmacistLicenseNumber?: string;
   phone: string;
   email?: string;
   address: string;
   rating: number;
   isOpen: boolean;
+  is24_7?: boolean;
   hasColdChain: boolean;
   acceptsEPrescription: boolean;
   distanceKm: number;
@@ -179,14 +253,21 @@ export interface PharmacyPartner {
   openingHours?: string;
   logoUrl?: string;
   verificationStatus: 'verified' | 'pending_verification' | 'suspended' | 'rejected';
+  approvalStatus: PharmacyApprovalStatus;
   licenseExpiryDate?: string;
   regulatoryAuthority?: string;
   totalOrdersHandled?: number;
   revenueUSD?: number;
+  rejectionReason?: string;
+  infoRequestNotes?: string;
+  registeredAt?: string;
+  approvedAt?: string;
+  approvedBy?: string;
   documents?: {
     licenseDoc?: string;
     pharmacistCertificate?: string;
     inspectionCert?: string;
+    businessReg?: string;
   };
 }
 
@@ -231,10 +312,11 @@ export interface AdminCustomer {
   id: string;
   name: string;
   phone: string;
+  email?: string;
   city: string;
   countryCode: string;
   joinedDate: string;
-  status: 'active' | 'suspended';
+  status: 'active' | 'suspended' | 'blocked';
   totalOrders: number;
   totalSpentUSD: number;
   activeSubscription: boolean;
@@ -262,10 +344,31 @@ export type TicketCategory =
   | 'payment_issue' 
   | 'missing_item' 
   | 'wrong_item' 
-  | 'delivery_problem';
+  | 'delivery_problem'
+  | 'prescription_issue'
+  | 'system_access';
 
 export type TicketPriority = 'urgent_clinical' | 'high' | 'medium' | 'low';
-export type TicketStatus = 'open' | 'in_investigation' | 'resolved';
+export type TicketStatus = 
+  | 'open' 
+  | 'in_progress' 
+  | 'in_investigation'
+  | 'waiting_for_customer' 
+  | 'escalated' 
+  | 'resolved' 
+  | 'closed';
+
+export interface TicketMessage {
+  id: string;
+  ticketId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: UserRole;
+  message: string;
+  timestamp: string;
+  attachments?: string[];
+  isInternalNote?: boolean;
+}
 
 export interface SupportTicket {
   id: string;
@@ -275,12 +378,18 @@ export interface SupportTicket {
   description: string;
   orderId?: string;
   raisedBy: string;
+  customerName?: string;
   userRole: 'customer' | 'pharmacy' | 'driver';
   contactPhone: string;
+  contactEmail?: string;
   priority: TicketPriority;
   status: TicketStatus;
   createdAt: string;
+  updatedAt?: string;
+  closedAt?: string;
   assignedOfficer?: string;
+  assignedSupportAgentId?: string;
+  messages: TicketMessage[];
   resolutionNotes?: string;
 }
 
@@ -308,12 +417,52 @@ export interface MarketingBanner {
 export interface AuditLog {
   id: string;
   timestamp: string;
-  actorType: 'admin' | 'pharmacy' | 'driver' | 'system';
+  actorId?: string;
+  actorType: 'admin' | 'super_admin' | 'support' | 'pharmacy' | 'driver' | 'customer' | 'system';
   actorName: string;
+  actorRole: UserRole;
   action: string;
+  target: string;
+  targetId?: string;
   details: string;
-  ipAddress: string;
-  isEncryptedVerification: boolean;
+  ipAddress?: string;
+  result: 'success' | 'failed' | 'denied';
+  reason?: string;
+  isEncryptedVerification?: boolean;
+}
+
+export interface UserAddress {
+  id: string;
+  label: string;
+  streetAddress: string;
+  city: string;
+  countryCode: string;
+  isDefault: boolean;
+  gpsLocation?: { lat: number; lng: number };
+}
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  role: UserRole;
+  permissions: Permission[];
+  status: AccountStatus;
+  isVerified: boolean;
+  preferredLanguage: Language;
+  countryCode: string;
+  city: string;
+  streetAddress?: string;
+  addresses?: UserAddress[];
+  pharmacyId?: string;
+  pharmacyApprovalStatus?: PharmacyApprovalStatus;
+  requires2FA?: boolean;
+  is2FAVerified?: boolean;
+  token?: string;
+  tokenExpiresAt?: number;
+  lastLoginAt?: string;
+  avatarUrl?: string;
 }
 
 export interface UserProfile {

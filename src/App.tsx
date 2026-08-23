@@ -38,6 +38,7 @@ import {
   INITIAL_REFERRAL_CONFIG
 } from './data/mockData';
 import { TRANSLATIONS } from './data/translations';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Header } from './components/Header';
 import { CustomerView } from './components/CustomerView';
 import { PharmacyDashboard } from './components/PharmacyDashboard';
@@ -60,9 +61,9 @@ import { LegalPagesModal } from './components/LegalPagesModal';
 import { SystemHealthTestsModal } from './components/SystemHealthTestsModal';
 import { Footer } from './components/Footer';
 
-export default function App() {
+function AppInner() {
+  const { language, setLanguage, isRtl } = useLanguage();
   const [currentRole, setCurrentRole] = useState<UserRole>('customer');
-  const [language, setLanguage] = useState<Language>('en');
   const [selectedCountry, setSelectedCountry] = useState<CountryConfig>(COUNTRIES[0]);
   const [cartItems, setCartItems] = useState<OrderItem[]>([]);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
@@ -286,6 +287,7 @@ export default function App() {
             storageCondition: 'Room temperature below 25°C',
             availablePharmacyIds: ['pharma-01', 'pharma-02'],
             indications: ['Prescription Verified'],
+            approvalStatus: 'approved',
           },
           quantity: 1,
           unitPrice: 14.50,
@@ -631,7 +633,7 @@ export default function App() {
       )}
 
       {/* Main Content View based on Active Role */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <main className={`flex-1 w-full ${currentRole === 'website' ? 'p-0' : 'max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8'}`}>
         {currentRole === 'website' && (
           <PublicWebsite
             language={language}
@@ -897,5 +899,13 @@ export default function App() {
         onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppInner />
+    </LanguageProvider>
   );
 }

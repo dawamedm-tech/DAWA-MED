@@ -7,10 +7,12 @@ import {
   PrescriptionData,
   PharmacyInventoryItem,
   MedicineCategory,
-  OrderStatus
+  OrderStatus,
+  Medicine
 } from '../types';
 import { TRANSLATIONS } from '../data/translations';
-import { SAMPLE_PHARMACIES, SAMPLE_INVENTORY } from '../data/mockData';
+import { SAMPLE_PHARMACIES, SAMPLE_INVENTORY, SAMPLE_MEDICINES } from '../data/mockData';
+import { SubmitMedicineForApprovalModal } from './SubmitMedicineForApprovalModal';
 import { 
   Building2, 
   ShieldCheck, 
@@ -23,26 +25,28 @@ import {
   UserCheck, 
   Phone, 
   MapPin, 
-  QrCode,
-  Sparkles,
-  AlertTriangle,
-  Mail,
-  Search,
-  Plus,
-  Filter,
-  Check,
-  Ban,
-  MessageSquare,
-  RefreshCw,
-  Send,
-  Eye,
-  Lock,
-  ChevronDown,
-  Layers,
-  FileCheck,
-  AlertCircle,
-  HelpCircle,
-  Truck
+  QrCode, 
+  Sparkles, 
+  AlertTriangle, 
+  Mail, 
+  Search, 
+  Plus, 
+  Filter, 
+  Check, 
+  Ban, 
+  MessageSquare, 
+  RefreshCw, 
+  Send, 
+  Eye, 
+  Lock, 
+  ChevronDown, 
+  Layers, 
+  FileCheck, 
+  AlertCircle, 
+  HelpCircle, 
+  Truck,
+  Pill,
+  RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -56,6 +60,8 @@ interface PharmacyDashboardProps {
   onAdvanceStatus?: (orderId: string, status: OrderStatus) => void;
   language: Language;
   selectedCountry: CountryConfig;
+  medicines?: Medicine[];
+  onSubmitNewMedicine?: (medData: Partial<Medicine>) => void;
 }
 
 export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
@@ -68,6 +74,8 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
   onAdvanceStatus,
   language,
   selectedCountry,
+  medicines: initialMedicines = SAMPLE_MEDICINES,
+  onSubmitNewMedicine,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -79,7 +87,54 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
   const activePharmacy = pharmacies.find((p) => p.id === selectedPharmacyId) || initialPharmacy || pharmacies[0];
 
   // Dashboard Subtabs
-  const [activeTab, setActiveTab] = useState<'incoming_orders' | 'inventory' | 'profile' | 'logs'>('incoming_orders');
+  const [activeTab, setActiveTab] = useState<'incoming_orders' | 'inventory' | 'submissions' | 'profile' | 'logs'>('incoming_orders');
+
+  // Submissions State
+  const [allMedicines, setAllMedicines] = useState<Medicine[]>(initialMedicines);
+  const [isSubmitMedModalOpen, setIsSubmitMedModalOpen] = useState(false);
+  const [submissionFeedback, setSubmissionFeedback] = useState<string | null>(null);
+
+  const mySubmissions = allMedicines.filter(
+    (m) => m.submittedByPharmacyId === activePharmacy.id || m.availablePharmacyIds?.includes(activePharmacy.id)
+  );
+
+  const handleInternalSubmitMedicine = (medData: Partial<Medicine>) => {
+    const newMed: Medicine = {
+      id: `med-custom-${Date.now()}`,
+      name: medData.name || 'New Pharmaceutical Product',
+      genericName: medData.genericName || '',
+      category: medData.category || 'chronic',
+      dosage: medData.dosage || 'Standard Dosage',
+      form: medData.form || 'tablets',
+      packageSize: medData.packageSize || '1 Pack',
+      priceUSD: medData.priceUSD || 10,
+      requiresPrescription: medData.requiresPrescription ?? true,
+      requiresColdChain: medData.requiresColdChain ?? false,
+      descriptionEn: medData.descriptionEn || '',
+      descriptionAr: medData.descriptionAr || '',
+      descriptionSw: medData.descriptionSw || '',
+      manufacturer: medData.manufacturer || 'Approved Manufacturer',
+      stockCount: medData.stockCount || 50,
+      indications: medData.indications || [],
+      storageCondition: medData.storageCondition || 'Store in cool dry place',
+      availablePharmacyIds: [activePharmacy.id],
+      submittedByPharmacyId: activePharmacy.id,
+      submittedByPharmacyName: activePharmacy.name,
+      submittedAt: new Date().toISOString(),
+      approvalStatus: 'pending_approval',
+      batchNumber: medData.batchNumber,
+      expiryDate: medData.expiryDate,
+    };
+
+    setAllMedicines((prev) => [newMed, ...prev]);
+
+    if (onSubmitNewMedicine) {
+      onSubmitNewMedicine(medData);
+    }
+
+    setSubmissionFeedback(`"${newMed.name}" submitted successfully. Entered "Pending Approval" queue for CMO verification.`);
+    setTimeout(() => setSubmissionFeedback(null), 5000);
+  };
 
   // Inventory State
   const [inventory, setInventory] = useState<PharmacyInventoryItem[]>(SAMPLE_INVENTORY);
@@ -359,6 +414,21 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
           <span>Pharmacy Inventory Management</span>
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#52B788]/20 text-[#1B4332]">
             {inventory.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('submissions')}
+          className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            activeTab === 'submissions'
+              ? 'bg-[#1B4332] text-white shadow-sm'
+              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4 text-[#52B788]" />
+          <span>Medicine Approvals & Submissions</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+            {mySubmissions.filter((m) => m.approvalStatus === 'pending_approval' || m.approvalStatus === 'under_review').length} Pending
           </span>
         </button>
 

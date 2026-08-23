@@ -15,9 +15,32 @@
     --surface-pill: #F0F7F4;
   }
 
+  *, ::before, ::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    width: 100%;
+    max-width: 100%;
+  }
+
   body {
     background-color: #F4F7F5;
     color: #1B4332;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Custom scrollbar helpers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
+

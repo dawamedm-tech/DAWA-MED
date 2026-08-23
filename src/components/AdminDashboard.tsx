@@ -13,7 +13,11 @@ import {
   TicketCategory,
   TicketStatus,
   DawaMonthlySubscription,
-  ReferralSystemConfig
+  ReferralSystemConfig,
+  Medicine,
+  MedicineApprovalStatus,
+  PharmacyApprovalStatus,
+  AuthUser
 } from '../types';
 import { 
   COUNTRIES, 
@@ -25,9 +29,13 @@ import {
   SAMPLE_MARKETING_BANNERS, 
   INITIAL_AUDIT_LOGS,
   SAMPLE_ADMIN_SUBSCRIBERS,
-  INITIAL_REFERRAL_CONFIG
+  INITIAL_REFERRAL_CONFIG,
+  SAMPLE_MEDICINES
 } from '../data/mockData';
 import { TRANSLATIONS } from '../data/translations';
+import { MedicineApprovalManager } from './MedicineApprovalManager';
+import { PharmacyApprovalManager } from './PharmacyApprovalManager';
+import { RbacUserManager } from './RbacUserManager';
 import { 
   ShieldCheck, 
   Building2, 
@@ -65,7 +73,8 @@ import {
   RotateCcw,
   CreditCard,
   Gift,
-  RefreshCw
+  RefreshCw,
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -74,6 +83,11 @@ interface AdminDashboardProps {
   selectedCountry: CountryConfig;
   onCountryChange: (c: CountryConfig) => void;
   language: Language;
+  medicines?: Medicine[];
+  onUpdateMedicineStatus?: (medicineId: string, status: MedicineApprovalStatus, notes?: string, reason?: string) => void;
+  onUpdatePharmacyStatus?: (pharmacyId: string, status: PharmacyApprovalStatus, notes?: string, reason?: string) => void;
+  currentUser?: AuthUser;
+  onSwitchUser?: (user: AuthUser) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -81,15 +95,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   selectedCountry,
   onCountryChange,
   language,
+  medicines: initialMedicines = SAMPLE_MEDICINES,
+  onUpdateMedicineStatus,
+  onUpdatePharmacyStatus,
+  currentUser,
+  onSwitchUser,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<
-    'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
-  >('analytics');
+    'medicine_approvals' | 'pharmacy_approvals' | 'rbac_users' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
+  >('medicine_approvals');
 
   // State collections
+  const [medicinesList, setMedicinesList] = useState<Medicine[]>(initialMedicines);
   const [pharmacies, setPharmacies] = useState<PharmacyPartner[]>(SAMPLE_PHARMACIES);
   const [drivers, setDrivers] = useState<DriverProfile[]>(SAMPLE_DRIVERS);
   const [customers, setCustomers] = useState<AdminCustomer[]>(SAMPLE_CUSTOMERS);
@@ -99,6 +119,95 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
   const [subscribers, setSubscribers] = useState<DawaMonthlySubscription[]>(SAMPLE_ADMIN_SUBSCRIBERS);
   const [referralConfig, setReferralConfig] = useState<ReferralSystemConfig>(INITIAL_REFERRAL_CONFIG);
+
+  // Medicine Status Callback
+  const handleInternalUpdateMedicineStatus = (
+    medicineId: string,
+    status: MedicineApprovalStatus,
+    notes?: string,
+    reason?: string
+  ) => {
+    setMedicinesList((prev) =>
+      prev.map((m) =>
+        m.id === medicineId
+          ? {
+              ...m,
+              approvalStatus: status,
+              changeRequestNotes: status === 'changes_requested' ? notes : m.changeRequestNotes,
+              rejectionReason: status === 'rejected' ? reason : m.rejectionReason,
+              reviewedAt: new Date().toISOString(),
+              reviewedBy: currentUser?.name || 'Chief Medical Officer',
+            }
+          : m
+      )
+    );
+
+    if (onUpdateMedicineStatus) {
+      onUpdateMedicineStatus(medicineId, status, notes, reason);
+    }
+
+    // Add Audit Log
+    const newLog: AuditLog = {
+      id: `log-med-${Date.now()}`,
+      timestamp: 'Just now',
+      actorType: 'admin',
+      actorName: currentUser?.name || 'Chief Pharmacist Operations',
+      actorRole: 'admin',
+      action: `Medicine Approval Status -> ${status.toUpperCase()}`,
+      target: `Medicine ID: ${medicineId}`,
+      targetId: medicineId,
+      details: notes || reason || `Status changed to ${status}`,
+      ipAddress: '196.201.214.4',
+      result: 'success',
+      isEncryptedVerification: true,
+      sha256Hash: `sha256-${Date.now().toString(16)}fa79e2c4180d`
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
+
+  // Pharmacy Status Callback
+  const handleInternalUpdatePharmacyStatus = (
+    pharmacyId: string,
+    status: PharmacyApprovalStatus,
+    notes?: string,
+    reason?: string
+  ) => {
+    setPharmacies((prev) =>
+      prev.map((p) =>
+        p.id === pharmacyId
+          ? {
+              ...p,
+              approvalStatus: status,
+              verificationStatus: status === 'approved' ? 'verified' : 'pending_verification',
+              isOpen: status === 'approved',
+              infoRequestNotes: status === 'more_info_required' ? notes : p.infoRequestNotes,
+              rejectionReason: status === 'rejected' ? reason : p.rejectionReason,
+            }
+          : p
+      )
+    );
+
+    if (onUpdatePharmacyStatus) {
+      onUpdatePharmacyStatus(pharmacyId, status, notes, reason);
+    }
+
+    const newLog: AuditLog = {
+      id: `log-pharma-${Date.now()}`,
+      timestamp: 'Just now',
+      actorType: 'admin',
+      actorName: currentUser?.name || 'Admin Licensure Desk',
+      actorRole: 'admin',
+      action: `Pharmacy Licensure Status -> ${status.toUpperCase()}`,
+      target: `Pharmacy ID: ${pharmacyId}`,
+      targetId: pharmacyId,
+      details: notes || reason || `Pharmacy status updated to ${status}`,
+      ipAddress: '196.201.214.4',
+      result: 'success',
+      isEncryptedVerification: true,
+      sha256Hash: `sha256-${Date.now().toString(16)}88b0e7a4`
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
 
   // Filters & Search
   const [pharmacySearch, setPharmacySearch] = useState('');
@@ -136,9 +245,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       timestamp: 'Just now',
       actorType: 'admin',
       actorName: 'Admin Operations Desk',
+      actorRole: 'admin',
       action: 'Pharmacy License Approved',
+      target: `Pharmacy #${pharmacyId}`,
+      targetId: pharmacyId,
       details: `License verification confirmed for Pharmacy ID: ${pharmacyId} under ${selectedCountry.regulatoryBody}.`,
       ipAddress: '196.201.214.4',
+      result: 'success',
       isEncryptedVerification: true,
     };
     setAuditLogs((prev) => [newLog, ...prev]);
@@ -186,6 +299,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       status: 'open',
       createdAt: 'Just now',
       assignedOfficer: 'Dispatch Operations Lead',
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          ticketId: `tkt-${Date.now()}`,
+          senderId: 'usr-customer-1',
+          senderName: newTicketUser,
+          senderRole: 'customer',
+          message: newTicketDesc,
+          timestamp: 'Just now'
+        }
+      ]
     };
     setTickets((prev) => [newTicket, ...prev]);
     setIsNewTicketOpen(false);
@@ -272,6 +396,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* Navigation Sub-Tabs */}
       <div className="flex items-center gap-2 border-b border-[#D8E2DC] pb-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('medicine_approvals')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'medicine_approvals' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
+          <span>Medicine Approvals ({medicinesList.filter((m) => m.approvalStatus === 'pending_approval' || m.approvalStatus === 'under_review').length} Pending)</span>
+          {medicinesList.some((m) => m.approvalStatus === 'pending_approval') && (
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('pharmacy_approvals')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'pharmacy_approvals' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Pharmacy Licensure & Approvals</span>
+          {pharmacies.some((p) => p.approvalStatus === 'pending' || p.approvalStatus === 'under_review') && (
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('rbac_users')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'rbac_users' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <Key className="w-4 h-4 text-[#52B788]" />
+          <span>Roles & RBAC Access</span>
+        </button>
+
         <button
           onClick={() => setActiveTab('analytics')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -383,6 +543,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <span>Security Audit Trail</span>
         </button>
       </div>
+
+      {/* MEDICINE APPROVALS TAB */}
+      {activeTab === 'medicine_approvals' && (
+        <MedicineApprovalManager
+          medicines={medicinesList}
+          onUpdateStatus={handleInternalUpdateMedicineStatus}
+          language={language}
+          selectedCountry={selectedCountry}
+        />
+      )}
+
+      {/* PHARMACY LICENSURE & APPROVALS TAB */}
+      {activeTab === 'pharmacy_approvals' && (
+        <PharmacyApprovalManager
+          pharmacies={pharmacies}
+          onUpdatePharmacyStatus={handleInternalUpdatePharmacyStatus}
+          language={language}
+          selectedCountry={selectedCountry}
+        />
+      )}
+
+      {/* RBAC USERS & PERMISSIONS TAB */}
+      {activeTab === 'rbac_users' && (
+        <RbacUserManager
+          currentUser={currentUser}
+          onSwitchUser={onSwitchUser}
+          language={language}
+        />
+      )}
 
       {/* TAB 1: ANALYTICS & KPIS */}
       {activeTab === 'analytics' && (
@@ -623,38 +812,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="bg-white rounded-3xl border border-[#D8E2DC] shadow-xs overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#F4F7F5] border-b border-[#D8E2DC] text-[#2D6A4F] uppercase tracking-wider font-bold">
-                <tr>
-                  <th className="px-5 py-3.5">Patient Name</th>
-                  <th className="px-4 py-3.5">Phone & Location</th>
-                  <th className="px-4 py-3.5">Joined Date</th>
-                  <th className="px-4 py-3.5">Total Orders</th>
-                  <th className="px-4 py-3.5">Total Spent</th>
-                  <th className="px-4 py-3.5">Care Plan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#D8E2DC]">
-                {customers.map((c) => (
-                  <tr key={c.id} className="hover:bg-[#F9FAF9]">
-                    <td className="px-5 py-4 font-bold text-[#1B4332] text-sm">{c.name}</td>
-                    <td className="px-4 py-4 text-neutral-600">{c.phone}<br/><span className="text-[11px] text-neutral-400">{c.city}</span></td>
-                    <td className="px-4 py-4 text-neutral-500">{c.joinedDate}</td>
-                    <td className="px-4 py-4 font-black text-[#1B4332]">{c.totalOrders}</td>
-                    <td className="px-4 py-4 font-bold text-[#2D6A4F]">${c.totalSpentUSD.toFixed(2)}</td>
-                    <td className="px-4 py-4">
-                      {c.activeSubscription ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
-                          Chronic Shield Refill Active
-                        </span>
-                      ) : (
-                        <span className="text-neutral-400 text-[11px]">Standard</span>
-                      )}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[600px]">
+                <thead className="bg-[#F4F7F5] border-b border-[#D8E2DC] text-[#2D6A4F] uppercase tracking-wider font-bold">
+                  <tr>
+                    <th className="px-5 py-3.5">Patient Name</th>
+                    <th className="px-4 py-3.5">Phone & Location</th>
+                    <th className="px-4 py-3.5">Joined Date</th>
+                    <th className="px-4 py-3.5">Total Orders</th>
+                    <th className="px-4 py-3.5">Total Spent</th>
+                    <th className="px-4 py-3.5">Care Plan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#D8E2DC]">
+                  {customers.map((c) => (
+                    <tr key={c.id} className="hover:bg-[#F9FAF9]">
+                      <td className="px-5 py-4 font-bold text-[#1B4332] text-sm">{c.name}</td>
+                      <td className="px-4 py-4 text-neutral-600">{c.phone}<br/><span className="text-[11px] text-neutral-400">{c.city}</span></td>
+                      <td className="px-4 py-4 text-neutral-500">{c.joinedDate}</td>
+                      <td className="px-4 py-4 font-black text-[#1B4332]">{c.totalOrders}</td>
+                      <td className="px-4 py-4 font-bold text-[#2D6A4F]">${c.totalSpentUSD.toFixed(2)}</td>
+                      <td className="px-4 py-4">
+                        {c.activeSubscription ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                            Chronic Shield Refill Active
+                          </span>
+                        ) : (
+                          <span className="text-neutral-400 text-[11px]">Standard</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
