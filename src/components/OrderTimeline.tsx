@@ -1,6 +1,7 @@
 import React from 'react';
 import { Order, OrderStatus, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { translate } from '../utils/i18n';
 import { 
   CheckCircle2, 
   Clock, 
@@ -30,6 +31,8 @@ interface StepDefinition {
   icon: React.ReactNode;
   descEn: string;
   descAr: string;
+  descFr: string;
+  descSw: string;
 }
 
 export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
@@ -40,6 +43,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <Inbox className="w-4 h-4" />,
     descEn: 'Order transmitted securely to DAWA dispatch queue',
     descAr: 'تم استلام الطلب ونقله إلى نظام التوزيع الآمن',
+    descFr: 'Commande transmise en toute sécurité à la file d’attente',
+    descSw: 'Agizo limepokelewa na kuwekwa kwenye mfumo salama',
   },
   {
     status: 'waiting_pharmacy',
@@ -48,6 +53,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <Building2 className="w-4 h-4" />,
     descEn: 'Locating closest certified pharmacy partner with verified stock',
     descAr: 'جاري مطابقة وتوجيه الطلب لأقرب صيدلية مرخصة يتوفر بها المخزون',
+    descFr: 'Attribution à la pharmacie partenaire agréée la plus proche',
+    descSw: 'Inatafuta duka la dawa lililoidhinishwa lililo karibu na lenye akiba',
   },
   {
     status: 'prescription_under_review',
@@ -56,6 +63,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <FileText className="w-4 h-4" />,
     descEn: 'Licensed pharmacist inspecting prescription and dosage validity',
     descAr: 'الصيدلي المرخص يقوم بتدقيق الروشتة والتأكد من ملاءمة الجرعات',
+    descFr: 'Examen attentif de l’ordonnance et des posologies par le pharmacien',
+    descSw: 'Mfamasia aliyesajiliwa anakagua cheti na usahihi wa dozi',
   },
   {
     status: 'pharmacy_accepted',
@@ -64,6 +73,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <ShieldCheck className="w-4 h-4" />,
     descEn: 'Prescription approved & medication dispensed from licensed inventory',
     descAr: 'تمت الموافقة على الوصفة واعتماد صرف الدواء رسمياً',
+    descFr: 'Ordonnance validée et dispensation autorisée depuis le stock agréé',
+    descSw: 'Cheti kimeidhinishwa na dawa imetolewa dukani',
   },
   {
     status: 'medicine_being_prepared',
@@ -72,6 +83,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <PackageCheck className="w-4 h-4" />,
     descEn: 'Packaged in tamper-proof seal & insulated cold-chain box',
     descAr: 'جاري تغليف الدواء بالختم الأمني والحفظ في العبوة المبردة',
+    descFr: 'Conditionnement sous scellé inviolable et boîte isotherme 2-8°C',
+    descSw: 'Inafungashwa kwa muhuri wa usalama na ubaridi',
   },
   {
     status: 'ready_for_pickup',
@@ -80,6 +93,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <Clock className="w-4 h-4" />,
     descEn: 'Batch verified. Awaiting rider arrival at pharmacy',
     descAr: 'تم التحقق من رقم التشغيلة وبانتظار وصول المندوب للصيدلية',
+    descFr: 'Numéro de lot certifié. En attente de l’arrivée du coursier',
+    descSw: 'Kundi limethibitishwa. Inasubiri dereva kufika dukani',
   },
   {
     status: 'driver_assigned',
@@ -88,6 +103,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <UserCheck className="w-4 h-4" />,
     descEn: 'DAWA Express courier assigned to route',
     descAr: 'تم تعيين مندوب التوصيل وتحديد خط السير المباشر',
+    descFr: 'Livreur coursier DAWA Express assigné à l’itinéraire',
+    descSw: 'Dereva wa DAWA Express ameteuliwa kwa safari',
   },
   {
     status: 'picked_up',
@@ -96,6 +113,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <Bike className="w-4 h-4" />,
     descEn: 'Rider scanned package seal and departed pharmacy',
     descAr: 'استلم المندوب الشحنة من الصيدلية وبدأ التحرك',
+    descFr: 'Le coursier a scanné le scellé et a quitté l’officine',
+    descSw: 'Dereva ameskani muhuri na kuondoka dukani',
   },
   {
     status: 'out_for_delivery',
@@ -104,6 +123,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <MapPin className="w-4 h-4" />,
     descEn: 'Courier on final approach to patient delivery location',
     descAr: 'المندوب في طريقه إلى عنوانك، يرجى تجهيز رمز الاستلام',
+    descFr: 'Livreur en approche finale vers l’adresse de livraison',
+    descSw: 'Dereva yuko njiani kuelekea eneo lako la kupokelea',
   },
   {
     status: 'delivered',
@@ -112,6 +133,8 @@ export const ORDER_PIPELINE_STEPS: StepDefinition[] = [
     icon: <CheckCircle2 className="w-4 h-4" />,
     descEn: 'Package handed over with verified OTP PIN confirmation',
     descAr: 'تم تسليم الدواء وتأكيد الرمز بنجاح',
+    descFr: 'Colis remis en main propre avec validation du code PIN OTP',
+    descSw: 'Kifurushi kimekabidhiwa kwa uthibitisho wa nambari ya PIN',
   },
 ];
 
@@ -122,7 +145,6 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
-  // Map legacy / alternative statuses to index
   const getStatusIndex = (status: OrderStatus): number => {
     switch (status) {
       case 'order_received':
@@ -170,8 +192,15 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
 
   const nextStatus = getNextStatus();
 
+  const getStepDescription = (step: StepDefinition) => {
+    if (language === 'ar') return step.descAr;
+    if (language === 'fr') return step.descFr;
+    if (language === 'sw') return step.descSw;
+    return step.descEn;
+  };
+
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#D8E2DC] shadow-xs" id={`order-timeline-${order.id}`}>
+    <div className="bg-white rounded-3xl p-4 sm:p-7 border border-[#D8E2DC] shadow-xs" id={`order-timeline-${order.id}`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#D8E2DC]">
         <div>
@@ -190,11 +219,11 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
         {onAdvanceStatus && nextStatus && !isCancelled && (
           <button
             onClick={() => onAdvanceStatus(order.id, nextStatus)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#2D6A4F] border border-[#2D6A4F]/30 rounded-xl text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#2D6A4F] border border-[#2D6A4F]/30 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             id="simulate-next-step-btn"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#52B788]" />
-            <span>Simulate Step {currentIndex + 2} →</span>
+            <span>{translate('simulateNextStep', language)} ({currentIndex + 2}) →</span>
           </button>
         )}
       </div>
@@ -208,7 +237,7 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
               {order.status === 'rejected' ? t.status_rejected : t.status_cancelled}
             </p>
             <p className="text-[11px] mt-0.5 text-red-700">
-              {order.prescription?.pharmacistNotes || 'Please contact our clinical pharmacist team or doctor for clarification.'}
+              {order.prescription?.pharmacistNotes || (language === 'ar' ? 'يرجى مراجعة الطبيب أو الصيدلي المسؤول لتوضيح أي استفسارات طبية.' : 'Please contact our clinical pharmacist team or doctor for clarification.')}
             </p>
           </div>
         </div>
@@ -219,7 +248,6 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
         {ORDER_PIPELINE_STEPS.map((step, idx) => {
           const isDone = currentIndex > idx;
           const isCurrent = currentIndex === idx;
-          const isPending = currentIndex < idx;
 
           return (
             <div
@@ -257,24 +285,24 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
                   </h4>
                   {isCurrent && (
                     <span className="px-2 py-0.5 bg-[#2D6A4F] text-white text-[10px] font-black rounded-full uppercase tracking-wider shrink-0">
-                      Active
+                      {translate('activeBadge', language)}
                     </span>
                   )}
                   {isDone && (
                     <span className="text-[10px] font-bold text-[#52B788] shrink-0">
-                      Completed ✓
+                      {translate('completedBadge', language)}
                     </span>
                   )}
                 </div>
 
                 <p className="text-[11px] text-gray-600 mt-0.5 leading-snug">
-                  {language === 'ar' ? step.descAr : step.descEn}
+                  {getStepDescription(step)}
                 </p>
 
                 {/* Additional context based on active step */}
                 {isCurrent && step.status === 'prescription_under_review' && order.prescription && (
                   <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#D8E2DC] text-[11px]">
-                    <span className="font-bold text-[#1B4332]">Assigned Reviewer:</span>{' '}
+                    <span className="font-bold text-[#1B4332]">{translate('assignedReviewer', language)}</span>{' '}
                     <span className="text-gray-700">{order.prescription.verifiedByPharmacist || order.pharmacyName}</span>
                   </div>
                 )}
@@ -282,10 +310,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
                 {isCurrent && (step.status === 'out_for_delivery' || step.status === 'picked_up') && order.driverName && (
                   <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#D8E2DC] text-[11px] flex flex-wrap items-center justify-between gap-2">
                     <span className="font-bold text-[#1B4332]">
-                      Courier: {order.driverName} ({order.driverVehicle})
+                      {translate('courierInfo', language)} {order.driverName} ({order.driverVehicle})
                     </span>
                     <span className="text-[#2D6A4F] font-bold">
-                      ETA: ~{order.estimatedDeliveryMinutes || 15} mins
+                      {translate('etaInfo', language)} ~{order.estimatedDeliveryMinutes || 15} min
                     </span>
                   </div>
                 )}

@@ -1,11 +1,21 @@
-export type UserRole = 'customer' | 'pharmacy' | 'driver' | 'admin' | 'subscription' | 'website';
+export type UserRole = 
+  | 'customer' 
+  | 'pharmacy' 
+  | 'driver' 
+  | 'admin' 
+  | 'subscription' 
+  | 'website'
+  | 'super_admin'
+  | 'pharmacy_admin'
+  | 'system_admin';
 
-export type Language = 'en' | 'ar' | 'sw';
+export type Language = 'en' | 'ar' | 'fr' | 'sw';
 
 export interface CountryConfig {
   code: string;
   name: string;
   nameAr: string;
+  nameFr?: string;
   nameSw: string;
   flag: string;
   currency: string;
@@ -44,6 +54,7 @@ export interface Medicine {
   requiresColdChain?: boolean;
   descriptionEn: string;
   descriptionAr: string;
+  descriptionFr?: string;
   descriptionSw: string;
   manufacturer: string;
   stockCount: number;
@@ -228,6 +239,20 @@ export interface AdminCustomer {
   totalSpentUSD: number;
   activeSubscription: boolean;
   notes?: string;
+}
+
+export interface ChronicSubscription {
+  id: string;
+  patientName: string;
+  condition: string;
+  planName: string;
+  monthlyMedicines: { medicine: Medicine; quantity: number }[];
+  deliveryDayOfMonth: number;
+  nextDeliveryDate: string;
+  status: 'active' | 'paused' | 'cancelled';
+  pillReminders: { time: string; medicineName: string; dosage: string; period: 'morning' | 'afternoon' | 'evening' | 'night' }[];
+  autoRefillDaysBefore: number;
+  discountPercentage: number;
 }
 
 export type TicketCategory = 
@@ -434,21 +459,73 @@ export interface UserReferralStats {
   freeMonthsEarned: number;
 }
 
-export interface ChronicSubscription {
+export interface OrderStatusHistoryItem {
   id: string;
-  patientName: string;
-  condition: string;
-  planName: string;
-  monthlyMedicines: { medicine: Medicine; quantity: number }[];
-  deliveryDayOfMonth: number;
-  nextDeliveryDate: string;
-  status: 'active' | 'paused';
-  pillReminders: {
-    time: string;
-    medicineName: string;
-    dosage: string;
-    period: 'morning' | 'afternoon' | 'evening' | 'night';
-  }[];
-  autoRefillDaysBefore: number;
-  discountPercentage: number;
+  status: OrderStatus;
+  timestamp: string;
+  updatedByRole: UserRole;
+  updatedByName: string;
+  note?: string;
 }
+
+export interface PrescriptionAuditEntry {
+  id: string;
+  prescriptionId: string;
+  action: 'uploaded' | 'opened_for_review' | 'approved' | 'rejected' | 'clarification_requested' | 'dispensed';
+  actorName: string;
+  actorRole: UserRole;
+  pharmacistLicenseNumber?: string;
+  timestamp: string;
+  notes?: string;
+}
+
+export interface PlatformSettings {
+  subscriptionPriceUSD: number;
+  baseDeliveryFeeUSD: number;
+  freeDeliveryThresholdUSD: number;
+  coldChainMinTempCelsius: number;
+  coldChainMaxTempCelsius: number;
+  allowSandboxOtpInDev: boolean;
+  smsGatewayProvider: 'africas_talking' | 'twilio' | 'infobip' | 'local_aggregator';
+  paymentGatewayProvider: 'mpesa_direct' | 'mtn_momo_direct' | 'paystack' | 'flutterwave' | 'stripe';
+  supportedCountries: string[]; // ['KE', 'TZ', 'UG', 'RW', 'NG', 'EG', 'CD', 'CI', 'SN']
+  maintenanceMode: boolean;
+  autoRefillDaysBefore: number;
+}
+
+export interface DataPrivacyRequest {
+  id: string;
+  userId: string;
+  requestType: 'export_health_data' | 'delete_account_and_records';
+  status: 'pending' | 'processing' | 'completed' | 'rejected';
+  requestedAt: string;
+  completedAt?: string;
+  downloadUrl?: string;
+  reason?: string;
+}
+
+export interface TelemetryLog {
+  id: string;
+  orderId: string;
+  driverId: string;
+  timestamp: string;
+  temperatureCelsius: number;
+  isCompliant: boolean; // 2°C - 8°C
+  lat: number;
+  lng: number;
+  speedKmH: number;
+  batteryPercent: number;
+  isSimulated: boolean;
+}
+
+export interface LegalPolicyDoc {
+  id: 'terms' | 'privacy' | 'medical_disclaimer' | 'refund_policy' | 'cold_chain_policy' | 'pharmacy_agreement' | 'driver_agreement';
+  titleEn: string;
+  titleAr: string;
+  titleFr: string;
+  lastUpdated: string;
+  contentEn: string[];
+  contentAr: string[];
+  contentFr: string[];
+}
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrandLogo } from './BrandLogo';
 import { Language, CountryConfig } from '../types';
 import { TRANSLATIONS } from '../data/translations';
-import { ShieldCheck, Heart, MapPin, Phone, Mail, Award } from 'lucide-react';
+import { ShieldCheck, Award, Shield, FileText, AlertTriangle, ThermometerSnowflake, RefreshCcw, Lock } from 'lucide-react';
 import { COUNTRIES } from '../data/mockData';
 
 interface FooterProps {
@@ -10,6 +10,8 @@ interface FooterProps {
   selectedCountry: CountryConfig;
   onOpenSplash: () => void;
   onOpenUploadRx: () => void;
+  onOpenLegal?: () => void;
+  onOpenHealthTests?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -17,6 +19,8 @@ export const Footer: React.FC<FooterProps> = ({
   selectedCountry,
   onOpenSplash,
   onOpenUploadRx,
+  onOpenLegal,
+  onOpenHealthTests,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -39,12 +43,22 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onOpenSplash}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold text-xs border border-white/15 transition-colors cursor-pointer"
-          >
-            Read Brand Story & Pillars
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenHealthTests && (
+              <button
+                onClick={onOpenHealthTests}
+                className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold text-xs border border-white/15 transition-colors cursor-pointer"
+              >
+                {t.systemHealthTests}
+              </button>
+            )}
+            <button
+              onClick={onOpenSplash}
+              className="px-4 py-2 bg-[#52B788] hover:bg-[#74C69D] text-[#1B4332] rounded-2xl font-bold text-xs transition-colors cursor-pointer"
+            >
+              Read Brand Story
+            </button>
+          </div>
         </div>
       </div>
 
@@ -77,17 +91,40 @@ export const Footer: React.FC<FooterProps> = ({
           </ul>
         </div>
 
-        {/* Col 3: Safe Pharmacy Network */}
+        {/* Col 3: Compliance & Legal Policies */}
         <div>
           <h4 className="font-bold text-white uppercase text-xs tracking-wider mb-3">
-            Safety & Logistics Standards
+            {t.legalComplianceCenter}
           </h4>
-          <ul className="space-y-2 text-[11px] text-[#D8F3DC]/70">
-            <li>• 100% Board-Registered Pharmacist Review</li>
-            <li>• Insulated Cold-Chain Monitored (2-8°C)</li>
-            <li>• Digital Tamper-Evident QR Seals</li>
-            <li>• USSD / SMS Zero-Data Ordering</li>
-            <li>• Chronic Automated Refill Program</li>
+          <ul className="space-y-2 text-[11px] text-[#D8F3DC]/80">
+            {onOpenLegal && (
+              <>
+                <li>
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
+                    <Lock className="w-3.5 h-3.5 text-[#74C69D]" />
+                    <span>{t.legalPrivacy}</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
+                    <FileText className="w-3.5 h-3.5 text-[#74C69D]" />
+                    <span>{t.legalTerms}</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
+                    <ThermometerSnowflake className="w-3.5 h-3.5 text-[#74C69D]" />
+                    <span>{t.legalDelivery} (2°C - 8°C)</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
+                    <RefreshCcw className="w-3.5 h-3.5 text-[#74C69D]" />
+                    <span>{t.legalRefund}</span>
+                  </button>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 
@@ -106,8 +143,15 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Bottom copyright */}
-      <div className="border-t border-[#2D6A4F]/60 py-4 px-4 sm:px-6 text-center text-[10px] text-[#D8F3DC]/60">
-        © 2026 DAWA MED Inc. All rights reserved. Your Medicine. Delivered.
+      <div className="border-t border-[#2D6A4F]/60 py-4 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-[10px] text-[#D8F3DC]/60 max-w-7xl mx-auto">
+        <div>© 2026 DAWA MED Inc. All rights reserved. Your Medicine. Delivered.</div>
+        <div className="flex items-center gap-4">
+          {onOpenLegal && (
+            <button onClick={onOpenLegal} className="hover:text-white underline cursor-pointer">
+              Patient Data Rights & Privacy Tools
+            </button>
+          )}
+        </div>
       </div>
     </footer>
   );

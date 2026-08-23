@@ -149,7 +149,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Hero Copy & Actions */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-start">
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-[#D8F3DC]">
                 <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
@@ -650,7 +650,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
               >
                 <button
                   onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#1B4332] hover:bg-[#F8FAF9] transition-colors cursor-pointer"
+                  className="w-full p-4 sm:p-5 text-start flex items-center justify-between gap-4 font-bold text-sm text-[#1B4332] hover:bg-[#F8FAF9] transition-colors cursor-pointer"
                 >
                   <span>{isAr ? faq.qAr : faq.qEn}</span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180 text-[#2D6A4F]' : ''}`} />

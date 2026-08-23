@@ -56,6 +56,8 @@ import { InviteFriendsModal } from './components/InviteFriendsModal';
 import { PublicWebsite } from './components/PublicWebsite';
 import { QrVerificationModal } from './components/QrVerificationModal';
 import { OrderReviewModal } from './components/OrderReviewModal';
+import { LegalPagesModal } from './components/LegalPagesModal';
+import { SystemHealthTestsModal } from './components/SystemHealthTestsModal';
 import { Footer } from './components/Footer';
 
 export default function App() {
@@ -91,6 +93,8 @@ export default function App() {
   const [activeQrOrder, setActiveQrOrder] = useState<Order | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
   const [activeReviewOrder, setActiveReviewOrder] = useState<Order | null>(null);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState<boolean>(false);
+  const [isHealthTestsModalOpen, setIsHealthTestsModalOpen] = useState<boolean>(false);
 
   // RTL & Arabic typography support
   useEffect(() => {
@@ -602,6 +606,8 @@ export default function App() {
         onOpenSplash={() => setIsSplashOpen(true)}
         onOpenAuth={() => setIsAuthOpen(true)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
+        onOpenLegal={() => setIsLegalModalOpen(true)}
+        onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
         userProfile={userProfile}
         notifications={notifications}
         isLiteMode={isLiteMode}
@@ -866,12 +872,29 @@ export default function App() {
         />
       )}
 
+      {/* Regulatory, Compliance & Patient Data Privacy Center Modal */}
+      <LegalPagesModal
+        isOpen={isLegalModalOpen}
+        onClose={() => setIsLegalModalOpen(false)}
+        language={language}
+        user={userProfile}
+      />
+
+      {/* Automated Platform Architecture & Health Audit Modal */}
+      <SystemHealthTestsModal
+        isOpen={isHealthTestsModalOpen}
+        onClose={() => setIsHealthTestsModalOpen(false)}
+        language={language}
+      />
+
       {/* Global Footer with Brand Story & African Footprint */}
       <Footer
         language={language}
         selectedCountry={selectedCountry}
         onOpenSplash={() => setIsSplashOpen(true)}
         onOpenUploadRx={() => setIsUploadRxOpen(true)}
+        onOpenLegal={() => setIsLegalModalOpen(true)}
+        onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
       />
     </div>
   );

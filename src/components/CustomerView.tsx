@@ -5,13 +5,12 @@ import {
   Order, 
   Language, 
   CountryConfig, 
-  MedicineCategory, 
-  PrescriptionData,
-  OrderStatus,
-  OrderReview,
-  UserProfile
+  OrderStatus, 
+  OrderReview, 
+  UserProfile 
 } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { translate, formatCurrency } from '../utils/i18n';
 import { SAMPLE_PHARMACIES } from '../data/mockData';
 import { NearbyPharmacies } from './NearbyPharmacies';
 import { OrdersHub } from './OrdersHub';
@@ -30,24 +29,18 @@ import {
   Phone, 
   AlertCircle, 
   ArrowRight, 
-  Sparkles,
-  Zap,
-  PhoneCall,
-  QrCode,
-  Check,
-  Building2,
-  X,
-  MessageCircle,
-  Pill,
-  HeartPulse,
-  Sparkle,
-  Bandage,
-  Sparkles as CleanIcon,
-  Layers,
-  Info,
-  PackageCheck
+  MessageCircle, 
+  Pill, 
+  HeartPulse, 
+  Sparkle, 
+  Bandage, 
+  Sparkles as CleanIcon, 
+  Layers, 
+  Info, 
+  PackageCheck,
+  X
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import confetti from 'canvas-confetti';
 
 interface CustomerViewProps {
@@ -91,7 +84,6 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   language,
   selectedCountry,
   isLiteMode,
-  onToggleLiteMode,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
@@ -109,16 +101,18 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   const [paymentMethod, setPaymentMethod] = useState(selectedCountry.mobileMoneyProviders[0]);
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
-  const [orderSuccessId, setOrderSuccessId] = useState<string | null>(null);
 
   // WhatsApp Assistant Simulation state
   const [whatsappChat, setWhatsappChat] = useState([
-    { sender: 'bot', text: `Hello ${customerName}! Welcome to DAWA MED ${selectedCountry.name} Automated Health Assistant. Send medicine names, upload a prescription photo, or check your active order status here.` }
+    { 
+      sender: 'bot', 
+      text: language === 'ar' 
+        ? `مرحباً بك في مساعد DAWA MED الذكي لخدمة المرضى في ${selectedCountry.name}. يمكنك كتابة اسم الدواء أو رفع صورة الروشتة هنا للاستفسار والطلب المباشر.`
+        : `Hello! Welcome to DAWA MED ${selectedCountry.name} Automated Health Assistant. Send medicine names, upload a prescription photo, or check your active order status here.`
+    }
   ]);
   const [whatsappMsgInput, setWhatsappMsgInput] = useState('');
 
-  // Explicit Categories requested in Section 2:
-  // Medicines (All), Pain Relief, Vitamins, Chronic Care, First Aid, Personal Care, Other Categories
   const categoryFilters = [
     { id: 'all', label: t.allCategories, icon: <Layers className="w-4 h-4" /> },
     { id: 'pain_fever', label: t.catPain, icon: <HeartPulse className="w-4 h-4" /> },
@@ -139,14 +133,14 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
         med.genericName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         med.indications.some((ind) => ind.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchesCat = selectedCategory === 'all' || med.category === selectedCategory;
-      const matchesPharmacy = !selectedPharmacyId || med.availablePharmacyIds?.includes(selectedPharmacyId);
+      const matchesCategory = 
+        selectedCategory === 'all' || 
+        med.category === selectedCategory;
 
-      return matchesSearch && matchesCat && matchesPharmacy;
+      return matchesSearch && matchesCategory;
     });
-  }, [medicines, searchQuery, selectedCategory, selectedPharmacyId]);
+  }, [medicines, searchQuery, selectedCategory]);
 
-  // Cart Calculations
   const cartSubtotalUSD = cartItems.reduce(
     (acc, item) => acc + item.medicine.priceUSD * item.quantity,
     0
@@ -158,10 +152,6 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   const serviceFeeUSD = 0.50;
   const discountUSD = 0.00;
   const totalAmountUSD = cartSubtotalUSD + coldChainFeeUSD + deliveryFeeUSD + serviceFeeUSD - discountUSD;
-
-  const toLocal = (usdAmount: number) => {
-    return (usdAmount * selectedCountry.exchangeRateToUSD).toFixed(0);
-  };
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,7 +197,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
           id: `rx-auto-${Date.now()}`,
           patientName: customerName,
           patientPhone: customerPhone,
-          notes: 'Prescription uploaded during fast checkout.',
+          notes: 'Prescription uploaded during checkout.',
           uploadedAt: 'Today',
           isChronicCondition: false,
           isEncrypted: true,
@@ -218,7 +208,6 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
       onClearCart();
       setIsSubmittingOrder(false);
       setIsCartOpen(false);
-      setOrderSuccessId(newOrderId);
       setSelectedTab('orders');
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
     }, 700);
@@ -240,24 +229,24 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
     setWhatsappMsgInput('');
 
     setTimeout(() => {
-      let botResponse = `Thank you! DAWA MED assistant received: "${userText}". Our pharmacist at GoodLife Pharmacy is ready to verify your medication or prescription.`;
-      if (userText.toLowerCase().includes('status') || userText.toLowerCase().includes('order')) {
-        botResponse = `Your active order #DM-KE-8492 is currently Out for Delivery with Rider Kofi. ETA is 14 minutes. Handover PIN: 7492.`;
-      } else if (userText.toLowerCase().includes('amox') || userText.toLowerCase().includes('antibiotic')) {
-        botResponse = `Amoxicillin 625mg is available in stock (KSh 624). Prescription is required by PPB Kenya. Would you like to upload your prescription photo here?`;
-      }
+      let botResponse = language === 'ar'
+        ? `شكرًا لتواصلك! استلم صيدلي DAWA MED طلبك: "${userText}". الصيدلي المسؤول في الصيدلية المرخصة يقوم بالتحقق والمراجعة الفورية.`
+        : `Thank you! DAWA MED assistant received: "${userText}". Our pharmacist at GoodLife Pharmacy is ready to verify your medication or prescription.`;
+      
       setWhatsappChat((prev) => [...prev, { sender: 'bot', text: botResponse }]);
     }, 800);
   };
 
+  const isRtl = language === 'ar';
+
   return (
-    <div className="space-y-6" id="dawa-customer-main-view">
+    <div className="w-full space-y-6" id="dawa-customer-main-view">
       {/* Top Banner: Navigation between Medicine Catalog, My Orders, and WhatsApp Quick Bot */}
       <div className="bg-white rounded-3xl p-3 sm:p-4 border border-[#D8E2DC] shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full">
           <button
             onClick={() => setSelectedTab('catalog')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+            className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer ${
               selectedTab === 'catalog'
                 ? 'bg-[#2D6A4F] text-white shadow-xs'
                 : 'text-[#1B4332] hover:bg-[#F0F7F4]'
@@ -265,12 +254,12 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
             id="tab-btn-catalog"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>{t.catMedicines} & Catalog</span>
+            <span>{t.catMedicines}</span>
           </button>
 
           <button
             onClick={() => setSelectedTab('orders')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+            className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer ${
               selectedTab === 'orders'
                 ? 'bg-[#2D6A4F] text-white shadow-xs'
                 : 'text-[#1B4332] hover:bg-[#F0F7F4]'
@@ -288,7 +277,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
 
           <button
             onClick={() => setSelectedTab('whatsapp')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black transition-all ${
+            className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer ${
               selectedTab === 'whatsapp'
                 ? 'bg-[#25D366] text-white shadow-xs'
                 : 'text-[#1B4332] hover:bg-[#F0F7F4]'
@@ -315,7 +304,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
       {selectedTab === 'catalog' && (
         <div className="space-y-6">
           {/* Search & Location Bar */}
-          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#D8E2DC] shadow-xs space-y-4">
+          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#D8E2DC] shadow-xs space-y-4">
             <div className="flex flex-col md:flex-row items-center gap-3">
               {/* Search input */}
               <div className="relative flex-1 w-full">
@@ -343,7 +332,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
               {/* Upload Prescription direct button */}
               <button
                 onClick={onOpenUploadRx}
-                className="w-full md:w-auto px-5 py-3 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#2D6A4F] border border-[#74C69D] rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 shrink-0"
+                className="w-full md:w-auto px-5 py-3 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#2D6A4F] border border-[#74C69D] rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
                 id="search-upload-rx-pill-btn"
               >
                 <FileText className="w-4 h-4 text-[#2D6A4F]" />
@@ -355,7 +344,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
             <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#F8FAF9] border border-[#D8E2DC] text-[11px] text-[#1B4332]">
               <Info className="w-4 h-4 text-[#2D6A4F] shrink-0 mt-0.5" />
               <p className="leading-snug">
-                <strong className="text-[#2D6A4F]">Medical Notice: </strong>
+                <strong className="text-[#2D6A4F]">{language === 'ar' ? 'تنبيه طبي: ' : 'Medical Notice: '}</strong>
                 {t.noDiagnosisWarning} {t.licenseDisclaimer}
               </p>
             </div>
@@ -394,20 +383,20 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
 
           {/* Section: Medicine Catalog Grid */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
                 <h3 className="text-base font-black text-[#1B4332]">
                   {selectedCategory === 'all' ? t.allCategories : categoryFilters.find(c => c.id === selectedCategory)?.label}
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Showing {filteredMedicines.length} verified medicines in {selectedCountry.name}
+                  {translate('showingVerifiedMedicines', language)} {selectedCountry.name} ({filteredMedicines.length})
                 </p>
               </div>
 
               {cartItems.length > 0 && (
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#2D6A4F] hover:bg-[#1B4332] text-white rounded-2xl text-xs font-black shadow-md transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#2D6A4F] hover:bg-[#1B4332] text-white rounded-2xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
                   id="catalog-view-cart-btn"
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -417,26 +406,26 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
             </div>
 
             {filteredMedicines.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#D8E2DC] text-gray-400">
+              <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-[#D8E2DC] text-gray-400">
                 <Pill className="w-10 h-10 mx-auto mb-2 opacity-40 text-[#2D6A4F]" />
-                <p className="text-xs font-semibold">No medicines found matching your search criteria.</p>
+                <p className="text-xs font-semibold">{translate('noMedicinesFound', language)}</p>
                 <button
                   onClick={() => { setSearchQuery(''); setSelectedCategory('all'); setSelectedPharmacyId(null); }}
-                  className="mt-3 text-xs font-bold text-[#2D6A4F] underline"
+                  className="mt-3 text-xs font-bold text-[#2D6A4F] underline cursor-pointer"
                 >
-                  Reset filters
+                  {translate('resetFiltersBtn', language)}
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredMedicines.map((med) => {
                   const cartItem = cartItems.find((i) => i.medicine.id === med.id);
-                  const priceLocal = toLocal(med.priceUSD);
+                  const priceLocal = formatCurrency(med.priceUSD, selectedCountry, language);
 
                   return (
                     <div
                       key={med.id}
-                      className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs hover:border-[#74C69D] hover:shadow-md transition-all flex flex-col justify-between"
+                      className="bg-white rounded-3xl p-4 sm:p-5 border border-[#D8E2DC] shadow-xs hover:border-[#74C69D] hover:shadow-md transition-all flex flex-col justify-between"
                       id={`med-card-${med.id}`}
                     >
                       <div>
@@ -444,56 +433,62 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                         <div className="flex flex-wrap items-center justify-between gap-1 mb-2.5">
                           {med.requiresPrescription ? (
                             <span className="text-[10px] font-black bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                              <FileText className="w-3 h-3 text-amber-600" />
+                              <FileText className="w-3 h-3 text-amber-600 shrink-0" />
                               <span>{t.rxRequired}</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] font-black bg-green-50 text-green-800 border border-green-200 px-2 py-0.5 rounded-lg">
-                              {t.otcAvailable}
+                            <span className="text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>{t.otcAvailable}</span>
                             </span>
                           )}
 
                           {med.requiresColdChain && (
-                            <span className="text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                              <ThermometerSnowflake className="w-3 h-3 text-blue-600" />
-                              <span>2-8°C Cold-Chain</span>
+                            <span className="text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                              <ThermometerSnowflake className="w-3 h-3 text-blue-600 shrink-0" />
+                              <span>{translate('coldChainBadge', language)}</span>
                             </span>
                           )}
                         </div>
 
-                        {/* Medicine Title & Generic info */}
-                        <h4 className="text-xs sm:text-sm font-black text-[#1B4332] line-clamp-2 mb-1">
-                          {med.name}
-                        </h4>
-                        <p className="text-[11px] text-[#52B788] font-bold mb-1">
-                          {med.genericName}
-                        </p>
-
-                        {/* Dosage & Packaging */}
-                        <div className="text-[11px] text-gray-500 space-y-0.5 mb-3">
-                          <p><span className="font-semibold text-gray-700">Form:</span> {med.dosage} ({med.form})</p>
-                          <p><span className="font-semibold text-gray-700">Pack:</span> {med.packageSize}</p>
+                        {/* Medicine Image & Title */}
+                        <div className="flex items-start gap-3 mb-3">
+                          <img
+                            src={med.imageUrl}
+                            alt={med.name}
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-[#D8E2DC] shrink-0 bg-gray-50"
+                            loading="lazy"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs sm:text-sm font-black text-[#1B4332] truncate">
+                              {med.name}
+                            </h4>
+                            <p className="text-[11px] text-gray-500 italic truncate">
+                              {med.genericName}
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              {translate('formLabel', language)} {med.dosageForm} • {translate('packLabel', language)} {med.packageSize}
+                            </p>
+                          </div>
                         </div>
 
-                        {/* Description */}
-                        <p className="text-[11px] text-gray-600 line-clamp-2 leading-relaxed mb-3">
-                          {language === 'ar' ? med.descriptionAr : language === 'sw' ? med.descriptionSw : med.descriptionEn}
-                        </p>
+                        {/* Expiry and Safety verification */}
+                        <div className="bg-[#F8FAF9] p-2 rounded-xl text-[10px] text-gray-600 space-y-1 mb-3">
+                          <div className="flex items-center justify-between">
+                            <span>{t.batchNumber}: <strong className="text-[#1B4332]">{med.batchNumber}</strong></span>
+                            <span>{t.expiryDate}: <strong className="text-[#1B4332]">{med.expiryDate}</strong></span>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Pricing & Add to Cart */}
-                      <div className="pt-3 border-t border-[#D8E2DC]">
-                        <div className="flex items-baseline justify-between mb-3">
-                          <div>
-                            <span className="text-base sm:text-lg font-black text-[#1B4332]">
-                              {selectedCountry.currencySymbol} {priceLocal}
-                            </span>
-                            <span className="text-[10px] text-gray-400 ms-1">
-                              (${med.priceUSD.toFixed(2)})
-                            </span>
+                      {/* Price & Add to Cart Controls */}
+                      <div className="pt-2 border-t border-gray-100 mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm sm:text-base font-black text-[#1B4332]">
+                            {priceLocal}
                           </div>
-                          <span className="text-[10px] font-bold text-[#52B788]">
-                            ✓ {t.inStock}
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            {t.inStock}
                           </span>
                         </div>
 
@@ -502,7 +497,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                           <div className="flex items-center justify-between bg-[#F0F7F4] border border-[#74C69D] rounded-2xl p-1">
                             <button
                               onClick={() => onUpdateQuantity(med.id, -1)}
-                              className="w-8 h-8 rounded-xl bg-white text-[#1B4332] flex items-center justify-center font-bold hover:bg-gray-100 shadow-xs active:scale-95"
+                              className="w-8 h-8 rounded-xl bg-white text-[#1B4332] flex items-center justify-center font-bold hover:bg-gray-100 shadow-xs active:scale-95 cursor-pointer"
                               id={`qty-minus-${med.id}`}
                             >
                               <Minus className="w-3.5 h-3.5" />
@@ -512,7 +507,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                             </span>
                             <button
                               onClick={() => onUpdateQuantity(med.id, 1)}
-                              className="w-8 h-8 rounded-xl bg-[#2D6A4F] text-white flex items-center justify-center font-bold hover:bg-[#1B4332] shadow-xs active:scale-95"
+                              className="w-8 h-8 rounded-xl bg-[#2D6A4F] text-white flex items-center justify-center font-bold hover:bg-[#1B4332] shadow-xs active:scale-95 cursor-pointer"
                               id={`qty-plus-${med.id}`}
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -556,17 +551,17 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
 
       {/* WhatsApp Support Tab */}
       {selectedTab === 'whatsapp' && (
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#D8E2DC] shadow-xs max-w-2xl mx-auto" id="whatsapp-bot-container">
+        <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#D8E2DC] shadow-xs max-w-2xl mx-auto" id="whatsapp-bot-container">
           <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-xs shrink-0">
               <MessageCircle className="w-6 h-6" />
             </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-black text-[#1B4332]">
-                DAWA MED WhatsApp Ordering & Support
+            <div className="min-w-0">
+              <h3 className="text-sm sm:text-base font-black text-[#1B4332] truncate">
+                {translate('whatsappSupportTitle', language)}
               </h3>
-              <p className="text-xs text-gray-500">
-                Official verified channel: <span className="font-bold text-[#1B4332]">{selectedCountry.whatsappSupportNumber || '+254700000384'}</span>
+              <p className="text-xs text-gray-500 truncate">
+                {translate('officialVerifiedChannel', language)} <span className="font-bold text-[#1B4332]">{selectedCountry.whatsappSupportNumber || '+254700000384'}</span>
               </p>
             </div>
           </div>
@@ -579,7 +574,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                 className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed shadow-xs ${
+                  className={`max-w-[85%] sm:max-w-[80%] p-3 rounded-2xl text-xs leading-relaxed shadow-xs ${
                     msg.sender === 'user'
                       ? 'bg-[#DCF8C6] text-[#1B4332] rounded-tr-xs'
                       : 'bg-white text-gray-800 rounded-tl-xs'
@@ -597,16 +592,16 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
               type="text"
               value={whatsappMsgInput}
               onChange={(e) => setWhatsappMsgInput(e.target.value)}
-              placeholder="Type message or paste prescription notes..."
+              placeholder={translate('typeWhatsappPlaceholder', language)}
               className="flex-1 px-4 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-2xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#25D366] focus:outline-none"
               id="whatsapp-chat-input"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-2xl shadow-xs transition-colors"
+              className="px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-2xl shadow-xs transition-colors shrink-0 cursor-pointer"
               id="whatsapp-send-btn"
             >
-              Send
+              {translate('sendBtn', language)}
             </button>
           </form>
         </div>
@@ -616,27 +611,27 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs" id="cart-drawer-overlay">
           <motion.div
-            initial={{ opacity: 0, x: 300 }}
+            initial={{ opacity: 0, x: isRtl ? -300 : 300 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 300 }}
+            exit={{ opacity: 0, x: isRtl ? -300 : 300 }}
             className="bg-white w-full max-w-lg h-full overflow-y-auto shadow-2xl flex flex-col justify-between"
             id="cart-drawer-panel"
           >
             {/* Drawer Header */}
-            <div className="p-5 border-b border-[#D8E2DC] bg-[#1B4332] text-white flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-[#D8E2DC] bg-[#1B4332] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <ShoppingBag className="w-5 h-5 text-[#74C69D]" />
+                <ShoppingBag className="w-5 h-5 text-[#74C69D] shrink-0" />
                 <div>
                   <h3 className="text-sm sm:text-base font-black">{t.orderSummary}</h3>
                   <p className="text-[11px] text-[#D8F3DC]">
-                    {cartItems.length} {cartItems.length === 1 ? 'medication' : 'medications'} selected
+                    {cartItems.length} {translate('medicationsSelected', language)}
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
                 id="cart-drawer-close-btn"
               >
                 <X className="w-5 h-5" />
@@ -644,11 +639,12 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
             </div>
 
             {/* Drawer Items & Form */}
-            <div className="p-5 space-y-6 flex-1 overflow-y-auto">
+            <div className="p-4 sm:p-5 space-y-6 flex-1 overflow-y-auto">
               {cartItems.length === 0 ? (
                 <div className="py-16 text-center text-gray-400">
                   <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-40 text-[#2D6A4F]" />
-                  <p className="text-xs font-bold">Your cart is empty.</p>
+                  <p className="text-xs font-bold">{translate('emptyCartTitle', language)}</p>
+                  <p className="text-[11px] text-gray-400 mt-1">{translate('emptyCartSubtitle', language)}</p>
                 </div>
               ) : (
                 <>
@@ -661,29 +657,29 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                             {item.medicine.name}
                           </h4>
                           <p className="text-[11px] text-gray-500">
-                            {item.medicine.packageSize} • {selectedCountry.currencySymbol} {toLocal(item.medicine.priceUSD)}
+                            {item.medicine.packageSize} • {formatCurrency(item.medicine.priceUSD, selectedCountry, language)}
                           </p>
                           {item.medicine.requiresPrescription && (
                             <span className="inline-block text-[9px] font-black bg-amber-50 text-amber-800 px-1.5 py-0.2 rounded-md mt-0.5">
-                              Rx Required
+                              {translate('rxRequiredBadge', language)}
                             </span>
                           )}
                         </div>
 
                         {/* Quantity Stepper */}
-                        <div className="flex items-center gap-1.5 bg-[#F0F7F4] border border-[#D8E2DC] rounded-xl p-1">
+                        <div className="flex items-center gap-1.5 bg-[#F0F7F4] border border-[#D8E2DC] rounded-xl p-1 shrink-0">
                           <button
                             onClick={() => onUpdateQuantity(item.medicine.id, -1)}
-                            className="w-6 h-6 rounded-lg bg-white text-[#1B4332] flex items-center justify-center font-bold text-xs hover:bg-gray-100 shadow-xs"
+                            className="w-6 h-6 rounded-lg bg-white text-[#1B4332] flex items-center justify-center font-bold text-xs hover:bg-gray-100 shadow-xs cursor-pointer"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="text-xs font-black text-[#1B4332] px-1">
+                          <span className="text-xs font-black text-[#1B4332] w-4 text-center">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => onUpdateQuantity(item.medicine.id, 1)}
-                            className="w-6 h-6 rounded-lg bg-[#2D6A4F] text-white flex items-center justify-center font-bold text-xs hover:bg-[#1B4332] shadow-xs"
+                            className="w-6 h-6 rounded-lg bg-[#2D6A4F] text-white flex items-center justify-center font-bold text-xs hover:bg-[#1B4332] shadow-xs cursor-pointer"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -692,54 +688,75 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                     ))}
                   </div>
 
-                  {/* Checkout Information Form */}
-                  <form id="checkout-form" onSubmit={handleCheckout} className="space-y-4 pt-4 border-t border-[#D8E2DC]">
+                  {/* Pricing Breakdown */}
+                  <div className="bg-[#F8FAF9] p-4 rounded-2xl border border-[#D8E2DC] space-y-2 text-xs">
+                    <div className="flex justify-between text-gray-600">
+                      <span>{t.medicineSubtotal}</span>
+                      <span className="font-semibold text-[#1B4332]">{formatCurrency(cartSubtotalUSD, selectedCountry, language)}</span>
+                    </div>
+
+                    {hasColdChain && (
+                      <div className="flex justify-between text-blue-700 bg-blue-50/70 p-1.5 rounded-lg">
+                        <span className="flex items-center gap-1">
+                          <ThermometerSnowflake className="w-3.5 h-3.5" />
+                          {t.coldChainFee}
+                        </span>
+                        <span className="font-bold">{formatCurrency(coldChainFeeUSD, selectedCountry, language)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-gray-600">
+                      <span>{t.deliveryFee}</span>
+                      <span className="font-semibold text-[#1B4332]">{formatCurrency(deliveryFeeUSD, selectedCountry, language)}</span>
+                    </div>
+
+                    <div className="flex justify-between text-gray-600">
+                      <span>{t.serviceFee}</span>
+                      <span className="font-semibold text-[#1B4332]">{formatCurrency(serviceFeeUSD, selectedCountry, language)}</span>
+                    </div>
+
+                    <div className="border-t border-[#D8E2DC] pt-2 flex justify-between text-sm font-black text-[#1B4332]">
+                      <span>{t.totalPayable}</span>
+                      <span className="text-base text-[#2D6A4F]">{formatCurrency(totalAmountUSD, selectedCountry, language)}</span>
+                    </div>
+                  </div>
+
+                  {/* Checkout Form */}
+                  <form onSubmit={handleCheckout} className="space-y-4">
                     <h4 className="text-xs font-black text-[#1B4332] uppercase tracking-wider">
                       {t.deliveryLocation}
                     </h4>
 
-                    <div>
-                      <label className="block text-xs font-bold text-[#1B4332] mb-1">
-                        {t.patientFullName}
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-[#1B4332] mb-1">
-                          {t.patientPhoneLabel}
-                        </label>
-                        <input
-                          type="tel"
-                          required
-                          value={customerPhone}
-                          onChange={(e) => setCustomerPhone(e.target.value)}
-                          className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#1B4332] mb-1">
-                          {t.cityArea}
+                        <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                          {t.patientFullName}
                         </label>
                         <input
                           type="text"
                           required
-                          value={deliveryCity}
-                          onChange={(e) => setDeliveryCity(e.target.value)}
-                          className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                          {t.patientPhoneLabel}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                          className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                      <label className="block text-[11px] font-bold text-gray-700 mb-1">
                         {t.streetAddress}
                       </label>
                       <input
@@ -747,104 +764,59 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                         required
                         value={deliveryAddress}
                         onChange={(e) => setDeliveryAddress(e.target.value)}
-                        placeholder="Street, Landmark, Apartment number"
-                        className="w-full px-3.5 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                        className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
                       />
                     </div>
 
-                    {/* Payment Method Selector */}
+                    {/* Payment selection */}
                     <div>
-                      <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                      <label className="block text-[11px] font-bold text-gray-700 mb-1">
                         {t.selectPayment}
                       </label>
                       <select
                         value={paymentMethod}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-bold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                        className="w-full px-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
                       >
-                        {selectedCountry.mobileMoneyProviders.map((p) => (
-                          <option key={p} value={p}>{p}</option>
+                        {selectedCountry.mobileMoneyProviders.map((prov) => (
+                          <option key={prov} value={prov}>{prov}</option>
                         ))}
+                        <option value="Cash on Delivery">{t.cashOnDelivery}</option>
+                        <option value="Credit / Debit Card">{t.bankCard}</option>
                       </select>
                     </div>
 
-                    {/* WhatsApp notification toggle */}
-                    <div className="flex items-center gap-2 p-3 bg-[#F0F7F4] border border-[#D8E2DC] rounded-2xl">
+                    {/* WhatsApp Notification Checkbox */}
+                    <label className="flex items-start gap-2 text-[11px] text-gray-600 cursor-pointer pt-1">
                       <input
                         type="checkbox"
-                        id="whatsapp-updates-opt"
                         checked={whatsappUpdates}
                         onChange={(e) => setWhatsappUpdates(e.target.checked)}
-                        className="rounded border-[#D8E2DC] text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                        className="mt-0.5 rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
                       />
-                      <label htmlFor="whatsapp-updates-opt" className="text-[11px] font-bold text-[#1B4332] cursor-pointer">
-                        {t.whatsappNotificationOpt}
-                      </label>
-                    </div>
+                      <span>{t.whatsappNotificationOpt}</span>
+                    </label>
 
-                    {/* Cost Breakdown */}
-                    <div className="bg-[#F8FAF9] p-4 rounded-2xl border border-[#D8E2DC] space-y-2 text-xs">
-                      <div className="flex justify-between text-gray-600">
-                        <span>{t.medicineSubtotal}</span>
-                        <span className="font-bold">{selectedCountry.currencySymbol} {toLocal(cartSubtotalUSD)}</span>
-                      </div>
-
-                      {hasColdChain && (
-                        <div className="flex justify-between text-blue-700 font-semibold">
-                          <span className="flex items-center gap-1">
-                            <ThermometerSnowflake className="w-3 h-3" />
-                            <span>{t.coldChainFee}</span>
-                          </span>
-                          <span>{selectedCountry.currencySymbol} {toLocal(coldChainFeeUSD)}</span>
-                        </div>
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isSubmittingOrder}
+                      className="w-full py-3.5 px-4 bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-black rounded-2xl shadow-lg shadow-[#2D6A4F]/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                      id="checkout-submit-btn"
+                    >
+                      {isSubmittingOrder ? (
+                        <span>{translate('connectingPharmacy', language)}</span>
+                      ) : (
+                        <>
+                          <Truck className="w-4 h-4" />
+                          <span>{t.placeOrderBtn} ({formatCurrency(totalAmountUSD, selectedCountry, language)})</span>
+                        </>
                       )}
-
-                      <div className="flex justify-between text-gray-600">
-                        <span>{t.deliveryFee}</span>
-                        <span className="font-bold">{selectedCountry.currencySymbol} {toLocal(deliveryFeeUSD)}</span>
-                      </div>
-
-                      <div className="flex justify-between text-gray-600">
-                        <span>{t.serviceFee}</span>
-                        <span className="font-bold">{selectedCountry.currencySymbol} {toLocal(serviceFeeUSD)}</span>
-                      </div>
-
-                      <div className="pt-2 border-t border-[#D8E2DC] flex justify-between text-sm font-black text-[#1B4332]">
-                        <span>{t.totalPayable}</span>
-                        <span className="text-base text-[#2D6A4F]">
-                          {selectedCountry.currencySymbol} {toLocal(totalAmountUSD)}
-                        </span>
-                      </div>
-                    </div>
+                    </button>
                   </form>
                 </>
               )}
             </div>
-
-            {/* Drawer Footer Actions */}
-            {cartItems.length > 0 && (
-              <div className="p-5 border-t border-[#D8E2DC] bg-[#F8FAF9]">
-                <button
-                  type="submit"
-                  form="checkout-form"
-                  disabled={isSubmittingOrder}
-                  className="w-full py-3.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-black rounded-2xl text-xs sm:text-sm transition-all shadow-md shadow-[#2D6A4F]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  id="cart-submit-order-btn"
-                >
-                  {isSubmittingOrder ? (
-                    <>
-                      <Clock className="w-4 h-4 animate-spin text-[#74C69D]" />
-                      <span>Connecting to Licensed Pharmacy...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-[#74C69D]" />
-                      <span>{t.placeOrderBtn} ({selectedCountry.currencySymbol} {toLocal(totalAmountUSD)})</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
           </motion.div>
         </div>
       )}
