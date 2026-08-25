@@ -33,6 +33,7 @@ import {
   SAMPLE_MEDICINES
 } from '../data/mockData';
 import { TRANSLATIONS } from '../data/translations';
+import { translate } from '../utils/i18n';
 import { MedicineApprovalManager } from './MedicineApprovalManager';
 import { PharmacyApprovalManager } from './PharmacyApprovalManager';
 import { RbacUserManager } from './RbacUserManager';
@@ -366,13 +367,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-xs font-bold border border-white/15 mb-2">
             <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
-            <span>Pan-African Operations & Ministry of Health Compliance</span>
+            <span>{t.panAfricanCompliance || translate('panAfricanCompliance', language)}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white">
-            DAWA MED Administration & Regulatory Command
+            {t.adminCommandTitle || translate('adminCommandTitle', language)}
           </h2>
           <p className="text-xs text-[#D8F3DC]/80 mt-0.5">
-            Active Market: <strong className="text-white">{selectedCountry.flag} {selectedCountry.name}</strong> • Regulatory Body: {selectedCountry.regulatoryBody}
+            {t.activeMarketLabel || translate('activeMarketLabel', language)} <strong className="text-white">{selectedCountry.flag} {selectedCountry.name}</strong> • {t.regulatoryBodyLabel || translate('regulatoryBodyLabel', language)} {selectedCountry.regulatoryBody}
           </p>
         </div>
 
@@ -405,7 +406,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
-          <span>Medicine Approvals ({medicinesList.filter((m) => m.approvalStatus === 'pending_approval' || m.approvalStatus === 'under_review').length} Pending)</span>
+          <span>{t.medicineApprovalsTab || translate('medicineApprovalsTab', language)} ({medicinesList.filter((m) => m.approvalStatus === 'pending_approval' || m.approvalStatus === 'under_review').length} {language === 'ar' ? 'معلق' : 'Pending'})</span>
           {medicinesList.some((m) => m.approvalStatus === 'pending_approval') && (
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
           )}
@@ -418,7 +419,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Building2 className="w-4 h-4" />
-          <span>Pharmacy Licensure & Approvals</span>
+          <span>{t.pharmacyLicensureTab || translate('pharmacyLicensureTab', language)}</span>
           {pharmacies.some((p) => p.approvalStatus === 'pending' || p.approvalStatus === 'under_review') && (
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
           )}
@@ -431,7 +432,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Key className="w-4 h-4 text-[#52B788]" />
-          <span>Roles & RBAC Access</span>
+          <span>{t.rolesRbacTab || translate('rolesRbacTab', language)}</span>
         </button>
 
         <button
@@ -441,7 +442,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <TrendingUp className="w-4 h-4" />
-          <span>KPIs & Analytics</span>
+          <span>{t.kpisAnalyticsTab || translate('kpisAnalyticsTab', language)}</span>
         </button>
 
         <button
@@ -451,7 +452,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Building2 className="w-4 h-4" />
-          <span>Pharmacies ({pharmacies.length})</span>
+          <span>{t.pharmaciesTab || translate('pharmaciesTab', language)} ({pharmacies.length})</span>
           {pharmacies.some((p) => p.verificationStatus === 'pending_verification') && (
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
           )}
@@ -464,7 +465,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Bike className="w-4 h-4" />
-          <span>Couriers & Fleet ({drivers.length})</span>
+          <span>{t.couriersFleetTab || translate('couriersFleetTab', language)} ({drivers.length})</span>
         </button>
 
         <button
@@ -474,7 +475,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Patients ({customers.length})</span>
+          <span>{t.patientsUsersTab || translate('patientsUsersTab', language)} ({customers.length})</span>
         </button>
 
         <button
@@ -484,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Live Orders ({orders.length})</span>
+          <span>{t.liveOrdersTab || translate('liveOrdersTab', language)} ({orders.length})</span>
         </button>
 
         <button
@@ -494,7 +495,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <MapPin className="w-4 h-4" />
-          <span>Delivery Zones ({zones.length})</span>
+          <span>{t.deliveryZonesTab || translate('deliveryZonesTab', language)} ({zones.length})</span>
         </button>
 
         <button
@@ -504,7 +505,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Tag className="w-4 h-4" />
-          <span>Banners & Marketing</span>
+          <span>{t.marketingBannersTab || translate('marketingBannersTab', language)}</span>
         </button>
 
         <button
@@ -514,7 +515,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Headphones className="w-4 h-4" />
-          <span>Support & Tickets</span>
+          <span>{t.supportDeskTab || translate('supportDeskTab', language)}</span>
           {tickets.filter((t) => t.status === 'open').length > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E63946] text-white font-bold">
               {tickets.filter((t) => t.status === 'open').length}
@@ -529,7 +530,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>DAWA Subscriptions ($5/mo) ({subscribers.length})</span>
+          <span>{t.subscriptionsTab || translate('subscriptionsTab', language)} ({subscribers.length})</span>
           {subscribers.some((s) => s.status === 'payment_failed') && (
             <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
           )}
@@ -542,7 +543,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Mail className="w-4 h-4 text-[#74C69D]" />
-          <span>{language === 'ar' ? 'إعدادات البريد و SMTP' : 'Email & SMTP Settings'}</span>
+          <span>{t.emailSmtpTab || translate('emailSmtpTab', language)}</span>
         </button>
 
         <button
@@ -552,7 +553,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <Lock className="w-4 h-4" />
-          <span>Security Audit Trail</span>
+          <span>{t.securityAuditTrailTab || translate('securityAuditTrailTab', language)}</span>
         </button>
       </div>
 

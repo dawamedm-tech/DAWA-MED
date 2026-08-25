@@ -87,22 +87,22 @@ export const Header: React.FC<HeaderProps> = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const roleNavItems: { id: UserRole; label: string; icon: React.ReactNode }[] = [
-    { id: 'website', label: t.roleWebsite || 'Website', icon: <Globe className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'customer', label: t.roleCustomer || 'Customer', icon: <User className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'pharmacy', label: t.rolePharmacy || 'Pharmacy', icon: <Building2 className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'driver', label: t.roleDriver || 'Driver', icon: <Bike className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'subscription', label: t.roleSubscription || 'Refill', icon: <CalendarCheck className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'support', label: language === 'ar' ? 'الدعم الفني' : language === 'fr' ? 'Support Desk' : 'Support Desk', icon: <Headphones className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'admin', label: t.roleAdmin || 'Admin', icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'website', label: t.roleWebsite || translate('roleWebsite', language), icon: <Globe className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'customer', label: t.roleCustomer || translate('roleCustomer', language), icon: <User className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'pharmacy', label: t.rolePharmacy || translate('rolePharmacy', language), icon: <Building2 className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'driver', label: t.roleDriver || translate('roleDriver', language), icon: <Bike className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'subscription', label: t.roleSubscription || translate('roleSubscription', language), icon: <CalendarCheck className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'support', label: t.roleSupport || translate('roleSupport', language), icon: <Headphones className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'admin', label: t.roleAdmin || translate('roleAdmin', language), icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
   ];
 
   const getRoleLabel = (role: UserRole) => {
     switch (role) {
-      case 'customer': return t.roleCustomer || 'Customer';
-      case 'pharmacy': return t.rolePharmacy || 'Pharmacy';
-      case 'driver': return t.roleDriver || 'Driver';
-      case 'admin': return t.roleAdmin || 'Admin';
-      case 'super_admin': return 'Super Admin';
+      case 'customer': return t.roleCustomer || translate('roleCustomer', language);
+      case 'pharmacy': return t.rolePharmacy || translate('rolePharmacy', language);
+      case 'driver': return t.roleDriver || translate('roleDriver', language);
+      case 'admin': return t.roleAdmin || translate('roleAdmin', language);
+      case 'super_admin': return t.superAdmin || translate('superAdmin', language);
       default: return role;
     }
   };
@@ -299,7 +299,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-full text-start px-3.5 py-2 text-xs font-semibold text-[#1B4332] hover:bg-[#F0F7F4] flex items-center gap-2 cursor-pointer"
                     >
                       <User className="w-3.5 h-3.5 text-[#2D6A4F]" />
-                      <span>{language === 'ar' ? 'إدارة الحساب والأدوار' : 'Manage Account & Roles'}</span>
+                      <span>{t.manageAccountAndRoles || translate('manageAccountAndRoles', language)}</span>
                     </button>
                   )}
 

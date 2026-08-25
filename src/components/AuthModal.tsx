@@ -529,17 +529,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'admin' ? (
               <>
                 <KeyRound className="w-4 h-4 text-[#D8F3DC]" />
-                <span className="text-[#D8F3DC] font-black">2FA Clinical Security Portal</span>
+                <span className="text-[#D8F3DC] font-black">{t.twoFactorSecurityPortal || translate('twoFactorSecurityPortal', language)}</span>
               </>
             ) : mode === 'pharmacy_register' ? (
               <>
                 <Building2 className="w-4 h-4 text-[#74C69D]" />
-                <span>MOH Licensed Pharmacy Gate</span>
+                <span>{t.mohLicensedPharmacyGate || translate('mohLicensedPharmacyGate', language)}</span>
               </>
             ) : (
               <>
                 <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
-                <span>DAWA MED Unified Health Access</span>
+                <span>{t.dawaUnifiedHealthAccess || translate('dawaUnifiedHealthAccess', language)}</span>
               </>
             )}
           </div>
@@ -556,8 +556,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'admin' 
               ? (translate('adminLoginDesc', language) || 'Restricted administrative access with 2FA encryption.')
               : mode === 'pharmacy_register'
-              ? 'Join Africa’s premier verified pharmacy dispensing network.'
-              : 'Safe, cold-chain medication access across Africa.'}
+              ? (translate('pharmacyPendingNotice', language) || 'Join Africa’s premier verified pharmacy dispensing network.')
+              : (translate('subTagline', language) || 'Safe, cold-chain medication access across Africa.')}
           </p>
 
           {/* Mode Switch Tabs */}
@@ -587,7 +587,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               }`}
               id="auth-tab-pharmacy"
             >
-              {language === 'ar' ? 'صيدلية' : language === 'fr' ? 'Pharmacie' : 'Pharmacy'}
+              {t.rolePharmacy || translate('rolePharmacy', language)}
             </button>
             <button
               onClick={() => { setMode('admin'); setIs2FAStage(false); setErrorMsg(''); }}
@@ -596,7 +596,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               }`}
               id="auth-tab-admin"
             >
-              {language === 'ar' ? 'الإدارة' : 'Admin'}
+              {t.roleAdmin || translate('roleAdmin', language)}
             </button>
           </div>
         </div>
@@ -627,7 +627,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => setOtpCode(sandboxCode)}
                 className="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 rounded-lg font-bold text-[11px] cursor-pointer"
               >
-                Auto Fill
+                {t.autoFillSandbox || translate('autoFillSandbox', language)}
               </button>
             </div>
           )}
@@ -646,7 +646,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     authMethod === 'password' ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-[#1B4332] hover:bg-[#E8F5E9]'
                   }`}
                 >
-                  {translate('password', language) || 'Password Login'}
+                  {t.passwordLogin || translate('passwordLogin', language)}
                 </button>
                 <button
                   type="button"
@@ -655,7 +655,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     authMethod === 'otp' ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-[#1B4332] hover:bg-[#E8F5E9]'
                   }`}
                 >
-                  {language === 'ar' ? 'رمز SMS / واتساب' : 'SMS / OTP'}
+                  {t.sendOtpSms || translate('sendOtpSms', language)}
                 </button>
               </div>
 
@@ -1301,28 +1301,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => handleQuickDemoSwitch('customer')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
               >
-                👤 Customer
+                👤 {t.roleCustomer || translate('roleCustomer', language)}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('pharmacy')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
               >
-                🏥 Pharmacy
+                🏥 {t.rolePharmacy || translate('rolePharmacy', language)}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('driver')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
               >
-                🛵 Driver
+                🛵 {t.roleDriver || translate('roleDriver', language)}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('admin')}
                 className="py-1.5 px-2 bg-[#1B4332] hover:bg-[#081C15] text-white rounded-xl text-center transition-colors cursor-pointer"
               >
-                🛡️ Admin Gate
+                🛡️ {t.roleAdmin || translate('roleAdmin', language)}
               </button>
             </div>
           </div>

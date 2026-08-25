@@ -187,6 +187,21 @@ export const DEFAULT_USERS: AuthUser[] = [
     lastLoginAt: new Date().toISOString()
   },
   {
+    id: 'usr-driver-1',
+    name: 'Samuel Kiprop',
+    phone: '+254 722 888 999',
+    email: 'driver.samuel@dawamed.com',
+    role: 'driver',
+    permissions: ROLE_PERMISSIONS.driver,
+    status: 'active',
+    isVerified: true,
+    preferredLanguage: 'sw',
+    countryCode: 'KE',
+    city: 'Nairobi',
+    streetAddress: 'DAWA Logistics Hub, Westlands',
+    lastLoginAt: new Date().toISOString()
+  },
+  {
     id: 'usr-pharmacy-approved',
     name: 'Dr. Sarah Nabatanzi',
     phone: '+256 700 112 233',
