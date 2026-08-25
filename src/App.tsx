@@ -48,7 +48,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { SplashScreen } from './components/SplashScreen';
 import { PrescriptionUploadModal } from './components/PrescriptionUploadModal';
 import { ReceiptModal } from './components/ReceiptModal';
-import { AuthModal } from './components/AuthModal';
+import { AuthModal, AuthMode } from './components/AuthModal';
 import { NotificationsModal } from './components/NotificationsModal';
 import { LiveReminderBanner } from './components/LiveReminderBanner';
 import { DawaMonthlySubscribeModal } from './components/DawaMonthlySubscribeModal';
@@ -84,6 +84,7 @@ function AppInner() {
   const [isSplashOpen, setIsSplashOpen] = useState<boolean>(false);
   const [isUploadRxOpen, setIsUploadRxOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
   const [isMonthlySubscribeOpen, setIsMonthlySubscribeOpen] = useState<boolean>(false);
   const [isAddMedicineOpen, setIsAddMedicineOpen] = useState<boolean>(false);
@@ -582,6 +583,28 @@ function AppInner() {
     setNotifications((prev) => [notif, ...prev]);
   };
 
+  // Open Auth Modal with specific mode (login, register, admin, pharmacy)
+  const handleOpenAuth = (mode: AuthMode = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthOpen(true);
+  };
+
+  // Sign out
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      // Ignore network errors on logout
+    }
+    localStorage.removeItem('dawa_auth_token');
+    localStorage.removeItem('dawa_user_id');
+    localStorage.removeItem('dawa_user_role');
+    setUserProfile((prev) => ({
+      ...prev,
+      isRegistered: false,
+    }));
+  };
+
   // Find active reminder for top banner (first active reminder)
   const activeReminderForBanner = medicineReminders.find((r) => r.isOngoing && r.remainingQuantity > 0) || null;
 
@@ -607,7 +630,8 @@ function AppInner() {
         onOpenCart={() => setCurrentRole('customer')}
         onOpenUploadRx={() => setIsUploadRxOpen(true)}
         onOpenSplash={() => setIsSplashOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={(mode) => handleOpenAuth(mode || 'login')}
+        onLogout={handleLogout}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         onOpenLegal={() => setIsLegalModalOpen(true)}
         onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
@@ -789,14 +813,17 @@ function AppInner() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
+        initialMode={authModalMode}
         onSaveProfile={(profile) => {
           setUserProfile(profile);
           setIsAuthOpen(false);
         }}
+        onLogout={handleLogout}
         userProfile={userProfile}
         currentProfile={userProfile}
         language={language}
         selectedCountry={selectedCountry}
+        onSwitchRole={(role) => setCurrentRole(role)}
       />
 
       {/* Notifications Drawer Modal */}

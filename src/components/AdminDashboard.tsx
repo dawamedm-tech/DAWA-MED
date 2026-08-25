@@ -36,6 +36,7 @@ import { TRANSLATIONS } from '../data/translations';
 import { MedicineApprovalManager } from './MedicineApprovalManager';
 import { PharmacyApprovalManager } from './PharmacyApprovalManager';
 import { RbacUserManager } from './RbacUserManager';
+import { EmailSettingsManager } from './EmailSettingsManager';
 import { 
   ShieldCheck, 
   Building2, 
@@ -74,7 +75,8 @@ import {
   CreditCard,
   Gift,
   RefreshCw,
-  Key
+  Key,
+  Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -105,7 +107,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<
-    'medicine_approvals' | 'pharmacy_approvals' | 'rbac_users' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
+    'medicine_approvals' | 'pharmacy_approvals' | 'rbac_users' | 'email_settings' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
   >('medicine_approvals');
 
   // State collections
@@ -534,6 +536,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('email_settings')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'email_settings' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <Mail className="w-4 h-4 text-[#74C69D]" />
+          <span>{language === 'ar' ? 'إعدادات البريد و SMTP' : 'Email & SMTP Settings'}</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('audit')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
             activeTab === 'audit' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
@@ -543,6 +555,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <span>Security Audit Trail</span>
         </button>
       </div>
+
+      {/* EMAIL SETTINGS TAB */}
+      {activeTab === 'email_settings' && (
+        <EmailSettingsManager
+          language={language}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* MEDICINE APPROVALS TAB */}
       {activeTab === 'medicine_approvals' && (

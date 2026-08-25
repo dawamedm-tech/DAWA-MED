@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrandLogo } from './BrandLogo';
 import { 
   UserRole, 
@@ -25,8 +25,16 @@ import {
   Bell,
   MapPin,
   Globe,
-  Headphones
+  Headphones,
+  LogIn,
+  UserPlus,
+  LogOut,
+  ChevronDown,
+  KeyRound,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
+import { AuthMode } from './AuthModal';
 
 interface HeaderProps {
   currentRole: UserRole;
@@ -39,7 +47,8 @@ interface HeaderProps {
   onOpenCart: () => void;
   onOpenUploadRx: () => void;
   onOpenSplash: () => void;
-  onOpenAuth?: () => void;
+  onOpenAuth?: (mode?: AuthMode) => void;
+  onLogout?: () => void;
   onOpenNotifications?: () => void;
   onOpenLegal?: () => void;
   onOpenHealthTests?: () => void;
@@ -61,6 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
   onOpenSplash,
   onOpenAuth,
+  onLogout,
   onOpenNotifications,
   onOpenLegal,
   onOpenHealthTests,
@@ -71,8 +81,10 @@ export const Header: React.FC<HeaderProps> = ({
   activeOrderCount,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+  const isRtl = language === 'ar';
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const unreadNotifCount = notifications.filter((n) => !n.read).length;
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const roleNavItems: { id: UserRole; label: string; icon: React.ReactNode }[] = [
     { id: 'website', label: t.roleWebsite || 'Website', icon: <Globe className="w-3.5 h-3.5 shrink-0" /> },
@@ -84,9 +96,24 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'admin', label: t.roleAdmin || 'Admin', icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
   ];
 
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case 'customer': return t.roleCustomer || 'Customer';
+      case 'pharmacy': return t.rolePharmacy || 'Pharmacy';
+      case 'driver': return t.roleDriver || 'Driver';
+      case 'admin': return t.roleAdmin || 'Admin';
+      case 'super_admin': return 'Super Admin';
+      default: return role;
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-white border-b border-[#D8E2DC] shadow-xs" id="dawa-main-header">
-      {/* Top Regulatory Notice & Low Bandwidth Status Bar */}
+    <header 
+      className="sticky top-0 z-40 w-full bg-white border-b border-[#D8E2DC] shadow-xs" 
+      id="dawa-main-header"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
+      {/* Top Regulatory Notice & Status Bar */}
       <div className="bg-[#1B4332] text-[#D8F3DC] text-[11px] px-3 sm:px-6 py-1.5 flex items-center justify-between gap-2 border-b border-[#2D6A4F]/40 overflow-hidden">
         <div className="flex items-center gap-1.5 min-w-0 max-w-[60%] sm:max-w-none">
           <ShieldCheck className="w-3.5 h-3.5 text-[#74C69D] shrink-0" />
@@ -164,15 +191,15 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Location indicator */}
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] border border-[#D8E2DC] rounded-xl text-xs text-[#1B4332]">
+          <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] border border-[#D8E2DC] rounded-xl text-xs text-[#1B4332]">
             <MapPin className="w-3.5 h-3.5 text-[#2D6A4F] shrink-0" />
             <span className="font-semibold">{selectedCountry.sampleCity}, {selectedCountry.name}</span>
           </div>
         </div>
 
-        {/* Right Actions: Country, Language, Notifications, Profile, Cart */}
+        {/* Right Actions: Country, Language, Notifications, Auth/Profile, Cart */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Country / Currency Selector */}
+          {/* Country Selector */}
           <div className="relative">
             <select
               value={selectedCountry.code}
@@ -225,19 +252,109 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* User Profile / Login */}
-          {onOpenAuth && (
-            <button
-              onClick={onOpenAuth}
-              className="flex items-center gap-1 sm:gap-1.5 py-1.5 px-2 sm:px-3 bg-[#F8FAF9] hover:bg-[#F0F7F4] border border-[#D8E2DC] text-[#1B4332] rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer"
-              id="header-profile-btn"
-              title={translate('profile', language)}
-            >
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#D8F3DC] text-[#2D6A4F] flex items-center justify-center font-black text-[9px] sm:text-[10px]">
-                {userProfile?.name?.charAt(0) || 'U'}
-              </div>
-              <span className="hidden md:inline truncate max-w-[80px]">{userProfile?.name || translate('profile', language)}</span>
-            </button>
+          {/* ========================================================================= */}
+          {/* USER AUTHENTICATION SECTION: Clear Login & Register Buttons vs Logged-in State */}
+          {/* ========================================================================= */}
+          {userProfile?.isRegistered ? (
+            /* Logged-In User Profile Pill with Dropdown Menu */
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-1.5 py-1.5 px-2 sm:px-2.5 bg-[#F0F7F4] hover:bg-[#E0F0E8] border border-[#74C69D] text-[#1B4332] rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                id="header-user-menu-btn"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center font-black text-[10px]">
+                  {userProfile?.name?.charAt(0) || 'U'}
+                </div>
+                <span className="hidden md:inline truncate max-w-[90px] font-bold">{userProfile?.name}</span>
+                <span className="hidden lg:inline px-1.5 py-0.5 bg-[#D8F3DC] text-[#1B4332] text-[10px] font-extrabold rounded-md uppercase">
+                  {getRoleLabel(currentRole)}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#2D6A4F]" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div 
+                  className={`absolute top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#D8E2DC] py-2 z-50 ${
+                    isRtl ? 'left-0' : 'right-0'
+                  }`}
+                  id="header-user-dropdown"
+                >
+                  <div className="px-3.5 py-2 border-b border-[#D8E2DC] text-xs">
+                    <p className="font-black text-[#1B4332] truncate">{userProfile.name}</p>
+                    <p className="text-[11px] text-gray-500 truncate">{userProfile.email || userProfile.phone}</p>
+                    <div className="mt-1 flex items-center gap-1 text-[10px] text-[#2D6A4F] font-bold">
+                      <CheckCircle2 className="w-3 h-3 text-[#52B788]" />
+                      <span>{selectedCountry.sampleCity} ({getRoleLabel(currentRole)})</span>
+                    </div>
+                  </div>
+
+                  {onOpenAuth && (
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        onOpenAuth('login');
+                      }}
+                      className="w-full text-start px-3.5 py-2 text-xs font-semibold text-[#1B4332] hover:bg-[#F0F7F4] flex items-center gap-2 cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                      <span>{language === 'ar' ? 'إدارة الحساب والأدوار' : 'Manage Account & Roles'}</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      onRoleChange('admin');
+                    }}
+                    className="w-full text-start px-3.5 py-2 text-xs font-semibold text-[#1B4332] hover:bg-[#F0F7F4] flex items-center gap-2 cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                    <span>{translate('adminPortalLogin', language) || 'Admin Portal'}</span>
+                  </button>
+
+                  <div className="border-t border-[#D8E2DC] my-1" />
+
+                  {onLogout && (
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full text-start px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
+                      id="header-logout-btn"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-red-600" />
+                      <span>{translate('logout', language) || 'Sign Out'}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Explicit Login & Register Buttons in Header */
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              {/* Login Button */}
+              <button
+                onClick={() => onOpenAuth && onOpenAuth('login')}
+                className="flex items-center gap-1 sm:gap-1.5 py-1.5 px-2.5 sm:px-3 bg-[#F8FAF9] hover:bg-[#F0F7F4] border border-[#D8E2DC] text-[#1B4332] rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer active:scale-95"
+                id="header-login-btn"
+              >
+                <LogIn className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                <span>{translate('login', language) || 'Login'}</span>
+              </button>
+
+              {/* Register Button */}
+              <button
+                onClick={() => onOpenAuth && onOpenAuth('register')}
+                className="hidden sm:flex items-center gap-1 sm:gap-1.5 py-1.5 px-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white rounded-xl text-[11px] sm:text-xs font-bold transition-all shadow-xs shadow-[#2D6A4F]/20 cursor-pointer active:scale-95"
+                id="header-register-btn"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-[#74C69D]" />
+                <span>{translate('register', language) || 'Register'}</span>
+              </button>
+            </div>
           )}
 
           {/* Cart Button */}

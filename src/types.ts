@@ -42,6 +42,7 @@ export type Permission =
   | 'support.reply'
   | 'settings.view'
   | 'settings.manage'
+  | 'settings.email_manage'
   | 'audit.view';
 
 export type MedicineApprovalStatus = 
@@ -447,6 +448,8 @@ export interface AuthUser {
   name: string;
   phone?: string;
   email?: string;
+  passwordHash?: string;
+  salt?: string;
   role: UserRole;
   permissions: Permission[];
   status: AccountStatus;
@@ -458,17 +461,24 @@ export interface AuthUser {
   addresses?: UserAddress[];
   pharmacyId?: string;
   pharmacyApprovalStatus?: PharmacyApprovalStatus;
+  licenseNumber?: string;
+  rejectionReason?: string;
   requires2FA?: boolean;
   is2FAVerified?: boolean;
+  twoFactorTicket?: string;
+  twoFactorCode?: string;
+  twoFactorExpiresAt?: number;
   token?: string;
   tokenExpiresAt?: number;
   lastLoginAt?: string;
+  updatedAt?: string;
   avatarUrl?: string;
 }
 
 export interface UserProfile {
   id: string;
   name: string;
+  email?: string;
   phone: string;
   countryCode: string;
   city: string;
@@ -678,4 +688,87 @@ export interface LegalPolicyDoc {
   contentAr: string[];
   contentFr: string[];
 }
+
+// ============================================================================
+// EMAIL SYSTEM TYPES & INTERFACES (PRODUCTION SMTP & RESEND)
+// ============================================================================
+
+export type EmailProviderType = 'resend' | 'smtp' | 'custom_smtp';
+export type EmailEncryptionType = 'TLS' | 'SSL' | 'STARTTLS' | 'None';
+export type EmailStatus = 'queued' | 'sending' | 'sent' | 'failed' | 'bounced';
+
+export interface EmailSettings {
+  senderName: string;
+  senderEmail: string;
+  replyToEmail: string;
+  activeProvider: EmailProviderType;
+  fallbackEnabled: boolean;
+  fallbackProvider?: EmailProviderType;
+  resendApiKey?: string;
+  resendDomain?: string;
+  resendDomainStatus?: 'verified' | 'pending' | 'unverified';
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpEncryption?: EmailEncryptionType;
+  smtpUsername?: string;
+  smtpPassword?: string;
+  hasResendKeySet?: boolean;
+  hasSmtpPasswordSet?: boolean;
+  lastConnectionTestAt?: string;
+  lastConnectionStatus?: 'success' | 'failed' | 'untested';
+  lastConnectionMessage?: string;
+  lastTestEmailSentAt?: string;
+  emailsSentToday?: number;
+  emailsFailedToday?: number;
+  emailsBouncedToday?: number;
+  emailsQueued?: number;
+  updatedAt?: string;
+}
+
+export type EmailTemplateCategory = 
+  | 'auth' 
+  | 'orders' 
+  | 'payments' 
+  | 'prescriptions' 
+  | 'pharmacy' 
+  | 'medicines' 
+  | 'fleet' 
+  | 'support' 
+  | 'subscriptions' 
+  | 'security';
+
+export interface EmailTemplate {
+  id: string;
+  category: EmailTemplateCategory;
+  name: string;
+  description: string;
+  subjectEn: string;
+  subjectAr: string;
+  subjectFr: string;
+  bodyHtmlEn: string;
+  bodyHtmlAr: string;
+  bodyHtmlFr: string;
+  variables: string[];
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export interface EmailLog {
+  id: string;
+  recipient: string;
+  recipientName?: string;
+  templateId: string;
+  templateName: string;
+  subject: string;
+  provider: EmailProviderType;
+  status: EmailStatus;
+  sentAt: string;
+  failureReason?: string;
+  relatedEntityId?: string;
+  relatedEntityType?: 'order' | 'user' | 'pharmacy' | 'prescription' | 'ticket' | 'payment' | 'test';
+  retryCount: number;
+  maxRetries: number;
+  language: Language;
+}
+
 
