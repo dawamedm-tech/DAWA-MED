@@ -125,9 +125,13 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
     { id: 'gastro', label: t.catGastro, icon: <Pill className="w-4 h-4" /> },
   ];
 
-  // Filtered medicines
+  // Filtered medicines (Only approved medicines can be viewed and ordered by patients)
   const filteredMedicines = useMemo(() => {
     return medicines.filter((med) => {
+      // Must be approved by CMO/Admin
+      const isApproved = !med.approvalStatus || med.approvalStatus === 'approved';
+      if (!isApproved) return false;
+
       const matchesSearch = 
         med.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         med.genericName.toLowerCase().includes(searchQuery.toLowerCase()) ||

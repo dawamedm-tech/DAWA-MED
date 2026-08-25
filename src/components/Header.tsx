@@ -24,7 +24,8 @@ import {
   Radio,
   Bell,
   MapPin,
-  Globe
+  Globe,
+  Headphones
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -79,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'pharmacy', label: t.rolePharmacy || 'Pharmacy', icon: <Building2 className="w-3.5 h-3.5 shrink-0" /> },
     { id: 'driver', label: t.roleDriver || 'Driver', icon: <Bike className="w-3.5 h-3.5 shrink-0" /> },
     { id: 'subscription', label: t.roleSubscription || 'Refill', icon: <CalendarCheck className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'support', label: language === 'ar' ? 'الدعم الفني' : language === 'fr' ? 'Support Desk' : 'Support Desk', icon: <Headphones className="w-3.5 h-3.5 shrink-0" /> },
     { id: 'admin', label: t.roleAdmin || 'Admin', icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
   ];
 

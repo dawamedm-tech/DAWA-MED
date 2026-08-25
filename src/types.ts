@@ -348,7 +348,7 @@ export type TicketCategory =
   | 'prescription_issue'
   | 'system_access';
 
-export type TicketPriority = 'urgent_clinical' | 'high' | 'medium' | 'low';
+export type TicketPriority = 'urgent' | 'urgent_clinical' | 'high' | 'medium' | 'low';
 export type TicketStatus = 
   | 'open' 
   | 'in_progress' 
@@ -429,6 +429,7 @@ export interface AuditLog {
   result: 'success' | 'failed' | 'denied';
   reason?: string;
   isEncryptedVerification?: boolean;
+  sha256Hash?: string;
 }
 
 export interface UserAddress {

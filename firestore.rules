@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for RBAC and authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && (request.auth.token.role == role || getUserData().role == role);
+    }
+    
+    function isAdmin() {
+      return hasRole('admin') || hasRole('super_admin');
+    }
+    
+    function isSupport() {
+      return hasRole('support') || isAdmin();
+    }
+    
+    function isPharmacy() {
+      return hasRole('pharmacy');
+    }
+    
+    function isDriver() {
+      return hasRole('driver');
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin() || isSupport());
+      allow create: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // PHARMACIES COLLECTION
+    match /pharmacies/{pharmacyId} {
+      allow read: if true; // Public directory for patients to view nearby approved pharmacies
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || (isPharmacy() && resource.data.ownerId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // MEDICINES COLLECTION (Strict Regulatory Gating)
+    match /medicines/{medicineId} {
+      // Public / Patients can ONLY read approved medicines
+      allow read: if resource.data.approvalStatus == 'approved' || isPharmacy() || isAdmin() || isSupport();
+      // Pharmacies can submit medicines in pending state
+      allow create: if isPharmacy() || isAdmin();
+      // Only Admin / Medical Officer can approve, reject or suspend medicines
+      allow update: if isAdmin() || (isPharmacy() && resource.data.submittedByPharmacyId == request.auth.uid && resource.data.approvalStatus != 'approved');
+      allow delete: if isAdmin();
+    }
+
+    // PRESCRIPTIONS COLLECTION (HIPAA / Zero-Public Leakage)
+    match /prescriptions/{prescriptionId} {
+      // Only the patient owner, assigned licensed pharmacy, or Admin/Support can read
+      allow read: if isAuthenticated() && (
+        resource.data.patientId == request.auth.uid || 
+        (isPharmacy() && resource.data.assignedPharmacyId == getUserData().pharmacyId) || 
+        isAdmin() || 
+        isSupport()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.patientId == request.auth.uid || 
+        (isPharmacy() && resource.data.assignedPharmacyId == getUserData().pharmacyId) || 
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ORDERS COLLECTION
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid || 
+        (isPharmacy() && resource.data.pharmacyId == getUserData().pharmacyId) || 
+        (isDriver() && resource.data.assignedDriverId == request.auth.uid) || 
+        isAdmin() || 
+        isSupport()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid || 
+        (isPharmacy() && resource.data.pharmacyId == getUserData().pharmacyId) || 
+        (isDriver() && resource.data.assignedDriverId == request.auth.uid) || 
+        isAdmin() || 
+        isSupport()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // PAYMENTS COLLECTION (Strict Financial Ledger)
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAdmin(); // Only server webhooks / admins update payment settlements
+      allow delete: if false; // Immutable financial ledger
+    }
+
+    // AUDIT LOGS COLLECTION (Immutable Cryptographic Trail)
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if false; // Immutable
+      allow delete: if false; // Immutable
+    }
+
+    // SUPPORT TICKETS COLLECTION
+    match /support_tickets/{ticketId} {
+      allow read: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid || 
+        isSupport() || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isSupport() || isAdmin() || (isAuthenticated() && resource.data.customerId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // TELEMETRY & COLD CHAIN SENSOR LOGS
+    match /telemetry/{telemetryId} {
+      allow read: if isAuthenticated();
+      allow create: if isDriver() || isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

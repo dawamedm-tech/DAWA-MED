@@ -59,6 +59,7 @@ import { QrVerificationModal } from './components/QrVerificationModal';
 import { OrderReviewModal } from './components/OrderReviewModal';
 import { LegalPagesModal } from './components/LegalPagesModal';
 import { SystemHealthTestsModal } from './components/SystemHealthTestsModal';
+import { SupportDashboard } from './components/SupportDashboard';
 import { Footer } from './components/Footer';
 
 function AppInner() {
@@ -685,6 +686,36 @@ function AppInner() {
             onAdvanceStatus={handleAdvanceStatus}
             language={language}
             selectedCountry={selectedCountry}
+            medicines={medicines}
+            onSubmitNewMedicine={(newMedData) => {
+              const newMed: Medicine = {
+                id: `med-custom-${Date.now()}`,
+                name: newMedData.name || 'New Product',
+                genericName: newMedData.genericName || '',
+                category: newMedData.category || 'chronic',
+                dosage: newMedData.dosage || 'Standard',
+                form: newMedData.form || 'tablets',
+                packageSize: newMedData.packageSize || '1 Pack',
+                priceUSD: newMedData.priceUSD || 10,
+                requiresPrescription: newMedData.requiresPrescription ?? true,
+                requiresColdChain: newMedData.requiresColdChain ?? false,
+                descriptionEn: newMedData.descriptionEn || '',
+                descriptionAr: newMedData.descriptionAr || '',
+                descriptionSw: newMedData.descriptionSw || '',
+                manufacturer: newMedData.manufacturer || 'Approved Manufacturer',
+                stockCount: newMedData.stockCount || 50,
+                indications: newMedData.indications || [],
+                storageCondition: newMedData.storageCondition || 'Room temperature',
+                availablePharmacyIds: ['pharma-01'],
+                submittedByPharmacyId: 'pharma-01',
+                submittedByPharmacyName: 'GoodLife Pharmacy — Westlands Central',
+                submittedAt: new Date().toISOString(),
+                approvalStatus: 'pending_approval',
+                batchNumber: newMedData.batchNumber,
+                expiryDate: newMedData.expiryDate,
+              };
+              setMedicines((prev) => [newMed, ...prev]);
+            }}
           />
         )}
 
@@ -720,12 +751,36 @@ function AppInner() {
           />
         )}
 
-        {currentRole === 'admin' && (
+        {currentRole === 'support' && (
+          <SupportDashboard
+            language={language}
+            selectedCountry={selectedCountry}
+          />
+        )}
+
+        {(currentRole === 'admin' || currentRole === 'super_admin') && (
           <AdminDashboard
             orders={orders}
             selectedCountry={selectedCountry}
             onCountryChange={setSelectedCountry}
             language={language}
+            medicines={medicines}
+            onUpdateMedicineStatus={(medicineId, status, notes, reason) => {
+              setMedicines((prev) =>
+                prev.map((m) =>
+                  m.id === medicineId
+                    ? {
+                        ...m,
+                        approvalStatus: status,
+                        changeRequestNotes: notes,
+                        rejectionReason: reason,
+                        reviewedAt: new Date().toISOString(),
+                        reviewedBy: 'Chief Medical Officer',
+                      }
+                    : m
+                )
+              );
+            }}
           />
         )}
       </main>

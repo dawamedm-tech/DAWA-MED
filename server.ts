@@ -1186,6 +1186,147 @@ async function startServer() {
   // ============================================================================
   // 9. ORDERS, INVENTORY & DISPENSING LIFECYCLE
   // ============================================================================
+  
+  // Get orders list with strict RBAC filtering
+  app.get('/api/orders', (req, res) => {
+    const user = req.user;
+    let list = [...db.orders];
+
+    if (user) {
+      if (user.role === 'customer') {
+        list = list.filter((o) => o.customerId === user.id || o.patientName === user.name || o.contactPhone === user.phone);
+      } else if (user.role === 'pharmacy') {
+        list = list.filter((o) => o.pharmacyId === user.pharmacyId || o.pharmacyName?.includes(user.name));
+      } else if (user.role === 'driver') {
+        list = list.filter((o) => o.assignedDriverId === user.id || o.driverName === user.name);
+      }
+      // Admin / Support see all
+    } else {
+      list = [];
+    }
+
+    res.json({
+      success: true,
+      count: list.length,
+      orders: list
+    });
+  });
+
+  // Create new order with STRICT Server-Side Medicine & Pharmacy Approval Validation
+  app.post('/api/orders', (req, res) => {
+    const user = req.user;
+    const body = req.body;
+
+    if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
+      return res.status(400).json({
+        error: 'Order must contain at least one medicine item.',
+        code: 'EMPTY_ORDER_ITEMS'
+      });
+    }
+
+    // SERVER-SIDE VALIDATION: Check each medicine item
+    for (const item of body.items) {
+      const medicine = db.medicines.find((m) => m.id === (item.medicineId || item.id) || m.name.toLowerCase() === item.name?.toLowerCase());
+      
+      if (!medicine) {
+        return res.status(404).json({
+          error: `Medicine '${item.name || item.id}' does not exist in regulatory catalog.`,
+          code: 'MEDICINE_NOT_FOUND'
+        });
+      }
+
+      // CRITICAL REGULATORY CHECK: Medicine must be approved
+      if (medicine.approvalStatus !== 'approved') {
+        logAuditEvent(
+          user || { id: 'anon', name: body.patientName || 'Anonymous', role: 'customer' },
+          'Blocked Order on Unapproved Medicine',
+          'Order Processing Security Gate',
+          medicine.id,
+          `Attempted order for '${medicine.name}' which is currently in status '${medicine.approvalStatus}'. Order rejected.`,
+          'denied',
+          'UNAPPROVED_MEDICINE_DISPENSING_PROHIBITED',
+          req.ip || '127.0.0.1'
+        );
+
+        return res.status(403).json({
+          error: `Ordering '${medicine.name}' is prohibited. This product is currently in '${medicine.approvalStatus}' status and has not received final Ministry/Admin approval.`,
+          code: 'FORBIDDEN_UNAPPROVED_MEDICINE',
+          medicineId: medicine.id,
+          approvalStatus: medicine.approvalStatus
+        });
+      }
+
+      // Check prescription requirement
+      if (medicine.requiresPrescription && !body.prescriptionId && !body.hasValidPrescription) {
+        return res.status(400).json({
+          error: `Medicine '${medicine.name}' requires a valid doctor prescription. Please upload or link a verified prescription before checkout.`,
+          code: 'PRESCRIPTION_REQUIRED',
+          medicineId: medicine.id
+        });
+      }
+    }
+
+    // Validate Pharmacy if assigned
+    if (body.pharmacyId) {
+      const pharmacy = db.pharmacies.find((p) => p.id === body.pharmacyId);
+      if (pharmacy && pharmacy.approvalStatus !== 'approved') {
+        return res.status(403).json({
+          error: `Selected pharmacy '${pharmacy.name}' is not currently approved for active dispensing (Status: ${pharmacy.approvalStatus}).`,
+          code: 'FORBIDDEN_UNAPPROVED_PHARMACY',
+          pharmacyId: pharmacy.id
+        });
+      }
+    }
+
+    const orderId = `ORD-${body.countryCode || 'KE'}-${Date.now().toString().slice(-6)}`;
+    const newOrder = {
+      id: orderId,
+      customerId: user?.id || `usr-${Date.now()}`,
+      patientName: body.patientName || user?.name || 'Valued Patient',
+      contactPhone: body.contactPhone || user?.phone || '+254 700 000 000',
+      deliveryAddress: body.deliveryAddress || 'Selected Delivery Location',
+      items: body.items,
+      totalAmountUSD: Number(body.totalAmountUSD) || 15.0,
+      currency: body.currency || 'USD',
+      paymentMethod: body.paymentMethod || 'Mobile Money',
+      paymentStatus: 'pending_payment',
+      orderStatus: 'order_received',
+      pharmacyId: body.pharmacyId || 'pharma-01',
+      pharmacyName: body.pharmacyName || 'GoodLife Pharmacy — Westlands Central',
+      prescriptionId: body.prescriptionId,
+      requiresColdChain: body.items.some((i: any) => i.requiresColdChain),
+      otpVerificationCode: crypto.randomInt(1000, 9999).toString(),
+      createdAt: new Date().toISOString(),
+      statusTimeline: [
+        {
+          status: 'order_received',
+          title: 'Order Placed & Validated',
+          description: 'Medicines verified against regulatory approval database.',
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+
+    db.orders.unshift(newOrder);
+
+    logAuditEvent(
+      user || { id: newOrder.customerId, name: newOrder.patientName, role: 'customer' },
+      'Order Created & Approved for Processing',
+      'Order Fulfillment',
+      newOrder.id,
+      `Order #${newOrder.id} created with ${newOrder.items.length} approved item(s). Total: $${newOrder.totalAmountUSD}.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.status(201).json({
+      success: true,
+      order: newOrder,
+      message: 'Order created and passed all regulatory approval checks.'
+    });
+  });
+
   app.post('/api/orders/:orderId/transition', (req, res) => {
     const { orderId } = req.params;
     const { nextStatus, updatedByRole, updatedByName, note } = req.body;
@@ -1437,6 +1578,60 @@ async function startServer() {
       failed: 0,
       executedAt: new Date().toISOString(),
       results
+    });
+  });
+
+  // Payment Webhook (Server-to-Server asynchronous notification from M-Pesa / MTN / Paystack)
+  app.post('/api/payments/webhook', (req, res) => {
+    const signature = req.headers['x-dawa-signature'] || req.headers['x-webhook-signature'];
+    const { referenceId, orderId, transactionId, status, provider, amount } = req.body;
+
+    // Idempotent processing
+    const payment = db.payments.find((p) => p.referenceId === referenceId || p.orderId === orderId);
+    if (payment) {
+      payment.status = status === 'SUCCESS' || status === 'paid' ? 'paid' : 'failed';
+      payment.transactionId = transactionId || `TXN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      payment.provider = provider || 'mobile_money_direct';
+      payment.settledAt = new Date().toISOString();
+    }
+
+    if (orderId) {
+      const order = db.orders.find((o) => o.id === orderId);
+      if (order) {
+        order.paymentStatus = status === 'SUCCESS' || status === 'paid' ? 'paid' : 'payment_failed';
+        if (order.paymentStatus === 'paid' && order.orderStatus === 'order_received') {
+          order.orderStatus = 'waiting_pharmacy';
+        }
+      }
+    }
+
+    logAuditEvent(
+      { id: 'payment-gateway', name: `${provider || 'Payment Gateway'} Webhook`, role: 'system' as any },
+      'Payment Webhook Processed',
+      'Payment Ledger',
+      referenceId || orderId || 'PAY-WEBHOOK',
+      `Payment webhook processed for Order #${orderId}. Status: ${status}. Transaction: ${transactionId}.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      received: true,
+      referenceId,
+      orderId,
+      status: 'PROCESSED',
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Global Error Handling Middleware (Ensures no internal stack traces leak to client)
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error('[DAWA MED Error Handler]', err?.message || err);
+    res.status(err.status || 500).json({
+      error: 'An internal server error occurred while processing your secure request.',
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+      timestamp: new Date().toISOString()
     });
   });
 
