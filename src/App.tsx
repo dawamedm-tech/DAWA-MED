@@ -39,6 +39,7 @@ import {
 } from './data/mockData';
 import { TRANSLATIONS } from './data/translations';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { Header } from './components/Header';
 import { CustomerView } from './components/CustomerView';
 import { PharmacyDashboard } from './components/PharmacyDashboard';
@@ -111,6 +112,40 @@ function AppInner() {
       document.body.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
     }
   }, [language]);
+
+  // Session Verification on Mount
+  useEffect(() => {
+    const token = localStorage.getItem('dawa_auth_token');
+    const savedRole = localStorage.getItem('dawa_user_role') as UserRole;
+    if (token) {
+      fetch('/api/auth/verify-session', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.authenticated && data.user) {
+            setUserProfile(prev => ({
+              ...prev,
+              id: data.user.id,
+              username: data.user.username,
+              name: data.user.name,
+              email: data.user.email,
+              phone: data.user.phone || prev.phone,
+              isRegistered: true,
+              preferredLanguage: data.user.preferredLanguage || prev.preferredLanguage
+            }));
+            if (data.user.role) {
+              localStorage.setItem('dawa_user_role', data.user.role);
+            }
+          }
+        })
+        .catch(() => {
+          // Keep local state on network interruption
+        });
+    }
+  }, []);
 
   // Cart operations
   const handleAddToCart = (med: Medicine) => {
@@ -624,7 +659,13 @@ function AppInner() {
       {/* Main Global Header */}
       <Header
         currentRole={currentRole}
-        onRoleChange={setCurrentRole}
+        onRoleChange={(role) => {
+          if ((role === 'admin' || role === 'super_admin') && (!userProfile?.isRegistered || (localStorage.getItem('dawa_user_role') !== 'admin' && localStorage.getItem('dawa_user_role') !== 'super_admin'))) {
+            handleOpenAuth('admin');
+          } else {
+            setCurrentRole(role);
+          }
+        }}
         language={language}
         onLanguageChange={setLanguage}
         selectedCountry={selectedCountry}
@@ -792,6 +833,21 @@ function AppInner() {
             onCountryChange={setSelectedCountry}
             language={language}
             medicines={medicines}
+            currentUser={{
+              id: userProfile.id,
+              username: userProfile.username,
+              name: userProfile.name,
+              email: userProfile.email || 'mosa@dawamed.com',
+              role: (localStorage.getItem('dawa_user_role') as UserRole) || 'admin',
+              permissions: ['users.view', 'users.edit', 'pharmacies.view', 'pharmacies.approve', 'medicines.view', 'medicines.approve', 'audit.view', 'settings.manage'],
+              status: 'active',
+              isVerified: true,
+              countryCode: userProfile.countryCode,
+              city: userProfile.city,
+              streetAddress: userProfile.streetAddress,
+              preferredLanguage: userProfile.preferredLanguage,
+              lastLoginAt: new Date().toISOString()
+            }}
             onUpdateMedicineStatus={(medicineId, status, notes, reason) => {
               setMedicines((prev) =>
                 prev.map((m) =>
@@ -802,7 +858,7 @@ function AppInner() {
                         changeRequestNotes: notes,
                         rejectionReason: reason,
                         reviewedAt: new Date().toISOString(),
-                        reviewedBy: 'Chief Medical Officer',
+                        reviewedBy: userProfile.name || 'Chief Medical Officer',
                       }
                     : m
                 )
@@ -990,7 +1046,9 @@ function AppInner() {
 export default function App() {
   return (
     <LanguageProvider>
-      <AppInner />
+      <SiteSettingsProvider>
+        <AppInner />
+      </SiteSettingsProvider>
     </LanguageProvider>
   );
 }

@@ -38,6 +38,7 @@ import { MedicineApprovalManager } from './MedicineApprovalManager';
 import { PharmacyApprovalManager } from './PharmacyApprovalManager';
 import { RbacUserManager } from './RbacUserManager';
 import { EmailSettingsManager } from './EmailSettingsManager';
+import { SiteSettingsManager } from './SiteSettingsManager';
 import { 
   ShieldCheck, 
   Building2, 
@@ -108,7 +109,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<
-    'medicine_approvals' | 'pharmacy_approvals' | 'rbac_users' | 'email_settings' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
+    'medicine_approvals' | 'pharmacy_approvals' | 'site_settings' | 'rbac_users' | 'email_settings' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
   >('medicine_approvals');
 
   // State collections
@@ -426,6 +427,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('site_settings')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'site_settings' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+        >
+          <Building2 className="w-4 h-4 text-[#74C69D]" />
+          <span>{language === 'ar' ? 'إعدادات الموقع والهوية' : 'Site Settings & Logo'}</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('rbac_users')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
             activeTab === 'rbac_users' ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
@@ -582,6 +593,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onUpdatePharmacyStatus={handleInternalUpdatePharmacyStatus}
           language={language}
           selectedCountry={selectedCountry}
+        />
+      )}
+
+      {/* SITE SETTINGS & LOGO TAB */}
+      {activeTab === 'site_settings' && (
+        <SiteSettingsManager
+          currentUser={currentUser}
+          language={language}
         />
       )}
 

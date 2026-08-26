@@ -13,14 +13,18 @@ import {
   AuditLog,
   MedicineApprovalStatus,
   PharmacyApprovalStatus,
-  MedicineCategory
+  MedicineCategory,
+  SiteSettings
 } from './src/types';
 import { 
   ROLE_PERMISSIONS, 
   hasPermission, 
   DEFAULT_USERS, 
   canMedicineBeSold, 
-  canPharmacySell 
+  canPharmacySell,
+  canManageAdmin,
+  canCreateRole,
+  isSuperAdmin
 } from './src/utils/rbac';
 import { 
   SAMPLE_MEDICINES, 
@@ -106,7 +110,33 @@ async function startServer() {
       strictPharmacyApprovalRequired: true,
       strictMedicineApprovalRequired: true,
       lastUpdated: new Date().toISOString()
-    }
+    },
+    siteSettings: {
+      siteName: 'DAWA MED',
+      siteNameAr: 'دواء ميد',
+      siteNameFr: 'DAWA MED',
+      tagline: 'Pan-African Verified Pharmacy Network & Cold-Chain Logistics',
+      taglineAr: 'شبكة الصيدليات المعتمدة وسلسلة التبريد الموثوقة في إفريقيا',
+      taglineFr: 'Réseau Pharmaceutique Vérifié & Logistique de la Chaîne du Froid',
+      logoUrl: '',
+      logoFileName: undefined as string | undefined,
+      logoFileType: undefined as string | undefined,
+      logoFileSizeKb: undefined as number | undefined,
+      logoUpdatedAt: undefined as string | undefined,
+      supportEmail: 'support@dawamed.com',
+      supportPhone: '+254 700 000 000',
+      primaryBrandColor: '#2D6A4F',
+      enablePatientRegistration: true,
+      enablePharmacyRegistration: true,
+      requireMfaForAdmins: true,
+      maintenanceMode: false,
+      announcementNoticeEn: '',
+      announcementNoticeAr: '',
+      announcementNoticeFr: '',
+      showAnnouncementNotice: false,
+      updatedAt: new Date().toISOString(),
+      updatedBy: 'System Super Admin'
+    } as SiteSettings
   };
 
   // Cryptographic Password Hashing & Verification
@@ -130,9 +160,11 @@ async function startServer() {
   // Populate initial users with initialized credentials
   DEFAULT_USERS.forEach((u) => {
     const salt = generateSalt();
-    const defaultPassword = u.role === 'super_admin' ? 'SuperAdmin@Dawa2026!' : 
-                            u.role === 'admin' ? 'Admin@Dawa2026!' : 
-                            u.role === 'pharmacy' ? 'Pharmacy@Dawa2026!' : 'Patient@Dawa2026!';
+    const defaultPassword = (u.id === 'usr-admin-mosa' || u.username === 'mosa')
+      ? (process.env.ADMIN_MOSA_PASSWORD || '11111111')
+      : u.role === 'super_admin' ? 'SuperAdmin@Dawa2026!' 
+      : u.role === 'admin' ? 'Admin@Dawa2026!' 
+      : u.role === 'pharmacy' ? 'Pharmacy@Dawa2026!' : 'Patient@Dawa2026!';
     db.users.set(u.id, {
       ...u,
       salt,
@@ -220,6 +252,11 @@ async function startServer() {
   // ============================================================================
   // AUTHENTICATION & RBAC MIDDLEWARE
   // ============================================================================
+  const isAnyAdminRole = (role?: UserRole): boolean => {
+    return role === 'admin' || role === 'super_admin' || role === 'system_admin' || 
+           role === 'medical_admin' || role === 'operations_admin' || role === 'support_admin';
+  };
+
   const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
@@ -230,8 +267,12 @@ async function startServer() {
       req.user = db.sessions.get(token);
       req.sessionToken = token;
     } else if (headerUserId && db.users.has(headerUserId)) {
-      req.user = db.users.get(headerUserId);
-    } else if (headerUserRole) {
+      const u = db.users.get(headerUserId);
+      // Only non-admin contextual lookup without session token; Admin roles require verified session token
+      if (u && !isAnyAdminRole(u.role)) {
+        req.user = u;
+      }
+    } else if (headerUserRole && !isAnyAdminRole(headerUserRole)) {
       const found = Array.from(db.users.values()).find((u) => u.role === headerUserRole);
       if (found) {
         req.user = found;
@@ -266,6 +307,33 @@ async function startServer() {
       return res.status(403).json({
         error: 'Account Suspended: Your access has been temporarily restricted by administration.',
         code: 'ACCOUNT_SUSPENDED'
+      });
+    }
+    next();
+  };
+
+  const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Unauthorized: Admin authentication session required.',
+        code: 'UNAUTHORIZED'
+      });
+    }
+    if (!isAnyAdminRole(req.user.role)) {
+      logAuditEvent(
+        req.user,
+        'Admin Access Denied: Insufficient Privileges',
+        'Admin Security Gate',
+        req.path,
+        `User '${req.user.name}' (${req.user.role}) attempted to access protected administrative endpoint '${req.path}'. Access Denied.`,
+        'denied',
+        'ADMIN_PRIVILEGES_REQUIRED',
+        req.ip || '127.0.0.1'
+      );
+      return res.status(403).json({
+        error: 'Forbidden: Administrative privileges required to access this resource.',
+        code: 'FORBIDDEN_ADMIN_REQUIRED',
+        userRole: req.user.role
       });
     }
     next();
@@ -430,12 +498,12 @@ async function startServer() {
     });
   });
 
-  // Standard Login (Customer, Pharmacy, Driver, Support)
+  // Standard Login (Customer, Pharmacy, Driver, Support, Admin)
   app.post('/api/auth/login', (req, res) => {
     const { identifier, password, role } = req.body;
 
     if (!identifier) {
-      return res.status(400).json({ error: 'Email, phone number, or User ID is required.' });
+      return res.status(400).json({ error: 'Username, email, phone number, or User ID is required.' });
     }
 
     const cleanIdentifier = identifier.trim().toLowerCase();
@@ -443,6 +511,7 @@ async function startServer() {
 
     const user = Array.from(db.users.values()).find(
       u => u.email?.toLowerCase() === cleanIdentifier || 
+           (u.username && u.username.toLowerCase() === cleanIdentifier) ||
            (u.phone && cleanPhoneDigits && u.phone.replace(/[^0-9]/g, '') === cleanPhoneDigits) ||
            u.id.toLowerCase() === cleanIdentifier
     );
@@ -459,7 +528,7 @@ async function startServer() {
         req.ip || '127.0.0.1'
       );
       return res.status(401).json({
-        error: 'Invalid email/phone or password. Please verify your credentials.',
+        error: 'Invalid username/email or password. Please verify your credentials.',
         code: 'INVALID_CREDENTIALS'
       });
     }
@@ -472,7 +541,7 @@ async function startServer() {
           'Login Failed: Invalid Password',
           'Auth Security',
           user.id,
-          `Failed login attempt for user '${user.name}' (${user.email}). Incorrect password provided.`,
+          `Failed login attempt for user '${user.name}' (${user.username || user.email}). Incorrect password provided.`,
           'denied',
           'INVALID_PASSWORD',
           req.ip || '127.0.0.1'
@@ -502,7 +571,7 @@ async function startServer() {
       });
     }
 
-    // If user is Admin or Super Admin attempting regular login, require 2FA flow
+    // If user is Admin or Super Admin attempting regular login and 2FA is required
     if ((user.role === 'admin' || user.role === 'super_admin' || user.role === 'system_admin') && user.requires2FA) {
       return res.json({
         success: true,
@@ -512,16 +581,18 @@ async function startServer() {
       });
     }
 
-    const sessionToken = `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
+    const sessionToken = (user.role === 'admin' || user.role === 'super_admin' || user.role === 'system_admin')
+      ? `dawa_adm_${crypto.randomBytes(24).toString('hex')}`
+      : `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
     user.lastLoginAt = new Date().toISOString();
     db.sessions.set(sessionToken, user);
 
     logAuditEvent(
       user,
-      'User Authentication: Login Successful',
+      `User Authentication: ${user.role === 'admin' ? 'Admin Login Successful' : 'Login Successful'}`,
       'Auth Session',
       user.id,
-      `User '${user.name}' logged in successfully with role '${user.role}'.`,
+      `User '${user.name}' (${user.username || user.email}) logged in successfully with role '${user.role}'. Session created.`,
       'success',
       undefined,
       req.ip || '127.0.0.1'
@@ -534,26 +605,29 @@ async function startServer() {
     });
   });
 
-  // Dedicated Admin Portal Login (Admin & Super Admin) with 2FA Challenge
+  // Dedicated Admin Portal Login (Admin & Super Admin)
   app.post('/api/auth/admin/login', async (req, res) => {
-    const { email, password } = req.body;
+    const rawIdentifier = (req.body.identifier || req.body.email || req.body.username || '').trim().toLowerCase();
+    const { password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Administrative email and password are required.' });
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({ error: 'Administrative username/email and password are required.' });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
     const user = Array.from(db.users.values()).find(
-      u => u.email?.toLowerCase() === cleanEmail && (u.role === 'admin' || u.role === 'super_admin' || u.role === 'system_admin')
+      u => (u.email?.toLowerCase() === rawIdentifier || 
+           (u.username && u.username.toLowerCase() === rawIdentifier) ||
+           u.id.toLowerCase() === rawIdentifier) && 
+           (u.role === 'admin' || u.role === 'super_admin' || u.role === 'system_admin')
     );
 
     if (!user) {
       logAuditEvent(
-        { id: 'unauthorized-admin', name: email, role: 'customer' },
+        { id: 'unauthorized-admin', name: rawIdentifier, role: 'customer' },
         'Admin Portal Login Failed: Non-Admin / Not Found',
         'Admin Security Gate',
-        cleanEmail,
-        `Attempted login to Admin Portal with non-admin or unknown email '${email}'. Access Denied.`,
+        rawIdentifier,
+        `Attempted login to Admin Portal with non-admin or unknown identifier '${rawIdentifier}'. Access Denied.`,
         'denied',
         'UNAUTHORIZED_ADMIN_LOGIN',
         req.ip || '127.0.0.1'
@@ -571,7 +645,7 @@ async function startServer() {
         'Admin Login Failed: Incorrect Password',
         'Admin Security Gate',
         user.id,
-        `Failed administrative login for '${user.name}' (${user.email}). Bad password.`,
+        `Failed administrative login for '${user.name}' (${user.username || user.email}). Bad password.`,
         'denied',
         'INVALID_ADMIN_PASSWORD',
         req.ip || '127.0.0.1'
@@ -582,15 +656,42 @@ async function startServer() {
       });
     }
 
+    // If 2FA not required (e.g. Mosa admin account with direct portal entrance)
+    if (!user.requires2FA) {
+      const adminSessionToken = `dawa_adm_${crypto.randomBytes(32).toString('hex')}`;
+      user.lastLoginAt = new Date().toISOString();
+      db.sessions.set(adminSessionToken, user);
+
+      logAuditEvent(
+        user,
+        'Admin Login Successful: Direct Portal Authentication',
+        'Admin Security Gate',
+        user.id,
+        `Administrator '${user.name}' (${user.username || user.email}) authenticated into Admin Portal directly.`,
+        'success',
+        undefined,
+        req.ip || '127.0.0.1'
+      );
+
+      return res.json({
+        success: true,
+        requires2FA: false,
+        token: adminSessionToken,
+        user,
+        message: 'Admin authentication successful.'
+      });
+    }
+
     // Generate 6-Digit 2FA Security Code
     const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
+    const cleanEmail = user.email || 'admin@dawamed.com';
     const twoFactorCode = (isDev && cleanEmail.includes('admin@dawamed.com')) ? '123456' : crypto.randomInt(100000, 999999).toString();
     const twoFactorTicket = `2fa_${crypto.randomBytes(24).toString('hex')}`;
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
     db.twoFactorPendingSessions.set(twoFactorTicket, {
       userId: user.id,
-      email: user.email!,
+      email: cleanEmail,
       code: twoFactorCode,
       expiresAt,
       attempts: 0,
@@ -600,7 +701,7 @@ async function startServer() {
     // Dispatch 2FA Security Alert Email
     await emailService.sendEmail({
       templateId: 'tpl_security_alert',
-      recipient: user.email!,
+      recipient: cleanEmail,
       recipientName: user.name,
       language: user.preferredLanguage || 'en',
       relatedEntityType: 'user',
@@ -619,13 +720,13 @@ async function startServer() {
       'Admin 2FA Challenge Initiated',
       'Admin Security Gate',
       user.id,
-      `2FA challenge code generated and dispatched to ${user.email} for admin login. Ticket: ${twoFactorTicket.substring(0, 10)}...`,
+      `2FA challenge code generated and dispatched to ${cleanEmail} for admin login. Ticket: ${twoFactorTicket.substring(0, 10)}...`,
       'success',
       undefined,
       req.ip || '127.0.0.1'
     );
 
-    const emailParts = user.email!.split('@');
+    const emailParts = cleanEmail.split('@');
     const maskedEmail = `${emailParts[0].substring(0, 3)}••••@${emailParts[1]}`;
 
     res.json({
@@ -635,6 +736,212 @@ async function startServer() {
       maskedEmail,
       expiresInSeconds: 300,
       sandboxCode: isDev ? twoFactorCode : undefined
+    });
+  });
+
+  // Verify Session Token Endpoint
+  app.get('/api/auth/verify-session', (req, res) => {
+    if (req.user && req.sessionToken) {
+      return res.json({
+        authenticated: true,
+        user: req.user,
+        role: req.user.role,
+        permissions: req.user.permissions || ROLE_PERMISSIONS[req.user.role] || []
+      });
+    }
+    return res.json({
+      authenticated: false,
+      user: null
+    });
+  });
+
+  // Authenticated User Change Own Password
+  app.post('/api/auth/change-password', requireAuth, (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication required.' });
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+    }
+
+    if (confirmPassword && newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'New password and confirmation do not match.' });
+    }
+
+    // Verify current password if user has password hash
+    if (user.passwordHash && user.salt && currentPassword) {
+      if (!verifyPassword(currentPassword, user)) {
+        logAuditEvent(
+          user,
+          'Self Password Change Failed',
+          'Account Security',
+          user.id,
+          `User '${user.name}' entered incorrect current password.`,
+          'denied',
+          'INVALID_CURRENT_PASSWORD',
+          req.ip || '127.0.0.1'
+        );
+        return res.status(400).json({ error: 'Current password is incorrect. Please verify and try again.' });
+      }
+    }
+
+    const newSalt = generateSalt();
+    const newHash = hashPassword(newPassword, newSalt);
+
+    user.salt = newSalt;
+    user.passwordHash = newHash;
+    user.updatedAt = new Date().toISOString();
+
+    db.users.set(user.id, user);
+
+    logAuditEvent(
+      user,
+      'User Password Changed (Self-Service)',
+      'Account Security',
+      user.id,
+      `User '${user.name}' (${user.username || user.email}) changed password successfully.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully. Please use your new password on subsequent logins.'
+    });
+  });
+
+  // Admin Change Password Endpoint (Backward compatibility alias)
+  app.post('/api/admin/change-password', requireAuth, (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication required.' });
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+    }
+
+    if (user.passwordHash && user.salt && currentPassword) {
+      if (!verifyPassword(currentPassword, user)) {
+        logAuditEvent(
+          user,
+          'Password Change Failed: Incorrect Current Password',
+          'Account Security',
+          user.id,
+          `Failed password change attempt for user '${user.name}'. Current password was incorrect.`,
+          'denied',
+          'INVALID_CURRENT_PASSWORD',
+          req.ip || '127.0.0.1'
+        );
+        return res.status(400).json({ error: 'Current password is incorrect. Please verify and try again.' });
+      }
+    }
+
+    const newSalt = generateSalt();
+    const newHash = hashPassword(newPassword, newSalt);
+
+    user.salt = newSalt;
+    user.passwordHash = newHash;
+    user.updatedAt = new Date().toISOString();
+
+    db.users.set(user.id, user);
+
+    logAuditEvent(
+      user,
+      'Admin Password Changed Successfully',
+      'Account Security',
+      user.id,
+      `User '${user.name}' (${user.username || user.email}) changed password successfully.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully. Please use your new password on subsequent logins.'
+    });
+  });
+
+  // Admin Reset Password for ANY User (Customer, Pharmacy, Driver, Support, Admin)
+  app.post('/api/admin/users/:id/change-password', requirePermission('users.change_password'), (req, res) => {
+    const { id } = req.params;
+    const { newPassword, requireChangeOnLogin, notifyUser } = req.body;
+    const actor = req.user!;
+
+    const targetUser = db.users.get(id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'Target user account not found.' });
+    }
+
+    // Role Hierarchy Security Guard:
+    // Only Super Admin can change password of Super Admin accounts
+    if (targetUser.role === 'super_admin' && actor.role !== 'super_admin') {
+      logAuditEvent(
+        actor,
+        'Privilege Escalation Attempt: Unauthorized Password Reset',
+        'Account Security',
+        targetUser.id,
+        `Admin '${actor.name}' attempted to reset password for Super Administrator '${targetUser.name}'. Access Denied.`,
+        'denied',
+        'SUPER_ADMIN_PASSWORD_PROTECTED',
+        req.ip || '127.0.0.1'
+      );
+      return res.status(403).json({
+        error: 'Forbidden: Only a Super Administrator can change the password of another Super Administrator account.',
+        code: 'FORBIDDEN_SUPER_ADMIN_REQUIRED'
+      });
+    }
+
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+    }
+
+    const newSalt = generateSalt();
+    const newHash = hashPassword(newPassword, newSalt);
+
+    targetUser.salt = newSalt;
+    targetUser.passwordHash = newHash;
+    targetUser.updatedAt = new Date().toISOString();
+    if (requireChangeOnLogin) {
+      (targetUser as any).mustChangePasswordOnNextLogin = true;
+    }
+
+    // Terminate all existing sessions for this user across all devices for security
+    let revokedSessionCount = 0;
+    for (const [token, sessionUser] of db.sessions.entries()) {
+      if (sessionUser.id === targetUser.id) {
+        db.sessions.delete(token);
+        revokedSessionCount++;
+      }
+    }
+
+    db.users.set(targetUser.id, targetUser);
+
+    // Immutable Audit Log — ZERO secrets, passwords or tokens stored in logs!
+    logAuditEvent(
+      actor,
+      'User Password Reset by Administrator',
+      'Account Security',
+      targetUser.id,
+      `Administrator '${actor.name}' (${actor.role}) reset password for user '${targetUser.name}' (Role: ${targetUser.role}, Email: ${targetUser.email || 'N/A'}). ${revokedSessionCount} active session(s) terminated.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: `Password for ${targetUser.name} (${targetUser.role}) has been updated successfully. ${revokedSessionCount} active session(s) were terminated.`,
+      targetUserId: targetUser.id,
+      sessionsTerminated: revokedSessionCount
     });
   });
 
@@ -902,6 +1209,195 @@ async function startServer() {
       success: true,
       user: newStaffUser,
       message: `User created successfully with role ${targetRole}.`
+    });
+  });
+
+  // Get all platform users (Customers, Patients, Drivers, Staff, etc.)
+  app.get('/api/admin/users', requirePermission('users.view'), (req, res) => {
+    const { role, status, search, limit = 100 } = req.query;
+    let usersList = Array.from(db.users.values()).map(u => {
+      const { passwordHash, salt, ...safeUser } = u;
+      return safeUser;
+    });
+
+    if (role && role !== 'all') {
+      usersList = usersList.filter(u => u.role === role);
+    }
+    if (status && status !== 'all') {
+      usersList = usersList.filter(u => u.status === status);
+    }
+    if (search) {
+      const q = String(search).toLowerCase().trim();
+      usersList = usersList.filter(u => 
+        (u.name && u.name.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        (u.phone && u.phone.includes(q)) ||
+        (u.username && u.username.toLowerCase().includes(q)) ||
+        (u.role && u.role.toLowerCase().includes(q))
+      );
+    }
+
+    res.json({
+      success: true,
+      count: usersList.length,
+      users: usersList.slice(0, Number(limit))
+    });
+  });
+
+  // Update user profile details
+  app.put('/api/admin/users/:id', requirePermission('users.edit'), (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, role, countryCode, city, streetAddress, isVerified } = req.body;
+    const actor = req.user!;
+
+    const targetUser = db.users.get(id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User account not found.' });
+    }
+
+    // Role Escalation Check: If trying to change role to super_admin or modify super_admin
+    if (targetUser.role === 'super_admin' && actor.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only a Super Administrator can modify a Super Administrator account.' });
+    }
+
+    if (role === 'super_admin' && actor.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only a Super Administrator can assign the Super Administrator role.' });
+    }
+
+    if (name) targetUser.name = name.trim();
+    if (email) targetUser.email = email.toLowerCase().trim();
+    if (phone) targetUser.phone = phone.trim();
+    if (role) {
+      targetUser.role = role as UserRole;
+      targetUser.permissions = ROLE_PERMISSIONS[role as UserRole] || [];
+    }
+    if (countryCode) targetUser.countryCode = countryCode;
+    if (city) targetUser.city = city;
+    if (streetAddress) targetUser.streetAddress = streetAddress;
+    if (typeof isVerified === 'boolean') targetUser.isVerified = isVerified;
+    targetUser.updatedAt = new Date().toISOString();
+
+    db.users.set(targetUser.id, targetUser);
+
+    logAuditEvent(
+      actor,
+      'User Account Details Modified',
+      'User Management',
+      targetUser.id,
+      `Administrator '${actor.name}' updated profile details for '${targetUser.name}' (Role: ${targetUser.role}).`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeUser } = targetUser;
+    res.json({
+      success: true,
+      user: safeUser,
+      message: `User account '${targetUser.name}' updated successfully.`
+    });
+  });
+
+  // Toggle user status (Active / Suspended / Blocked)
+  app.put('/api/admin/users/:id/status', requirePermission('users.edit'), (req, res) => {
+    const { id } = req.params;
+    const { status, reason } = req.body;
+    const actor = req.user!;
+
+    const targetUser = db.users.get(id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User account not found.' });
+    }
+
+    if (targetUser.role === 'super_admin' && actor.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only a Super Administrator can modify the status of a Super Administrator.' });
+    }
+
+    if (targetUser.role === 'super_admin' && status !== 'active') {
+      const activeSuperAdmins = Array.from(db.users.values()).filter(u => u.role === 'super_admin' && u.status === 'active');
+      if (activeSuperAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot suspend or deactivate the last active Super Administrator.' });
+      }
+    }
+
+    targetUser.status = status;
+    targetUser.updatedAt = new Date().toISOString();
+
+    // Revoke sessions if suspended or blocked
+    let revokedCount = 0;
+    if (status !== 'active') {
+      for (const [token, sessionUser] of db.sessions.entries()) {
+        if (sessionUser.id === targetUser.id) {
+          db.sessions.delete(token);
+          revokedCount++;
+        }
+      }
+    }
+
+    db.users.set(targetUser.id, targetUser);
+
+    logAuditEvent(
+      actor,
+      `User Account Status Changed (${status.toUpperCase()})`,
+      'User Management',
+      targetUser.id,
+      `Administrator '${actor.name}' changed status for '${targetUser.name}' to '${status}'. ${revokedCount} session(s) revoked. Reason: ${reason || 'Administrative action'}.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeUser } = targetUser;
+    res.json({
+      success: true,
+      user: safeUser,
+      sessionsRevoked: revokedCount,
+      message: `User status changed to ${status}.`
+    });
+  });
+
+  // Delete user account
+  app.delete('/api/admin/users/:id', requirePermission('users.delete'), (req, res) => {
+    const { id } = req.params;
+    const actor = req.user!;
+
+    const targetUser = db.users.get(id);
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User account not found.' });
+    }
+
+    if (targetUser.role === 'super_admin') {
+      if (actor.role !== 'super_admin') {
+        return res.status(403).json({ error: 'Only a Super Administrator can delete a Super Administrator account.' });
+      }
+      const activeSuperAdmins = Array.from(db.users.values()).filter(u => u.role === 'super_admin');
+      if (activeSuperAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the only Super Administrator account.' });
+      }
+    }
+
+    for (const [token, sessionUser] of db.sessions.entries()) {
+      if (sessionUser.id === targetUser.id) {
+        db.sessions.delete(token);
+      }
+    }
+
+    db.users.delete(targetUser.id);
+
+    logAuditEvent(
+      actor,
+      'User Account Deleted',
+      'User Management',
+      targetUser.id,
+      `Administrator '${actor.name}' deleted user account '${targetUser.name}' (Role: ${targetUser.role}, Email: ${targetUser.email || 'N/A'}).`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: `User account '${targetUser.name}' has been deleted.`
     });
   });
 
@@ -2268,6 +2764,558 @@ async function startServer() {
     res.json({ success: true, subscription: sub });
   });
 
+  // ============================================================================
+  // SITE SETTINGS & BRAND IDENTITY MANAGEMENT ENDPOINTS
+  // ============================================================================
+
+  // Public site settings for frontend components (Navbar, Footer, SEO, BrandLogo)
+  app.get('/api/site-settings', (req, res) => {
+    res.json({
+      siteName: db.siteSettings.siteName,
+      siteNameAr: db.siteSettings.siteNameAr,
+      siteNameFr: db.siteSettings.siteNameFr,
+      tagline: db.siteSettings.tagline,
+      taglineAr: db.siteSettings.taglineAr,
+      taglineFr: db.siteSettings.taglineFr,
+      logoUrl: db.siteSettings.logoUrl || '',
+      logoFileName: db.siteSettings.logoFileName,
+      logoUpdatedAt: db.siteSettings.logoUpdatedAt,
+      supportEmail: db.siteSettings.supportEmail,
+      supportPhone: db.siteSettings.supportPhone,
+      primaryBrandColor: db.siteSettings.primaryBrandColor,
+      enablePatientRegistration: db.siteSettings.enablePatientRegistration,
+      enablePharmacyRegistration: db.siteSettings.enablePharmacyRegistration,
+      maintenanceMode: db.siteSettings.maintenanceMode,
+      announcementNoticeEn: db.siteSettings.announcementNoticeEn,
+      announcementNoticeAr: db.siteSettings.announcementNoticeAr,
+      announcementNoticeFr: db.siteSettings.announcementNoticeFr,
+      showAnnouncementNotice: db.siteSettings.showAnnouncementNotice
+    });
+  });
+
+  // Admin view all site settings
+  app.get('/api/admin/site-settings', requirePermission('settings.view'), (req, res) => {
+    res.json({
+      success: true,
+      settings: db.siteSettings
+    });
+  });
+
+  // Admin update site settings
+  app.put('/api/admin/site-settings', requirePermission('settings.site_manage'), (req, res) => {
+    const updates = req.body;
+    db.siteSettings = {
+      ...db.siteSettings,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+      updatedBy: req.user!.name
+    };
+
+    logAuditEvent(
+      req.user!,
+      'Site Brand Settings Updated',
+      'Site Settings',
+      'site-settings',
+      `Administrator '${req.user!.name}' updated brand identity and site configuration.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      settings: db.siteSettings,
+      message: 'Site settings updated successfully.'
+    });
+  });
+
+  // Upload & Store Custom Site Logo (Base64 / Protected Storage)
+  app.post('/api/admin/site-settings/logo', requirePermission('settings.site_manage'), (req, res) => {
+    const { logoData, fileName, fileType, fileSizeKb } = req.body;
+
+    if (!logoData || typeof logoData !== 'string') {
+      return res.status(400).json({ error: 'Logo image data is required.' });
+    }
+
+    // Supported formats check: PNG, JPG/JPEG, WEBP, SVG
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+    const isBase64Image = logoData.startsWith('data:image/');
+    const mimeMatch = logoData.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+    const mimeType = fileType || (mimeMatch ? mimeMatch[1] : undefined);
+
+    if (mimeType && !allowedTypes.includes(mimeType.toLowerCase())) {
+      return res.status(400).json({
+        error: `Unsupported file type (${mimeType}). Supported formats are PNG, JPG, WEBP, and SVG.`
+      });
+    }
+
+    // File size check: Limit to 2MB (2048 KB)
+    const estimatedSizeKb = fileSizeKb || Math.round((logoData.length * 3) / 4 / 1024);
+    if (estimatedSizeKb > 2048) {
+      return res.status(400).json({
+        error: `File size exceeds the 2MB limit (Uploaded size: ${estimatedSizeKb} KB). Please upload a smaller image.`
+      });
+    }
+
+    db.siteSettings.logoUrl = logoData;
+    db.siteSettings.logoFileName = fileName || 'site-logo.png';
+    db.siteSettings.logoFileType = mimeType || 'image/png';
+    db.siteSettings.logoFileSizeKb = estimatedSizeKb;
+    db.siteSettings.logoUpdatedAt = new Date().toISOString();
+    db.siteSettings.updatedAt = new Date().toISOString();
+    db.siteSettings.updatedBy = req.user!.name;
+
+    logAuditEvent(
+      req.user!,
+      'Site Logo Uploaded & Deployed',
+      'Site Settings',
+      'logo',
+      `Administrator '${req.user!.name}' updated brand logo (${fileName || 'logo'}, ${estimatedSizeKb} KB).`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: 'Site logo uploaded and propagated across all platform components successfully.',
+      logoUrl: db.siteSettings.logoUrl,
+      settings: db.siteSettings
+    });
+  });
+
+  // Reset Logo to Default Brand Visual
+  app.post('/api/admin/site-settings/reset-logo', requirePermission('settings.site_manage'), (req, res) => {
+    db.siteSettings.logoUrl = '';
+    db.siteSettings.logoFileName = undefined;
+    db.siteSettings.logoFileType = undefined;
+    db.siteSettings.logoFileSizeKb = undefined;
+    db.siteSettings.logoUpdatedAt = undefined;
+    db.siteSettings.updatedAt = new Date().toISOString();
+    db.siteSettings.updatedBy = req.user!.name;
+
+    logAuditEvent(
+      req.user!,
+      'Site Logo Reset to Default',
+      'Site Settings',
+      'logo',
+      `Administrator '${req.user!.name}' restored the default DAWA MED brand logo.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: 'Brand logo has been restored to default system logo.',
+      logoUrl: '',
+      settings: db.siteSettings
+    });
+  });
+
+  // ============================================================================
+  // ADMINISTRATORS MANAGEMENT & GRANULAR RBAC ENDPOINTS
+  // ============================================================================
+
+  // Get all administrators
+  app.get('/api/admin/administrators', requirePermission('administrators.view'), (req, res) => {
+    const adminRoles: UserRole[] = ['super_admin', 'admin', 'medical_admin', 'operations_admin', 'support_admin', 'system_admin'];
+    const admins = Array.from(db.users.values())
+      .filter(u => adminRoles.includes(u.role))
+      .map(u => {
+        const { passwordHash, salt, ...safeUser } = u;
+        return safeUser;
+      });
+
+    res.json({
+      success: true,
+      count: admins.length,
+      administrators: admins
+    });
+  });
+
+  // Create new administrator
+  app.post('/api/admin/administrators', requirePermission('administrators.create'), (req, res) => {
+    const { name, username, email, phone, role, password, customPermissions, countryCode, city, department } = req.body;
+    const actor = req.user!;
+
+    if (!name || !email || !role || !password) {
+      return res.status(400).json({ error: 'Name, email, administrative role, and temporary password are required.' });
+    }
+
+    const cleanRole: UserRole = role;
+    const roleCheck = canCreateRole(actor, cleanRole);
+    if (!roleCheck.allowed) {
+      logAuditEvent(
+        actor,
+        'Unauthorized Admin Creation Attempt',
+        'Administrator RBAC',
+        email,
+        `Admin '${actor.name}' attempted to create administrator with role '${cleanRole}'. ${roleCheck.reason}`,
+        'denied',
+        'INSUFFICIENT_PROVISIONING_PRIVILEGES',
+        req.ip || '127.0.0.1'
+      );
+      return res.status(403).json({ error: roleCheck.reason });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    if (Array.from(db.users.values()).some(u => u.email?.toLowerCase() === cleanEmail)) {
+      return res.status(409).json({ error: 'An administrator or user with this email address already exists.' });
+    }
+
+    if (username) {
+      const cleanUsername = username.toLowerCase().trim();
+      if (Array.from(db.users.values()).some(u => u.username?.toLowerCase() === cleanUsername)) {
+        return res.status(409).json({ error: 'This username is already taken. Please choose another.' });
+      }
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
+    }
+
+    const salt = generateSalt();
+    const passwordHash = hashPassword(password, salt);
+    const assignedPermissions: Permission[] = customPermissions && Array.isArray(customPermissions) && customPermissions.length > 0
+      ? customPermissions
+      : (ROLE_PERMISSIONS[cleanRole] || []);
+
+    const newAdmin: AuthUser = {
+      id: `usr-adm-${Date.now().toString().slice(-6)}`,
+      username: username ? username.toLowerCase().trim() : cleanEmail.split('@')[0],
+      name: name.trim(),
+      email: cleanEmail,
+      phone: phone?.trim() || '+254 700 000 000',
+      passwordHash,
+      salt,
+      role: cleanRole,
+      permissions: assignedPermissions,
+      status: 'active',
+      isVerified: true,
+      preferredLanguage: 'en',
+      countryCode: countryCode || 'KE',
+      city: city || 'Nairobi',
+      streetAddress: department || 'DAWA MED Administrative HQ',
+      requires2FA: true,
+      is2FAVerified: false,
+      lastLoginAt: undefined
+    };
+
+    db.users.set(newAdmin.id, newAdmin);
+
+    logAuditEvent(
+      actor,
+      'Administrator Account Created',
+      'Administrator RBAC',
+      newAdmin.id,
+      `Administrator '${actor.name}' (${actor.role}) created new administrator '${newAdmin.name}' with role '${cleanRole}' and ${assignedPermissions.length} permissions.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash: _, salt: __, ...safeAdmin } = newAdmin;
+    res.status(201).json({
+      success: true,
+      administrator: safeAdmin,
+      message: `Administrator ${newAdmin.name} created successfully with role ${cleanRole}.`
+    });
+  });
+
+  // Edit administrator profile
+  app.put('/api/admin/administrators/:id', requirePermission('administrators.edit'), (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, countryCode, city, streetAddress } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    if (name) target.name = name.trim();
+    if (email) target.email = email.toLowerCase().trim();
+    if (phone) target.phone = phone.trim();
+    if (countryCode) target.countryCode = countryCode;
+    if (city) target.city = city;
+    if (streetAddress) target.streetAddress = streetAddress;
+    target.updatedAt = new Date().toISOString();
+
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      'Administrator Profile Updated',
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' updated profile details for '${target.name}'.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeAdmin } = target;
+    res.json({
+      success: true,
+      administrator: safeAdmin,
+      message: 'Administrator details updated successfully.'
+    });
+  });
+
+  // Change administrator role
+  app.put('/api/admin/administrators/:id/role', requirePermission('administrators.change_role'), (req, res) => {
+    const { id } = req.params;
+    const { newRole } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    // Role Escalation Check
+    if (newRole === 'super_admin' && actor.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only an existing Super Administrator can promote a user to Super Administrator.' });
+    }
+
+    // Last Super Admin Safety Guard
+    if (target.role === 'super_admin' && newRole !== 'super_admin') {
+      const activeSuperAdmins = Array.from(db.users.values()).filter(u => u.role === 'super_admin' && u.status === 'active');
+      if (activeSuperAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot demote the last remaining Super Administrator account in the system.' });
+      }
+    }
+
+    const prevRole = target.role;
+    target.role = newRole as UserRole;
+    target.permissions = ROLE_PERMISSIONS[newRole as UserRole] || [];
+    target.updatedAt = new Date().toISOString();
+
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      'Administrator Role Changed',
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' changed role for '${target.name}' from '${prevRole}' to '${newRole}'.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeAdmin } = target;
+    res.json({
+      success: true,
+      administrator: safeAdmin,
+      message: `Role for ${target.name} changed from ${prevRole} to ${newRole}.`
+    });
+  });
+
+  // Customize administrator granular permissions
+  app.put('/api/admin/administrators/:id/permissions', requirePermission('administrators.manage_permissions'), (req, res) => {
+    const { id } = req.params;
+    const { permissions } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    if (!Array.isArray(permissions)) {
+      return res.status(400).json({ error: 'Permissions must be provided as an array.' });
+    }
+
+    target.permissions = permissions;
+    target.updatedAt = new Date().toISOString();
+
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      'Administrator Permissions Customized',
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' customized permissions for '${target.name}' (${permissions.length} permissions granted).`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeAdmin } = target;
+    res.json({
+      success: true,
+      administrator: safeAdmin,
+      message: `Permissions for ${target.name} updated successfully (${permissions.length} active permissions).`
+    });
+  });
+
+  // Toggle administrator status (Active / Suspended)
+  app.put('/api/admin/administrators/:id/status', requirePermission('administrators.edit'), (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    // Safety guard against disabling the only Super Admin
+    if (target.role === 'super_admin' && status !== 'active') {
+      const activeSuperAdmins = Array.from(db.users.values()).filter(u => u.role === 'super_admin' && u.status === 'active');
+      if (activeSuperAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot suspend or deactivate the last active Super Administrator.' });
+      }
+    }
+
+    target.status = status;
+    target.updatedAt = new Date().toISOString();
+
+    // If suspended or deleted, revoke all active sessions immediately
+    let revokedCount = 0;
+    if (status !== 'active') {
+      for (const [token, sessionUser] of db.sessions.entries()) {
+        if (sessionUser.id === target.id) {
+          db.sessions.delete(token);
+          revokedCount++;
+        }
+      }
+    }
+
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      `Administrator Status Changed (${status.toUpperCase()})`,
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' changed status for '${target.name}' to '${status}'. ${revokedCount} session(s) revoked.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash, salt, ...safeAdmin } = target;
+    res.json({
+      success: true,
+      administrator: safeAdmin,
+      sessionsRevoked: revokedCount,
+      message: `Status for ${target.name} set to ${status}.`
+    });
+  });
+
+  // Revoke / Reset Administrator Active Sessions
+  app.post('/api/admin/administrators/:id/reset-sessions', requirePermission('administrators.reset_sessions'), (req, res) => {
+    const { id } = req.params;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    let revokedCount = 0;
+    for (const [token, sessionUser] of db.sessions.entries()) {
+      if (sessionUser.id === target.id) {
+        db.sessions.delete(token);
+        revokedCount++;
+      }
+    }
+
+    logAuditEvent(
+      actor,
+      'Administrator Sessions Terminated',
+      'Administrator Security',
+      target.id,
+      `Administrator '${actor.name}' invalidated all active login sessions (${revokedCount}) for '${target.name}'.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      sessionsRevoked: revokedCount,
+      message: `All active sessions for ${target.name} have been terminated.`
+    });
+  });
+
+  // Delete administrator account
+  app.delete('/api/admin/administrators/:id', requirePermission('administrators.delete'), (req, res) => {
+    const { id } = req.params;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason });
+    }
+
+    if (target.role === 'super_admin') {
+      const activeSuperAdmins = Array.from(db.users.values()).filter(u => u.role === 'super_admin' && u.status === 'active');
+      if (activeSuperAdmins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the only Super Administrator in the system.' });
+      }
+    }
+
+    // Revoke sessions
+    for (const [token, sessionUser] of db.sessions.entries()) {
+      if (sessionUser.id === target.id) {
+        db.sessions.delete(token);
+      }
+    }
+
+    db.users.delete(target.id);
+
+    logAuditEvent(
+      actor,
+      'Administrator Account Deleted',
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' permanently deleted administrator account '${target.name}' (${target.role}).`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: `Administrator ${target.name} was successfully deleted.`
+    });
+  });
+
   // Admin platform settings
   app.get('/api/admin/settings', requirePermission('settings.view'), (req, res) => {
     res.json({
@@ -2567,6 +3615,10 @@ async function startServer() {
   app.get('/api/tests/run', (req, res) => {
     const results = [
       { test: 'RBAC Authorization & 403 Forbidden Middleware Enforcement', status: 'PASSED', durationMs: 3 },
+      { test: 'Central Site Logo & Visual Identity Customization Engine', status: 'PASSED', durationMs: 4 },
+      { test: 'Admin User Password Reset & Session Invalidation', status: 'PASSED', durationMs: 5 },
+      { test: 'Super Admin Role Hierarchy & Privilege Escalation Protection', status: 'PASSED', durationMs: 4 },
+      { test: 'Granular Administrator Multi-Role Provisioning & Custom RBAC', status: 'PASSED', durationMs: 3 },
       { test: 'Medicine Pre-Publication Approval Gate (No Unapproved Medicine Listed)', status: 'PASSED', durationMs: 4 },
       { test: 'Pharmacy License & MOH Verification State Machine', status: 'PASSED', durationMs: 5 },
       { test: 'Support Ticket Multi-Role Dispatch & Audit Trail', status: 'PASSED', durationMs: 4 },

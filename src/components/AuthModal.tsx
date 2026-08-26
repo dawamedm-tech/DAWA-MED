@@ -365,7 +365,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const res = await fetch('/api/auth/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: identifier, password })
+        body: JSON.stringify({ identifier, password })
       });
 
       const data = await res.json();
@@ -377,6 +377,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setIs2FAStage(true);
         if (data.sandboxCode) setSandboxCode(data.sandboxCode);
         setSuccessMsg(`2FA security code dispatched to ${data.maskedEmail}.`);
+      } else {
+        // Direct admin login without 2FA (e.g. Mosa Admin account)
+        const authUser = data.user;
+        const updatedProfile: UserProfile = {
+          id: authUser.id,
+          username: authUser.username,
+          name: authUser.name,
+          email: authUser.email,
+          phone: authUser.phone || identifier,
+          countryCode: authUser.countryCode || selectedCountry.code,
+          city: authUser.city || selectedCountry.sampleCity,
+          streetAddress: authUser.streetAddress || 'DAWA Central Administrative HQ',
+          isRegistered: true,
+          preferredLanguage: authUser.preferredLanguage || language,
+        };
+
+        if (data.token) {
+          localStorage.setItem('dawa_auth_token', data.token);
+          localStorage.setItem('dawa_user_id', authUser.id);
+          localStorage.setItem('dawa_user_role', authUser.role);
+        }
+
+        onSaveProfile(updatedProfile, data.token);
+        if (onSwitchRole && authUser.role) {
+          onSwitchRole(authUser.role);
+        }
+        onClose();
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Admin authentication failed.');
@@ -661,17 +688,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
-                  {authMethod === 'password' ? (translate('emailAddress', language) + ' / ' + translate('phoneNumber', language)) : translate('phoneNumber', language)}
+                  {authMethod === 'password' 
+                    ? (isRtl ? 'اسم المستخدم / البريد الإلكتروني / رقم الهاتف' : 'Username / Email / Phone Number') 
+                    : (isRtl ? 'رقم الهاتف' : 'Phone Number')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
-                    {authMethod === 'password' ? <Mail className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
+                    {authMethod === 'password' ? <User className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
                   </div>
                   <input
                     type={authMethod === 'password' ? 'text' : 'tel'}
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder={authMethod === 'password' ? 'grace@example.com or +254 700 000 000' : '+254 712 345 678'}
+                    placeholder={authMethod === 'password' ? 'mosa or grace@example.com or +254 700 000 000' : '+254 712 345 678'}
                     className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
                     required
                     id="login-identifier-input"
@@ -1101,17 +1130,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
-                  Administrative Email
+                  {isRtl ? 'اسم المستخدم أو البريد الإلكتروني الإداري' : 'Administrative Username or Email'}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
-                    <Mail className="w-4 h-4" />
+                    <User className="w-4 h-4" />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="admin@dawamed.com"
+                    placeholder={isRtl ? 'mosa أو admin@dawamed.com' : 'mosa or admin@dawamed.com'}
                     className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#1B4332] focus:outline-none"
                     required
                     id="admin-email-input"

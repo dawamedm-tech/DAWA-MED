@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 interface BrandLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -18,12 +19,21 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   isLightOnDark = false,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+  const { settings } = useSiteSettings();
+  const [imageError, setImageError] = useState(false);
 
   const iconSizes = {
     sm: 'w-7 h-7 text-sm rounded-lg',
     md: 'w-10 h-10 text-xl rounded-xl',
     lg: 'w-12 h-12 text-2xl rounded-2xl',
     xl: 'w-16 h-16 text-3xl rounded-2xl',
+  };
+
+  const imageSizes = {
+    sm: 'h-7 max-w-[120px]',
+    md: 'h-10 max-w-[160px]',
+    lg: 'h-12 max-w-[200px]',
+    xl: 'h-16 max-w-[260px]',
   };
 
   const textSizes = {
@@ -40,9 +50,34 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     xl: 'text-sm',
   };
 
+  const customLogoUrl = settings?.logoUrl;
+  const hasCustomLogo = Boolean(customLogoUrl && !imageError);
+
+  // If a custom logo image was uploaded from Admin Dashboard and loads cleanly
+  if (hasCustomLogo && customLogoUrl) {
+    return (
+      <div className={`flex items-center gap-2.5 select-none ${className}`} id="dawa-brand-custom-logo">
+        <img
+          src={customLogoUrl}
+          alt={settings?.siteName || 'DAWA MED'}
+          className={`${imageSizes[size]} object-contain transition-transform duration-200 hover:scale-105`}
+          referrerPolicy="no-referrer"
+          onError={() => setImageError(true)}
+        />
+        {showTagline && (
+          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
+            {language === 'ar' ? (settings?.taglineAr || t.tagline) : language === 'fr' ? (settings?.taglineFr || t.tagline) : (settings?.tagline || t.tagline)}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const siteName = language === 'ar' ? (settings?.siteNameAr || 'دواء ميد') : (settings?.siteName || 'DAWA MED');
+
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`} id="dawa-brand-logo-container">
-      {/* Brand Icon: Sleek Forest green box with white 'D' and cross mark accent */}
+      {/* Default Brand Icon: Forest green box with white 'D' and cross mark accent */}
       <div
         className={`${iconSizes[size]} relative flex items-center justify-center ${
           isLightOnDark ? 'bg-[#52B788]' : 'bg-[#2D6A4F]'
@@ -57,16 +92,16 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       <div className="flex flex-col min-w-0">
         <div className={textSizes[size]}>
           <span className={isLightOnDark ? 'text-white' : 'text-[#2D6A4F]'}>
-            DAWA
+            {siteName.split(' ')[0] || 'DAWA'}
           </span>
-          <span className={isLightOnDark ? 'text-[#95D5B2]' : 'text-[#74C69D]'}>
-            MED
+          <span className={`ml-1 ${isLightOnDark ? 'text-[#95D5B2]' : 'text-[#74C69D]'}`}>
+            {siteName.split(' ').slice(1).join(' ') || 'MED'}
           </span>
         </div>
         
         {showTagline && (
           <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
-            {t.tagline}
+            {language === 'ar' ? (settings?.taglineAr || t.tagline) : language === 'fr' ? (settings?.taglineFr || t.tagline) : (settings?.tagline || t.tagline)}
           </p>
         )}
       </div>

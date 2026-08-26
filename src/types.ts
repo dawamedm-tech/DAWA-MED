@@ -5,45 +5,74 @@ export type UserRole =
   | 'admin' 
   | 'support'
   | 'super_admin'
+  | 'medical_admin'
+  | 'operations_admin'
+  | 'support_admin'
   | 'subscription' 
   | 'website'
   | 'pharmacy_admin'
   | 'system_admin';
 
 export type Permission = 
+  // User Management
   | 'users.view'
+  | 'users.create'
   | 'users.edit'
   | 'users.delete'
+  | 'users.change_password'
+  // Pharmacy Network
   | 'pharmacies.view'
   | 'pharmacies.register'
   | 'pharmacies.approve'
   | 'pharmacies.reject'
   | 'pharmacies.suspend'
+  | 'pharmacies.delete'
+  // Medicines & Catalogue
   | 'medicines.view'
   | 'medicines.create'
   | 'medicines.edit'
   | 'medicines.approve'
   | 'medicines.reject'
   | 'medicines.suspend'
+  | 'medicines.delete'
+  // Inventory
   | 'inventory.view'
   | 'inventory.manage'
+  // Orders & Deliveries
   | 'orders.view'
   | 'orders.create'
   | 'orders.manage'
   | 'orders.dispense'
+  | 'orders.cancel'
+  // Prescriptions
   | 'prescriptions.upload'
   | 'prescriptions.review'
   | 'prescriptions.view_audit'
+  // Payments & Refunds
   | 'payments.view'
   | 'payments.initiate'
   | 'payments.refund'
+  | 'payments.manage'
+  // Support & Escalations
   | 'support.view'
   | 'support.manage'
   | 'support.reply'
+  // Platform & Site Settings
   | 'settings.view'
   | 'settings.manage'
   | 'settings.email_manage'
-  | 'audit.view';
+  | 'settings.site_manage'
+  // Audit Logs
+  | 'audit.view'
+  // Administrators Management
+  | 'administrators.view'
+  | 'administrators.create'
+  | 'administrators.edit'
+  | 'administrators.delete'
+  | 'administrators.change_role'
+  | 'administrators.manage_permissions'
+  | 'administrators.change_password'
+  | 'administrators.reset_sessions';
 
 export type MedicineApprovalStatus = 
   | 'draft'
@@ -445,6 +474,7 @@ export interface UserAddress {
 
 export interface AuthUser {
   id: string;
+  username?: string;
   name: string;
   phone?: string;
   email?: string;
@@ -477,6 +507,7 @@ export interface AuthUser {
 
 export interface UserProfile {
   id: string;
+  username?: string;
   name: string;
   email?: string;
   phone: string;
@@ -770,5 +801,37 @@ export interface EmailLog {
   maxRetries: number;
   language: Language;
 }
+
+// ============================================================================
+// SITE SETTINGS & BRAND IDENTITY INTERFACES
+// ============================================================================
+
+export interface SiteSettings {
+  siteName: string;
+  siteNameAr: string;
+  siteNameFr: string;
+  tagline: string;
+  taglineAr: string;
+  taglineFr: string;
+  logoUrl?: string; // Custom uploaded logo (data URI / URL)
+  logoFileName?: string;
+  logoFileType?: string;
+  logoFileSizeKb?: number;
+  logoUpdatedAt?: string;
+  supportEmail: string;
+  supportPhone: string;
+  primaryBrandColor: string;
+  enablePatientRegistration: boolean;
+  enablePharmacyRegistration: boolean;
+  requireMfaForAdmins: boolean;
+  maintenanceMode: boolean;
+  announcementNoticeEn?: string;
+  announcementNoticeAr?: string;
+  announcementNoticeFr?: string;
+  showAnnouncementNotice: boolean;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
 
 
