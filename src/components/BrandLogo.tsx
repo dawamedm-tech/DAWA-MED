@@ -54,7 +54,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       </div>
 
       {/* Brand Name & Tagline */}
-      <div className="flex flex-col">
+      <div className="flex flex-col min-w-0">
         <div className={textSizes[size]}>
           <span className={isLightOnDark ? 'text-white' : 'text-[#2D6A4F]'}>
             DAWA
@@ -65,7 +65,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </div>
         
         {showTagline && (
-          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-widest whitespace-nowrap mt-0.5`}>
+          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
             {t.tagline}
           </p>
         )}

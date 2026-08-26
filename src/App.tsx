@@ -609,7 +609,10 @@ function AppInner() {
   const activeReminderForBanner = medicineReminders.find((r) => r.isOngoing && r.remainingQuantity > 0) || null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F7F5] text-[#1B4332] font-['Plus_Jakarta_Sans',sans-serif]">
+    <div 
+      className="min-h-screen flex flex-col bg-[#F4F7F5] text-[#1B4332] w-full max-w-full min-w-0 box-border overflow-x-hidden"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       {/* Brand Splash Screen Modal */}
       <SplashScreen
         isOpen={isSplashOpen}

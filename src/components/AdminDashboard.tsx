@@ -361,7 +361,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   return (
-    <div className="space-y-6" id="admin-dashboard-root">
+    <div className="space-y-6 w-full max-w-full min-w-0 box-border" id="admin-dashboard-root">
       {/* Header with Multi-Country Switcher */}
       <div className="bg-[#1B4332] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#2D6A4F]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
@@ -398,7 +398,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#D8E2DC] pb-2 overflow-x-auto">
+      <div className="w-full max-w-full flex items-center gap-2 border-b border-[#D8E2DC] pb-2 overflow-x-auto no-scrollbar min-w-0 box-border">
         <button
           onClick={() => setActiveTab('medicine_approvals')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${

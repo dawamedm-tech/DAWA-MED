@@ -125,14 +125,14 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#52B788] mb-2">
                 Dispensed Medications
               </h4>
-              <div className="border border-[#D8E2DC] rounded-2xl overflow-hidden">
-                <table className="w-full text-left text-xs">
+              <div className="border border-[#D8E2DC] rounded-2xl overflow-hidden overflow-x-auto">
+                <table className="w-full text-start text-xs min-w-[320px]">
                   <thead className="bg-[#F0F7F4] text-[#1B4332] font-semibold border-b border-[#D8E2DC]">
                     <tr>
-                      <th className="p-3.5">Medicine & Dosage</th>
+                      <th className="p-3.5 text-start">Medicine & Dosage</th>
                       <th className="p-3.5 text-center">Type</th>
                       <th className="p-3.5 text-center">Qty</th>
-                      <th className="p-3.5 text-right">Price ({selectedCountry.currency})</th>
+                      <th className="p-3.5 text-end">Price ({selectedCountry.currency})</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E9F5EE]">

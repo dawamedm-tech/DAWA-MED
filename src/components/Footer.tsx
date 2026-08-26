@@ -23,17 +23,22 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenHealthTests,
 }) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+  const isRtl = language === 'ar';
 
   return (
-    <footer className="bg-[#1B4332] text-[#D8F3DC]/80 text-xs border-t border-[#2D6A4F]/40 mt-16" id="dawa-main-footer">
+    <footer 
+      className="w-full max-w-full bg-[#1B4332] text-[#D8F3DC]/80 text-xs border-t border-[#2D6A4F]/40 mt-16 box-border min-w-0" 
+      id="dawa-main-footer"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       {/* Top Banner: Meaning & Mission */}
-      <div className="border-b border-[#2D6A4F]/60 bg-[#133024] py-6 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div className="w-full max-w-full border-b border-[#2D6A4F]/60 bg-[#133024] py-6 px-4 sm:px-6 box-border">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-start">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-white/10 text-[#74C69D] flex items-center justify-center border border-white/15 shrink-0">
               <Award className="w-5 h-5" />
             </div>
-            <div>
+            <div className="text-start">
               <p className="text-white font-bold text-sm">
                 DAWA = &ldquo;Medicine&rdquo; in Swahili • MED = Medical
               </p>
@@ -43,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {onOpenHealthTests && (
               <button
                 onClick={onOpenHealthTests}
@@ -63,7 +68,7 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-start box-border">
         {/* Col 1: Brand Info */}
         <div className="space-y-3">
           <BrandLogo size="md" isLightOnDark showTagline language={language} />
@@ -71,7 +76,7 @@ export const Footer: React.FC<FooterProps> = ({
             A digital healthcare access platform connecting patients to registered, licensed pharmacies and verified cold-chain couriers.
           </p>
           <div className="pt-1 flex items-center gap-2 text-[11px] text-[#74C69D] font-semibold">
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4 shrink-0" />
             <span>Ministry of Health & Board of Pharmacy Compliant</span>
           </div>
         </div>
@@ -100,26 +105,26 @@ export const Footer: React.FC<FooterProps> = ({
             {onOpenLegal && (
               <>
                 <li>
-                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
-                    <Lock className="w-3.5 h-3.5 text-[#74C69D]" />
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-start">
+                    <Lock className="w-3.5 h-3.5 text-[#74C69D] shrink-0" />
                     <span>{t.legalPrivacy}</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
-                    <FileText className="w-3.5 h-3.5 text-[#74C69D]" />
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-start">
+                    <FileText className="w-3.5 h-3.5 text-[#74C69D] shrink-0" />
                     <span>{t.legalTerms}</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
-                    <ThermometerSnowflake className="w-3.5 h-3.5 text-[#74C69D]" />
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-start">
+                    <ThermometerSnowflake className="w-3.5 h-3.5 text-[#74C69D] shrink-0" />
                     <span>{t.legalDelivery} (2°C - 8°C)</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-left">
-                    <RefreshCcw className="w-3.5 h-3.5 text-[#74C69D]" />
+                  <button onClick={onOpenLegal} className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer text-start">
+                    <RefreshCcw className="w-3.5 h-3.5 text-[#74C69D] shrink-0" />
                     <span>{t.legalRefund}</span>
                   </button>
                 </li>
@@ -143,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Bottom copyright */}
-      <div className="border-t border-[#2D6A4F]/60 py-4 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-[10px] text-[#D8F3DC]/60 max-w-7xl mx-auto">
+      <div className="border-t border-[#2D6A4F]/60 py-4 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-[10px] text-[#D8F3DC]/60 max-w-7xl mx-auto box-border">
         <div>© 2026 DAWA MED Inc. All rights reserved. Your Medicine. Delivered.</div>
         <div className="flex items-center gap-4">
           {onOpenLegal && (
