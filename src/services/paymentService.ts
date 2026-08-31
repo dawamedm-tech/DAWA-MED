@@ -18,23 +18,35 @@ export interface PaymentInitiateParams {
 
 export interface PaymentResult {
   success: boolean;
+  status: 'SUCCESS' | 'PENDING' | 'NOT_CONFIGURED' | 'FAILED';
   referenceId: string;
   transactionId?: string;
+  checkoutUrl?: string;
   message: string;
   ussdPrompt?: string;
   requiresOtp?: boolean;
-  tokenizedPaymentMethod?: string;
 }
 
 export class PaymentService {
   /**
    * Initiates payment routing according to country-specific provider rules.
+   * Real production execution: Calls backend API which verifies credentials against M-Pesa Daraja or Paystack.
+   * If credentials are not configured, returns NOT_CONFIGURED status.
    */
   static async initiatePayment(params: PaymentInitiateParams): Promise<PaymentResult> {
     const { amount, currency, country, provider, phoneNumber, orderId } = params;
     const ref = `REF-${country.code}-${Date.now().toString().slice(-6)}`;
 
-    // Try backend API first, fallback gracefully to client simulation
+    // Cash on delivery is naturally valid offline/in-person
+    if (provider === 'cash_on_delivery') {
+      return {
+        success: true,
+        status: 'PENDING',
+        referenceId: ref,
+        message: 'Cash on delivery selected. Payment will be collected in-person upon cold-chain inspection.',
+      };
+    }
+
     try {
       const response = await fetch('/api/payments/initiate', {
         method: 'POST',
@@ -47,78 +59,41 @@ export class PaymentService {
           phoneNumber,
           orderId,
           isSubscription: Boolean(params.subscriptionPlan),
+          cardDetails: params.cardDetails
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+      if (response.ok && data.success) {
         return {
           success: true,
+          status: 'PENDING',
           referenceId: data.referenceId || ref,
-          transactionId: `TXN-${Date.now()}`,
-          message: data.instructions || `Payment initiated for ${amount} ${currency}.`,
-          ussdPrompt: country.ussdCode ? `${country.ussdCode}#` : '*165#',
-          tokenizedPaymentMethod: `tok_${provider}_${phoneNumber ? phoneNumber.slice(-4) : 'card'}`,
+          transactionId: data.transactionId,
+          checkoutUrl: data.checkoutUrl,
+          message: data.instructions || `Payment initiated for ${amount} ${currency}. Please authorize on your device.`,
+          ussdPrompt: country.ussdCode ? `${country.ussdCode}#` : undefined,
+        };
+      } else {
+        return {
+          success: false,
+          status: data.status === 'NOT_CONFIGURED' ? 'NOT_CONFIGURED' : 'FAILED',
+          referenceId: ref,
+          message: data.error || data.message || `${provider.toUpperCase()} Gateway is pending configuration in Admin settings.`,
         };
       }
-    } catch {
-      // Offline fallback
-    }
-
-    // Local fallback logic based on country
-    if (provider.includes('momo') || provider.includes('mtn')) {
+    } catch (err: any) {
       return {
-        success: true,
+        success: false,
+        status: 'FAILED',
         referenceId: ref,
-        transactionId: `MOMO-${Date.now()}`,
-        message: `STK Push sent to ${phoneNumber || country.mobileMoneyProviders[0]}. Please enter your Mobile Money PIN on your phone.`,
-        ussdPrompt: '*165#',
-        tokenizedPaymentMethod: `tok_mtn_${phoneNumber.slice(-4) || '8899'}`,
+        message: `Payment request could not be processed: ${err?.message || 'Network error'}`,
       };
     }
-
-    if (provider.includes('mpesa') || provider.includes('safaricom')) {
-      return {
-        success: true,
-        referenceId: ref,
-        transactionId: `MPESA-${Date.now()}`,
-        message: `Safaricom M-Pesa prompt sent to ${phoneNumber}. Enter M-Pesa PIN on your SIM toolkit.`,
-        ussdPrompt: '*334#',
-        tokenizedPaymentMethod: `tok_mpesa_${phoneNumber.slice(-4) || '5544'}`,
-      };
-    }
-
-    if (provider.includes('airtel')) {
-      return {
-        success: true,
-        referenceId: ref,
-        transactionId: `AIRTEL-${Date.now()}`,
-        message: `Airtel Money authorization prompt sent to ${phoneNumber}.`,
-        ussdPrompt: '*185#',
-        tokenizedPaymentMethod: `tok_airtel_${phoneNumber.slice(-4) || '1122'}`,
-      };
-    }
-
-    if (provider === 'card') {
-      return {
-        success: true,
-        referenceId: ref,
-        transactionId: `CARD-3DS-${Date.now()}`,
-        message: '3D-Secure 2.0 verification successful. Card authorized.',
-        tokenizedPaymentMethod: 'tok_visa_4242',
-      };
-    }
-
-    return {
-      success: true,
-      referenceId: ref,
-      transactionId: `CASH-${Date.now()}`,
-      message: 'Pay in cash/mobile money directly upon cold-chain delivery inspection.',
-    };
   }
 
   /**
-   * Verifies recurring subscription payment status ($5/month).
+   * Verifies recurring subscription payment status.
    */
   static async verifySubscriptionPayment(subscriptionId: string): Promise<boolean> {
     try {
@@ -130,6 +105,6 @@ export class PaymentService {
     } catch {
       // ignore
     }
-    return true;
+    return false;
   }
 }

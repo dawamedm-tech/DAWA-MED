@@ -38,6 +38,7 @@ import {
   INITIAL_REFERRAL_CONFIG
 } from './data/mockData';
 import { TRANSLATIONS } from './data/translations';
+import { DEFAULT_USERS, ROLE_PERMISSIONS } from './utils/rbac';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { Header } from './components/Header';
@@ -826,27 +827,36 @@ function AppInner() {
           />
         )}
 
-        {(currentRole === 'admin' || currentRole === 'super_admin') && (
+        {(currentRole === 'admin' || currentRole === 'super_admin' || currentRole === 'medical_admin' || currentRole === 'operations_admin' || currentRole === 'support_admin') && (
           <AdminDashboard
             orders={orders}
             selectedCountry={selectedCountry}
             onCountryChange={setSelectedCountry}
             language={language}
             medicines={medicines}
-            currentUser={{
-              id: userProfile.id,
-              username: userProfile.username,
-              name: userProfile.name,
-              email: userProfile.email || 'mosa@dawamed.com',
-              role: (localStorage.getItem('dawa_user_role') as UserRole) || 'admin',
-              permissions: ['users.view', 'users.edit', 'pharmacies.view', 'pharmacies.approve', 'medicines.view', 'medicines.approve', 'audit.view', 'settings.manage'],
-              status: 'active',
-              isVerified: true,
-              countryCode: userProfile.countryCode,
-              city: userProfile.city,
-              streetAddress: userProfile.streetAddress,
-              preferredLanguage: userProfile.preferredLanguage,
-              lastLoginAt: new Date().toISOString()
+            currentUser={(() => {
+              const matchedDefault = DEFAULT_USERS.find((u) => u.role === currentRole);
+              return {
+                id: userProfile.id || matchedDefault?.id || `usr-${currentRole}-1`,
+                username: userProfile.username || matchedDefault?.username || currentRole,
+                name: matchedDefault?.name || userProfile.name || 'DAWA Administrator',
+                email: matchedDefault?.email || userProfile.email || `${currentRole}@dawamed.com`,
+                role: currentRole as UserRole,
+                permissions: (ROLE_PERMISSIONS[currentRole as keyof typeof ROLE_PERMISSIONS] || ROLE_PERMISSIONS.admin) as any,
+                status: 'active',
+                isVerified: true,
+                countryCode: matchedDefault?.countryCode || userProfile.countryCode || selectedCountry.code,
+                city: matchedDefault?.city || userProfile.city || selectedCountry.sampleCity,
+                streetAddress: matchedDefault?.streetAddress || userProfile.streetAddress || 'DAWA HQ',
+                preferredLanguage: matchedDefault?.preferredLanguage || userProfile.preferredLanguage || language,
+                lastLoginAt: new Date().toISOString()
+              };
+            })()}
+            onSwitchUser={(switchedUser) => {
+              if (switchedUser.role) {
+                setCurrentRole(switchedUser.role);
+                localStorage.setItem('dawa_user_role', switchedUser.role);
+              }
             }}
             onUpdateMedicineStatus={(medicineId, status, notes, reason) => {
               setMedicines((prev) =>

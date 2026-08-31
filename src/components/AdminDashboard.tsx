@@ -34,11 +34,15 @@ import {
 } from '../data/mockData';
 import { TRANSLATIONS } from '../data/translations';
 import { translate } from '../utils/i18n';
+import { DEFAULT_USERS } from '../utils/rbac';
 import { MedicineApprovalManager } from './MedicineApprovalManager';
 import { PharmacyApprovalManager } from './PharmacyApprovalManager';
 import { RbacUserManager } from './RbacUserManager';
 import { EmailSettingsManager } from './EmailSettingsManager';
 import { SiteSettingsManager } from './SiteSettingsManager';
+import { RevenueMonetizationDashboard } from './RevenueMonetizationDashboard';
+import { MonetizationSettingsManager } from './MonetizationSettingsManager';
+import { ProductionReadinessManager } from './ProductionReadinessManager';
 import { 
   ShieldCheck, 
   Building2, 
@@ -109,8 +113,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<
-    'medicine_approvals' | 'pharmacy_approvals' | 'site_settings' | 'rbac_users' | 'email_settings' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
-  >('medicine_approvals');
+    'production_readiness' | 'revenue_monetization' | 'monetization_settings' | 'medicine_approvals' | 'pharmacy_approvals' | 'site_settings' | 'rbac_users' | 'email_settings' | 'analytics' | 'pharmacies' | 'drivers' | 'customers' | 'orders' | 'zones' | 'content' | 'support' | 'audit' | 'subscriptions'
+  >('production_readiness');
 
   // State collections
   const [medicinesList, setMedicinesList] = useState<Medicine[]>(initialMedicines);
@@ -363,19 +367,80 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   return (
     <div className="space-y-6 w-full max-w-full min-w-0 box-border" id="admin-dashboard-root">
-      {/* Header with Multi-Country Switcher */}
+      {/* Header with Multi-Country Switcher and Active Role Indicator */}
       <div className="bg-[#1B4332] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#2D6A4F]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-xs font-bold border border-white/15 mb-2">
-            <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
-            <span>{t.panAfricanCompliance || translate('panAfricanCompliance', language)}</span>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-xs font-bold border border-white/15">
+              <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
+              <span>{t.panAfricanCompliance || translate('panAfricanCompliance', language)}</span>
+            </div>
+            
+            {/* Active Admin Persona Badge */}
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-xs ${
+              currentUser?.role === 'super_admin' 
+                ? 'bg-amber-500/20 text-amber-300 border-amber-400/40'
+                : currentUser?.role === 'medical_admin'
+                ? 'bg-blue-500/20 text-blue-300 border-blue-400/40'
+                : currentUser?.role === 'operations_admin'
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+                : 'bg-white/10 text-white border-white/20'
+            }`}>
+              <Key className="w-3.5 h-3.5" />
+              <span>
+                {currentUser?.role === 'super_admin' && '👑 Super Admin'}
+                {currentUser?.role === 'medical_admin' && '🩺 Medical Admin'}
+                {currentUser?.role === 'operations_admin' && '⚙️ Operations Admin'}
+                {currentUser?.role === 'admin' && '🛡️ General Admin'}
+                {currentUser?.role === 'support_admin' && '🎧 Support Admin'}
+                {(!currentUser?.role || (currentUser?.role !== 'super_admin' && currentUser?.role !== 'medical_admin' && currentUser?.role !== 'operations_admin' && currentUser?.role !== 'admin' && currentUser?.role !== 'support_admin')) && `🛡️ ${currentUser?.role || 'Admin'}`}
+              </span>
+              {currentUser?.name && <span className="opacity-75">({currentUser.name.split(' ')[0]})</span>}
+            </div>
           </div>
+
           <h2 className="text-xl sm:text-2xl font-black text-white">
             {t.adminCommandTitle || translate('adminCommandTitle', language)}
           </h2>
           <p className="text-xs text-[#D8F3DC]/80 mt-0.5">
             {t.activeMarketLabel || translate('activeMarketLabel', language)} <strong className="text-white">{selectedCountry.flag} {selectedCountry.name}</strong> • {t.regulatoryBodyLabel || translate('regulatoryBodyLabel', language)} {selectedCountry.regulatoryBody}
           </p>
+
+          {/* Quick RBAC Persona Switcher for Admins */}
+          {onSwitchUser && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-2 border-t border-white/10">
+              <span className="text-[11px] text-[#74C69D] font-bold me-1">Switch Admin Persona:</span>
+              {[
+                { role: 'super_admin', label: '👑 Super Admin', bg: 'hover:bg-amber-500/20' },
+                { role: 'medical_admin', label: '🩺 Medical Admin', bg: 'hover:bg-blue-500/20' },
+                { role: 'operations_admin', label: '⚙️ Operations Admin', bg: 'hover:bg-emerald-500/20' },
+                { role: 'admin', label: '🛡️ General Admin', bg: 'hover:bg-white/20' }
+              ].map((p) => {
+                const isActive = currentUser?.role === p.role;
+                return (
+                  <button
+                    key={p.role}
+                    onClick={() => {
+                      const userObj = DEFAULT_USERS.find(u => u.role === p.role);
+                      if (userObj) {
+                        onSwitchUser(userObj as AuthUser);
+                        if (p.role === 'medical_admin') setActiveTab('medicine_approvals');
+                        else if (p.role === 'operations_admin') setActiveTab('orders');
+                        else if (p.role === 'super_admin') setActiveTab('revenue_monetization');
+                      }
+                    }}
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                      isActive 
+                        ? 'bg-white text-[#1B4332] shadow-sm font-black' 
+                        : `bg-white/10 text-white/90 border border-white/15 ${p.bg}`
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Market Selector */}
@@ -400,6 +465,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* Navigation Sub-Tabs */}
       <div className="w-full max-w-full flex items-center gap-2 border-b border-[#D8E2DC] pb-2 overflow-x-auto no-scrollbar min-w-0 box-border">
+        <button
+          onClick={() => setActiveTab('production_readiness')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'production_readiness' ? 'bg-[#1B4332] text-white shadow-sm ring-1 ring-[#2D6A4F]' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+          id="tab-production-readiness"
+        >
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span>{language === 'ar' ? 'جاهزية الإنتاج والاتصال الحي' : 'Production Health & Zero Mock'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('revenue_monetization')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'revenue_monetization' ? 'bg-[#1B4332] text-white shadow-sm ring-1 ring-[#2D6A4F]' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+          id="tab-revenue-monetization"
+        >
+          <DollarSign className="w-4 h-4 text-emerald-400" />
+          <span>{language === 'ar' ? 'الإيرادات وتحقيق الدخل (Phase 1)' : 'Revenue & Monetization (Phase 1)'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('monetization_settings')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === 'monetization_settings' ? 'bg-[#1B4332] text-white shadow-sm ring-1 ring-[#2D6A4F]' : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+          }`}
+          id="tab-monetization-settings"
+        >
+          <Sliders className="w-4 h-4 text-emerald-400" />
+          <span>{language === 'ar' ? 'إعدادات وقواعد التسعير والعمولات' : 'Pricing & Commission Rules'}</span>
+        </button>
+
         <button
           onClick={() => setActiveTab('medicine_approvals')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -567,6 +665,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <span>{t.securityAuditTrailTab || translate('securityAuditTrailTab', language)}</span>
         </button>
       </div>
+
+      {/* PRODUCTION READINESS & CONNECTIVITY HEALTH MATRIX */}
+      {activeTab === 'production_readiness' && (
+        <ProductionReadinessManager
+          language={language}
+        />
+      )}
+
+      {/* REVENUE & MONETIZATION DASHBOARD (PHASE 1 CORE) */}
+      {activeTab === 'revenue_monetization' && (
+        <RevenueMonetizationDashboard
+          language={language}
+          selectedCountry={selectedCountry}
+          currentUser={currentUser}
+          onOpenSettings={() => setActiveTab('monetization_settings')}
+        />
+      )}
+
+      {/* MONETIZATION & PRICING RULES SETTINGS */}
+      {activeTab === 'monetization_settings' && (
+        <MonetizationSettingsManager
+          language={language}
+          selectedCountry={selectedCountry}
+          currentUser={currentUser}
+          onSaved={() => {
+            // Can show a notification or re-sync if needed
+          }}
+        />
+      )}
 
       {/* EMAIL SETTINGS TAB */}
       {activeTab === 'email_settings' && (

@@ -62,6 +62,10 @@ export type Permission =
   | 'settings.manage'
   | 'settings.email_manage'
   | 'settings.site_manage'
+  // Monetization & Analytics
+  | 'analytics.view'
+  | 'monetization.view'
+  | 'monetization.manage'
   // Audit Logs
   | 'audit.view'
   // Administrators Management
@@ -223,6 +227,7 @@ export interface Order {
   id: string;
   orderNumber: string;
   createdAt: string;
+  customerId?: string;
   customerName: string;
   customerPhone: string;
   deliveryAddress: string;
@@ -243,6 +248,7 @@ export interface Order {
   pharmacyId: string;
   pharmacyName: string;
   pharmacistLicense: string;
+  driverId?: string;
   driverName?: string;
   driverPhone?: string;
   driverVehicle?: string;
@@ -832,6 +838,240 @@ export interface SiteSettings {
   updatedAt?: string;
   updatedBy?: string;
 }
+
+// ============================================================================
+// MONETIZATION & REVENUE ARCHITECTURE INTERFACES
+// ============================================================================
+
+export type RevenueSource = 
+  | 'pharmacy_commission'
+  | 'delivery_fees'
+  | 'dawa_monthly'
+  | 'pharmacy_subscription'
+  | 'express_delivery'
+  | 'family_plan'
+  | 'pharmacy_analytics'
+  | 'business_corporate'
+  | 'logistics_b2b'
+  | 'saas_whitelabel'
+  | 'advertising';
+
+export interface PharmacySubscriptionPlan {
+  id: string; // 'basic' | 'pro' | 'enterprise' | custom
+  name: string;
+  nameAr: string;
+  nameFr?: string;
+  priceUSD: number;
+  billingPeriod: 'monthly' | 'yearly';
+  features: string[];
+  featuresAr: string[];
+  featuresFr?: string[];
+  isActive: boolean;
+  isPopular?: boolean;
+  maxMonthlyOrders?: number; // 0 or undefined for unlimited
+  customCommissionRate?: number; // Optional discounted commission rate
+}
+
+export interface CouponCode {
+  id: string;
+  code: string;
+  description: string;
+  descriptionAr: string;
+  discountType: 'percentage' | 'fixed_amount';
+  discountValue: number; // e.g. 15 for 15% or 5 for $5
+  minOrderUSD: number;
+  maxDiscountUSD?: number;
+  usageLimit: number;
+  usedCount: number;
+  expiresAt: string;
+  isActive: boolean;
+}
+
+export interface PaymentGatewayConfig {
+  id: string;
+  name: string;
+  nameAr: string;
+  providerCode: 'mpesa_direct' | 'mtn_momo' | 'airtel_money' | 'paystack' | 'flutterwave' | 'stripe' | 'cash_on_delivery';
+  supportedCountries: string[]; // ['KE', 'UG', 'TZ', 'RW', 'NG', 'EG']
+  type: 'mobile_money' | 'card' | 'bank_transfer' | 'cash';
+  feePercentage: number;
+  fixedFeeUSD: number;
+  isActive: boolean;
+  testMode: boolean;
+}
+
+export interface MonetizationSettings {
+  // 1. Pharmacy Commission %
+  defaultPharmacyCommissionRate: number; // e.g. 10 (10%)
+  minCommissionRate: number;
+  maxCommissionRate: number;
+  pharmacyCustomCommissions: Record<string, number>; // pharmacyId -> custom % rate (e.g. { 'pharma-01': 8.5 })
+
+  // 2. Delivery Fees Engine
+  baseDeliveryFeeUSD: number; // e.g. 2.50
+  perKmRateUSD: number; // e.g. 0.35
+  expressDeliveryFeeUSD: number; // e.g. 3.00
+  minDeliveryFeeUSD: number; // e.g. 1.50
+  maxDeliveryFeeUSD: number; // e.g. 15.00
+  freeDeliveryThresholdUSD: number; // e.g. 35.00
+  driverPayoutPercentage: number; // e.g. 70% to driver, 30% to DAWA net margin
+  cityDeliveryMultipliers: Record<string, number>; // e.g. { 'Nairobi': 1.0, 'Kampala': 0.95, 'Entebbe': 1.1, 'Rural': 1.3 }
+
+  // 4. DAWA MED Monthly ($5/mo)
+  dawaMonthlyPriceUSD: number; // 5.00
+  dawaMonthlyTrialDays: number;
+  dawaMonthlyIsActive: boolean;
+  dawaMonthlyFeatures: string[];
+  dawaMonthlyFeaturesAr: string[];
+
+  // 5. Family Plan
+  familyPlanPriceUSD: number; // 9.99
+  familyPlanMaxMembers: number; // 6
+  familyPlanEnabled: boolean;
+
+  // 6. Pharmacy Subscriptions
+  pharmacyPlans: PharmacySubscriptionPlan[];
+
+  // 7. Additional Future Streams
+  expressDeliveryEnabled: boolean;
+  pharmacyAnalyticsEnabled: boolean;
+  pharmacyAnalyticsPriceUSD: number; // 15.00
+  businessCorporateEnabled: boolean;
+  businessCorporatePriceUSD: number; // 49.00
+  logisticsB2BEnabled: boolean;
+  logisticsB2BRatePerStopUSD: number; // 1.80
+  saasWhiteLabelEnabled: boolean;
+  saasWhiteLabelPriceUSD: number; // 299.00
+  advertisingEnabled: boolean;
+
+  // Promotions & Taxes
+  coupons: CouponCode[];
+  taxVatRatePercentage: number; // e.g. 0%
+  serviceFeeUSD: number; // e.g. 0.50
+  paymentGateways: PaymentGatewayConfig[];
+
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export interface FinancialSettlement {
+  orderId: string;
+  orderNumber: string;
+  countryCode: string;
+  city: string;
+  pharmacyId: string;
+  pharmacyName: string;
+  customerId: string;
+  customerName: string;
+  driverId?: string;
+  driverName?: string;
+  paymentMethod: string;
+  currency: string;
+  itemsSubtotalUSD: number;
+  deliveryFeeUSD: number;
+  expressSurchargeUSD: number;
+  discountUSD: number;
+  serviceFeeUSD: number;
+  taxAmountUSD: number;
+  totalCustomerPaidUSD: number;
+  
+  // Commission & Profit Splits
+  commissionRateApplied: number;
+  pharmacyCommissionUSD: number;
+  netPharmacyPayableUSD: number;
+  driverPayoutUSD: number;
+  dawaNetDeliveryMarginUSD: number;
+  gatewayFeeUSD: number;
+  dawaGrossRevenueUSD: number;
+  dawaNetProfitUSD: number;
+  
+  settlementStatus: 'pending' | 'earned' | 'settled' | 'refunded' | 'cancelled';
+  orderStatus: OrderStatus;
+  createdAt: string;
+  settledAt?: string;
+}
+
+export interface PharmacySubscriptionRecord {
+  id: string;
+  pharmacyId: string;
+  pharmacyName: string;
+  licenseNumber: string;
+  city: string;
+  countryCode: string;
+  planId: string;
+  planName: string;
+  priceUSD: number;
+  status: 'active' | 'trial' | 'payment_failed' | 'cancelled' | 'expired';
+  startDate: string;
+  renewalDate: string;
+  paymentMethod: string;
+  autoRenew: boolean;
+  lastPaymentDate?: string;
+  billingHistory: SubscriptionBillingRecord[];
+}
+
+export interface RevenueAnalyticsKPIs {
+  totalGrossRevenueUSD: number;
+  totalNetProfitUSD: number;
+  totalPharmacyCommissionsUSD: number;
+  totalDeliveryGrossUSD: number;
+  totalDeliveryNetMarginUSD: number;
+  totalPatientSubscriptionsUSD: number;
+  totalPharmacySubscriptionsUSD: number;
+  totalOtherRevenueUSD: number;
+  
+  // Recurring metrics
+  mrrUSD: number;
+  arrUSD: number;
+  activePatientSubscribers: number;
+  activePharmacySubscribers: number;
+  
+  // Operations & Order metrics
+  totalCompletedOrders: number;
+  averageOrderValueUSD: number;
+  revenuePerCustomerUSD: number;
+  revenuePerPharmacyUSD: number;
+  subscriptionChurnRatePercent: number;
+  paymentSuccessRatePercent: number;
+  failedPaymentsCount: number;
+}
+
+export interface RevenueBySourceBreakdown {
+  source: RevenueSource;
+  labelEn: string;
+  labelAr: string;
+  amountUSD: number;
+  percentage: number;
+  transactionCount: number;
+  isPhase1Core: boolean;
+  isEnabled: boolean;
+}
+
+export interface RevenueAnalyticsResponse {
+  timeframe: 'today' | 'this_week' | 'this_month' | 'this_year' | 'all_time' | 'custom';
+  kpis: RevenueAnalyticsKPIs;
+  bySource: RevenueBySourceBreakdown[];
+  dailyTrend: {
+    date: string;
+    grossRevenue: number;
+    commissions: number;
+    delivery: number;
+    subscriptions: number;
+    netProfit: number;
+  }[];
+  recentSettlements: FinancialSettlement[];
+  pharmacyEarningsSummary: {
+    pharmacyId: string;
+    pharmacyName: string;
+    ordersCount: number;
+    grossSalesUSD: number;
+    commissionRate: number;
+    commissionsDeductedUSD: number;
+    netPayableUSD: number;
+    subscriptionPlan: string;
+  }[];
+}
+
 
 
 

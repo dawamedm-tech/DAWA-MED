@@ -34,6 +34,14 @@ import {
   SAMPLE_DRIVERS
 } from './src/data/mockData';
 import { emailService } from './src/server/emailService';
+import { monetizationEngine } from './src/server/monetizationService';
+import { FirestoreDataService } from './src/server/firestoreDb';
+import { darajaService } from './src/server/darajaService';
+import { paystackService } from './src/server/paystackService';
+import { smsGateway } from './src/server/smsService';
+import { qrCryptoService } from './src/server/qrCryptoService';
+import { iotTelemetryService } from './src/server/iotTelemetryService';
+import { productionHealthService } from './src/server/productionHealthService';
 
 
 // Extend Express Request interface for authenticated user
@@ -2626,106 +2634,196 @@ async function startServer() {
   });
 
   // ============================================================================
-  // 10. PAYMENTS, SUBSCRIPTIONS & QR VERIFICATION
+  // 10. REAL PAYMENTS, SUBSCRIPTIONS, IOT TELEMETRY & QR VERIFICATION
   // ============================================================================
-  app.post('/api/payments/initiate', (req, res) => {
-    const { amount, currency, countryCode, paymentMethod, phoneNumber, orderId, isSubscription, idempotencyKey } = req.body;
+  app.post('/api/payments/initiate', async (req, res) => {
+    const { amount, currency = 'USD', countryCode = 'KE', paymentMethod = 'mpesa', phoneNumber, email, orderId, isSubscription, idempotencyKey } = req.body;
     
-    const refId = idempotencyKey || `PAY-${countryCode || 'KE'}-${Date.now()}-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
+    const refId = idempotencyKey || `PAY-${countryCode}-${Date.now()}-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
 
+    let darajaResult: any = null;
+    let paystackResult: any = null;
     let instructions = '';
-    if (['mobile_money', 'mpesa', 'momo', 'airtel_money'].includes(paymentMethod)) {
-      instructions = `Please check phone ${phoneNumber || 'registered number'} and enter your Mobile Money PIN to authorize payment of ${amount} ${currency}.`;
-    } else if (paymentMethod === 'card') {
-      instructions = 'Card payment routed via 3D-Secure 2.0 gateway.';
+
+    // 1. Safaricom M-Pesa STK Push
+    if (['mpesa', 'mobile_money', 'momo'].includes(paymentMethod) && (countryCode === 'KE' || !countryCode)) {
+      if (phoneNumber) {
+        darajaResult = await darajaService.initiateStkPush({
+          phoneNumber,
+          amount: Number(amount) || 10,
+          orderId: orderId || refId,
+          accountReference: orderId || 'DAWAMED',
+          transactionDesc: `DAWA MED Order ${orderId || refId}`
+        });
+
+        if (darajaResult.status === 'INITIATED') {
+          instructions = darajaResult.customerMessage || `STK Push prompt sent to ${phoneNumber}. Please enter your M-Pesa PIN.`;
+        } else if (darajaResult.status === 'NOT_CONFIGURED') {
+          instructions = `[Live Gateway Notice] Safaricom Daraja STK Push requires MPESA_CONSUMER_KEY & MPESA_PASSKEY in environment variables.`;
+        } else {
+          instructions = `M-Pesa STK Push: ${darajaResult.error || 'Initiation pending user confirmation.'}`;
+        }
+      } else {
+        instructions = 'Please provide a valid recipient phone number for Mobile Money STK Push.';
+      }
+    } 
+    // 2. Paystack (Card, Bank, Apple Pay, Pan-African Mobile Money)
+    else if (['card', 'paystack', 'bank_transfer'].includes(paymentMethod)) {
+      const payerEmail = email || req.user?.email || 'patient@dawamed.com';
+      paystackResult = await paystackService.initializeTransaction({
+        email: payerEmail,
+        amount: Number(amount) || 10,
+        currency: currency || 'USD',
+        reference: refId,
+        metadata: { orderId, isSubscription }
+      });
+
+      if (paystackResult.status === 'INITIATED') {
+        instructions = 'Paystack payment gateway session initialized. Redirecting to 3D-Secure checkout.';
+      } else if (paystackResult.status === 'NOT_CONFIGURED') {
+        instructions = '[Live Gateway Notice] Paystack integration requires PAYSTACK_SECRET_KEY in environment variables.';
+      } else {
+        instructions = `Paystack: ${paystackResult.error || 'Payment gateway connection pending.'}`;
+      }
     } else {
-      instructions = 'Payment instruction received.';
+      instructions = `Payment request registered for ${paymentMethod.toUpperCase()}. Reference: ${refId}.`;
     }
 
     const paymentRecord = {
       referenceId: refId,
       orderId,
-      amount,
+      amount: Number(amount) || 10,
       currency,
       paymentMethod,
       phoneNumber,
-      status: 'pending_authorization',
+      email: email || req.user?.email,
+      status: darajaResult?.status === 'INITIATED' ? 'stk_sent' : 'pending_authorization',
+      gatewayResponse: darajaResult || paystackResult || undefined,
       isSubscription: !!isSubscription,
       createdAt: new Date().toISOString()
     };
 
     db.payments.push(paymentRecord);
+    try {
+      await FirestoreDataService.savePayment(paymentRecord);
+    } catch (e) {
+      console.warn('[Firestore Payment Save Warning]', e);
+    }
 
     res.json({
       success: true,
       referenceId: refId,
-      status: 'pending_authorization',
+      status: paymentRecord.status,
       instructions,
+      darajaResult,
+      paystackResult,
       orderId,
       timestamp: new Date().toISOString()
     });
   });
 
-  app.post('/api/payments/verify', (req, res) => {
+  app.post('/api/payments/verify', async (req, res) => {
     const { referenceId, orderId } = req.body;
     
+    // Check real Paystack verification if reference begins with PAY-
+    let paystackVerification: any = null;
+    if (referenceId) {
+      paystackVerification = await paystackService.verifyTransaction(referenceId);
+    }
+
+    const payment = db.payments.find(p => p.referenceId === referenceId || (orderId && p.orderId === orderId));
+    const isPaid = (paystackVerification && paystackVerification.paid) || (payment && payment.status === 'paid');
+
+    if (payment && isPaid) {
+      payment.status = 'paid';
+      payment.verifiedAt = new Date().toISOString();
+    }
+
     res.json({
       success: true,
       referenceId,
       orderId,
-      paymentStatus: 'paid',
-      transactionId: `TXN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`,
+      paymentStatus: isPaid ? 'paid' : (payment?.status || 'pending_authorization'),
+      paystackData: paystackVerification?.data,
       verifiedAt: new Date().toISOString()
     });
   });
 
+  // Real HMAC Zero-PII QR Package Verification
   app.post('/api/qr/verify', (req, res) => {
     const { qrData, scannedByRole } = req.body;
     if (!qrData || typeof qrData !== 'string') {
-      return res.status(400).json({ valid: false, message: 'Invalid QR code signature format.' });
+      return res.status(400).json({ valid: false, message: 'Invalid QR code signature payload.' });
     }
 
-    const orderIdMatch = qrData.match(/oid=([^&]+)/);
-    const orderId = orderIdMatch ? decodeURIComponent(orderIdMatch[1]) : 'ORD-AUTHENTIC';
-
-    res.json({
-      valid: true,
-      orderId,
-      verificationStatus: 'VERIFIED_AUTHENTIC_PACKAGE',
-      tamperProofSealStatus: 'INTACT_SEALED',
-      coldChainCompliant: true,
-      scannedByRole: scannedByRole || 'courier_driver',
-      verifiedTimestamp: new Date().toISOString(),
-      securityDisclaimer: 'Privacy Protected: No patient diagnosis or prescription details are embedded in this package verification token.'
-    });
+    const verificationResult = qrCryptoService.verifyQrToken(qrData, scannedByRole);
+    res.json(verificationResult);
   });
 
-  app.get('/api/delivery/track/:orderId', (req, res) => {
+  // Real IoT Cold-Chain Sensor Ingestion Endpoint
+  app.post('/api/iot/coldchain/telemetry', async (req, res) => {
+    const { orderId, sensorId, temperatureCelsius, humidityPercent, batteryPercent, insulatedBoxSeal, latitude, longitude, speedKmH } = req.body;
+
+    if (!orderId || !sensorId || temperatureCelsius === undefined) {
+      return res.status(400).json({ error: 'orderId, sensorId, and temperatureCelsius are required.' });
+    }
+
+    const result = await iotTelemetryService.ingestTelemetry({
+      orderId,
+      sensorId,
+      temperatureCelsius: Number(temperatureCelsius),
+      humidityPercent: humidityPercent !== undefined ? Number(humidityPercent) : undefined,
+      batteryPercent: batteryPercent !== undefined ? Number(batteryPercent) : 100,
+      insulatedBoxSeal: insulatedBoxSeal || 'SECURE_LOCKED',
+      latitude: Number(latitude) || -1.286389,
+      longitude: Number(longitude) || 36.817223,
+      speedKmH: speedKmH !== undefined ? Number(speedKmH) : 0
+    });
+
+    res.json(result);
+  });
+
+  // Live Driver & Cold-Chain Telemetry Tracking
+  app.get('/api/delivery/track/:orderId', async (req, res) => {
     const { orderId } = req.params;
+    const liveTelemetry = await iotTelemetryService.getOrderTelemetry(orderId);
+    const order = db.orders.find(o => o.id === orderId);
+
+    const tempReading = liveTelemetry?.temperatureCelsius ?? 4.2;
+    const isCompliant = tempReading >= 2.0 && tempReading <= 8.0;
 
     res.json({
       orderId,
-      status: 'out_for_delivery',
-      isSimulatedTelemetry: true,
+      status: order?.orderStatus || 'out_for_delivery',
+      isLiveTelemetry: !!liveTelemetry,
       driver: {
-        name: 'Kofi Mensah',
-        phone: '+254 700 882 192',
-        vehicle: 'Yamaha YBR125 (Reg: KMD 842E)',
-        currentCoordinates: { lat: -1.286389, lng: 36.817223 },
-        speedKmH: 32,
-        coldChainTemperatureCelsius: 4.1,
-        isTemperatureCompliant: true,
-        batteryPercent: 92,
-        insulatedBoxSeal: 'SECURE_LOCKED'
+        name: order?.driverName || 'Samuel Kiprop',
+        phone: order?.driverPhone || '+254 722 888 999',
+        vehicle: 'Cold-Chain Delivery Unit #4 (Reg: KMD 842E)',
+        currentCoordinates: {
+          lat: liveTelemetry?.latitude ?? -1.286389,
+          lng: liveTelemetry?.longitude ?? 36.817223
+        },
+        speedKmH: liveTelemetry?.speedKmH ?? 28,
+        coldChainTemperatureCelsius: tempReading,
+        isTemperatureCompliant: isCompliant,
+        batteryPercent: liveTelemetry?.batteryPercent ?? 94,
+        insulatedBoxSeal: liveTelemetry?.insulatedBoxSeal ?? 'SECURE_LOCKED'
       },
       destination: {
-        address: 'House 14B, Ole Odume Road, Kilimani, Nairobi',
+        address: order?.deliveryAddress || 'Registered Delivery Location',
         coordinates: { lat: -1.2981, lng: 36.7825 }
       },
-      estimatedArrivalMinutes: 12,
+      estimatedArrivalMinutes: 14,
       deliveryOtpRequired: true,
       lastUpdated: new Date().toISOString()
     });
+  });
+
+  // Production Readiness & Infrastructure Diagnostics API
+  app.get('/api/admin/production-health', requirePermission('settings.view'), async (req, res) => {
+    const healthReport = await productionHealthService.runFullHealthAudit();
+    res.json(healthReport);
   });
 
   app.get('/api/subscriptions/:userId', (req, res) => {
@@ -2765,8 +2863,203 @@ async function startServer() {
   });
 
   // ============================================================================
+  // MONETIZATION, REVENUE & COMMISSION ARCHITECTURE ENDPOINTS
+  // ============================================================================
+
+  // Public/Customer Monetization Pricing & Config
+  app.get('/api/monetization/settings', (req, res) => {
+    const settings = monetizationEngine.getSettings();
+    res.json({
+      success: true,
+      dawaMonthlyPriceUSD: settings.dawaMonthlyPriceUSD,
+      dawaMonthlyFeatures: settings.dawaMonthlyFeatures,
+      dawaMonthlyFeaturesAr: settings.dawaMonthlyFeaturesAr,
+      baseDeliveryFeeUSD: settings.baseDeliveryFeeUSD,
+      perKmRateUSD: settings.perKmRateUSD,
+      freeDeliveryThresholdUSD: settings.freeDeliveryThresholdUSD,
+      expressDeliveryFeeUSD: settings.expressDeliveryFeeUSD,
+      expressDeliveryEnabled: settings.expressDeliveryEnabled,
+      familyPlanPriceUSD: settings.familyPlanPriceUSD,
+      pharmacyPlans: settings.pharmacyPlans.filter(p => p.isActive),
+      paymentGateways: settings.paymentGateways.filter(g => g.isActive)
+    });
+  });
+
+  // Admin View Full Monetization Configuration
+  app.get('/api/admin/monetization/settings', requirePermission('settings.view'), (req, res) => {
+    res.json({
+      success: true,
+      settings: monetizationEngine.getSettings()
+    });
+  });
+
+  // Admin Update Monetization Settings (Commission, Delivery, Subscriptions)
+  app.put('/api/admin/monetization/settings', requirePermission('settings.site_manage'), (req, res) => {
+    const updates = req.body;
+    const updated = monetizationEngine.updateSettings(updates, req.user?.name || 'Administrator');
+
+    logAuditEvent(
+      req.user!,
+      'Monetization & Commission Settings Updated',
+      'Monetization Engine',
+      'monetization-settings',
+      `Admin '${req.user!.name}' updated platform pricing rules, commissions, and revenue parameters.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      settings: updated,
+      message: 'Monetization settings updated successfully.'
+    });
+  });
+
+  // Server-Side Order Pricing & Commission Calculation (Anti-Tampering)
+  app.post('/api/monetization/calculate-order', (req, res) => {
+    const { 
+      items, 
+      pharmacyId, 
+      city, 
+      distanceKm, 
+      isExpress, 
+      couponCode, 
+      isSubscribedToDawaMonthly 
+    } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Order must contain at least one item.' });
+    }
+
+    const calculation = monetizationEngine.calculateOrderPricing({
+      items,
+      availableMedicines: db.medicines,
+      pharmacyId: pharmacyId || 'pharma-01',
+      city: city || 'Nairobi',
+      distanceKm: typeof distanceKm === 'number' ? distanceKm : 3.5,
+      isExpress: !!isExpress,
+      couponCode,
+      isSubscribedToDawaMonthly: !!isSubscribedToDawaMonthly
+    });
+
+    res.json({
+      success: true,
+      calculation
+    });
+  });
+
+  // Validate Coupon Code
+  app.post('/api/monetization/coupons/validate', (req, res) => {
+    const { code, orderSubtotalUSD } = req.body;
+    if (!code) {
+      return res.status(400).json({ valid: false, message: 'Coupon code is required.' });
+    }
+
+    const settings = monetizationEngine.getSettings();
+    const coupon = settings.coupons.find(
+      (c) => c.code.toUpperCase() === String(code).toUpperCase().trim() && c.isActive
+    );
+
+    if (!coupon) {
+      return res.json({ valid: false, message: 'Invalid or inactive coupon code.' });
+    }
+
+    const isExpired = new Date(coupon.expiresAt) < new Date();
+    if (isExpired) {
+      return res.json({ valid: false, message: 'This coupon code has expired.' });
+    }
+
+    if (orderSubtotalUSD && orderSubtotalUSD < coupon.minOrderUSD) {
+      return res.json({
+        valid: false,
+        message: `Minimum order amount for coupon ${coupon.code} is $${coupon.minOrderUSD}.`
+      });
+    }
+
+    res.json({
+      valid: true,
+      coupon: {
+        code: coupon.code,
+        description: coupon.description,
+        descriptionAr: coupon.descriptionAr,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        minOrderUSD: coupon.minOrderUSD,
+        maxDiscountUSD: coupon.maxDiscountUSD
+      }
+    });
+  });
+
+  // Admin Revenue & Analytics Summary
+  app.get('/api/admin/monetization/revenue-analytics', requirePermission('analytics.view'), (req, res) => {
+    const { timeframe, countryCode, city, pharmacyId, source } = req.query as any;
+
+    const analytics = monetizationEngine.getRevenueAnalytics({
+      timeframe: timeframe || 'this_month',
+      countryCode: countryCode || 'all',
+      city: city || 'all',
+      pharmacyId: pharmacyId || 'all',
+      source: source || undefined
+    });
+
+    res.json({
+      success: true,
+      analytics
+    });
+  });
+
+  // Admin Pharmacy Subscriptions
+  app.get('/api/admin/monetization/pharmacy-subscriptions', requirePermission('pharmacies.view'), (req, res) => {
+    const subs = monetizationEngine.getPharmacySubscriptions();
+    res.json({
+      success: true,
+      subscriptions: subs
+    });
+  });
+
+  // Admin Override Custom Commission Per Pharmacy
+  app.post('/api/admin/monetization/pharmacies/:pharmacyId/commission', requirePermission('settings.site_manage'), (req, res) => {
+    const { pharmacyId } = req.params;
+    const { commissionRate } = req.body;
+
+    if (typeof commissionRate !== 'number' || commissionRate < 0 || commissionRate > 50) {
+      return res.status(400).json({ error: 'Commission rate must be a valid number between 0% and 50%.' });
+    }
+
+    const currentSettings = monetizationEngine.getSettings();
+    const updatedCustoms = {
+      ...currentSettings.pharmacyCustomCommissions,
+      [pharmacyId]: commissionRate
+    };
+
+    const updated = monetizationEngine.updateSettings({
+      pharmacyCustomCommissions: updatedCustoms
+    }, req.user?.name || 'Administrator');
+
+    logAuditEvent(
+      req.user!,
+      'Pharmacy Custom Commission Adjusted',
+      'Monetization Engine',
+      pharmacyId,
+      `Commission rate for pharmacy '${pharmacyId}' updated to ${commissionRate}%.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      pharmacyId,
+      commissionRate,
+      message: `Custom commission rate for pharmacy set to ${commissionRate}%.`
+    });
+  });
+
+  // ============================================================================
   // SITE SETTINGS & BRAND IDENTITY MANAGEMENT ENDPOINTS
   // ============================================================================
+
 
   // Public site settings for frontend components (Navbar, Footer, SEO, BrandLogo)
   app.get('/api/site-settings', (req, res) => {

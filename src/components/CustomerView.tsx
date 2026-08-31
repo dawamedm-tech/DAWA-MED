@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Medicine, 
   OrderItem, 
@@ -102,6 +102,15 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   const [whatsappUpdates, setWhatsappUpdates] = useState(true);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
+  // Monetization & Discount options
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [isExpressDelivery, setIsExpressDelivery] = useState(false);
+  const [isDawaMonthlySubscriber, setIsDawaMonthlySubscriber] = useState(false);
+  const [serverPriceResult, setServerPriceResult] = useState<any>(null);
+
   // WhatsApp Assistant Simulation state
   const [whatsappChat, setWhatsappChat] = useState([
     { 
@@ -145,6 +154,84 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
     });
   }, [medicines, searchQuery, selectedCategory]);
 
+  // Dynamic server-side price calculation
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      setServerPriceResult(null);
+      return;
+    }
+
+    const calculatePricing = async () => {
+      try {
+        const payload = {
+          items: cartItems.map(item => ({
+            medicineId: item.medicine.id,
+            quantity: item.quantity,
+            unitPriceUSD: item.medicine.priceUSD
+          })),
+          pharmacyId: selectedPharmacyId || 'pharma-01',
+          city: deliveryCity,
+          distanceKm: 3.5,
+          isExpress: isExpressDelivery,
+          couponCode: appliedCoupon?.code || undefined,
+          isSubscribedToDawaMonthly: isDawaMonthlySubscriber
+        };
+
+        const res = await fetch('/api/monetization/calculate-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.calculation) {
+            setServerPriceResult(json.calculation);
+          }
+        }
+      } catch (err) {
+        console.error('Server pricing calculation error:', err);
+      }
+    };
+
+    calculatePricing();
+  }, [cartItems, selectedPharmacyId, deliveryCity, isExpressDelivery, appliedCoupon, isDawaMonthlySubscriber]);
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+
+    try {
+      setIsValidatingCoupon(true);
+      setCouponError(null);
+      const res = await fetch('/api/monetization/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponInput.trim(),
+          orderSubtotalUSD: cartSubtotalUSD
+        })
+      });
+
+      const json = await res.json();
+      if (json.valid && json.coupon) {
+        setAppliedCoupon(json.coupon);
+        setCouponInput('');
+      } else {
+        setCouponError(json.message || 'Invalid or expired coupon code.');
+      }
+    } catch (err) {
+      setCouponError('Failed to validate coupon.');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  };
+
   const cartSubtotalUSD = cartItems.reduce(
     (acc, item) => acc + item.medicine.priceUSD * item.quantity,
     0
@@ -152,10 +239,13 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   const hasColdChain = cartItems.some((item) => item.medicine.requiresColdChain);
   const hasRxItem = cartItems.some((item) => item.medicine.requiresPrescription);
   const coldChainFeeUSD = hasColdChain ? 1.50 : 0;
-  const deliveryFeeUSD = 1.80;
-  const serviceFeeUSD = 0.50;
-  const discountUSD = 0.00;
-  const totalAmountUSD = cartSubtotalUSD + coldChainFeeUSD + deliveryFeeUSD + serviceFeeUSD - discountUSD;
+  
+  // Use server calculation values if available, fallback safely
+  const deliveryFeeUSD = serverPriceResult?.deliveryFeeUSD ?? (isDawaMonthlySubscriber ? 0 : 1.80);
+  const expressSurchargeUSD = serverPriceResult?.expressSurchargeUSD ?? (isExpressDelivery ? 3.00 : 0);
+  const serviceFeeUSD = serverPriceResult?.serviceFeeUSD ?? 0.50;
+  const discountUSD = serverPriceResult?.discountUSD ?? (appliedCoupon ? (appliedCoupon.discountType === 'percentage' ? (cartSubtotalUSD * appliedCoupon.discountValue) / 100 : appliedCoupon.discountValue) : 0);
+  const totalAmountUSD = serverPriceResult?.totalCustomerPaidUSD ?? Math.max(0, cartSubtotalUSD + coldChainFeeUSD + deliveryFeeUSD + expressSurchargeUSD + serviceFeeUSD - discountUSD);
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,7 +269,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
         countryCode: selectedCountry.code,
         items: [...cartItems],
         subtotalAmount: cartSubtotalUSD,
-        deliveryFee: deliveryFeeUSD,
+        deliveryFee: deliveryFeeUSD + expressSurchargeUSD,
         serviceFee: serviceFeeUSD,
         discountAmount: discountUSD,
         totalAmount: totalAmountUSD,
@@ -194,7 +284,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
         driverPhone: '+254 700 882 192',
         driverVehicle: 'Yamaha YBR 125 (Reg: KMD 842E)',
         driverTemperature: hasColdChain ? 4.2 : undefined,
-        estimatedDeliveryMinutes: 25,
+        estimatedDeliveryMinutes: isExpressDelivery ? 20 : 35,
         deliveryOtp: generatedOtp,
         qrCodeSignature: `DAWA-SEC-VERIFY-${selectedCountry.code}-${newOrderId}-${generatedOtp}`,
         prescription: hasRxItem ? {
@@ -692,6 +782,86 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                     ))}
                   </div>
 
+                  {/* Delivery & Subscription Options */}
+                  <div className="bg-[#F8FAF9] p-3.5 rounded-2xl border border-[#D8E2DC] space-y-2.5">
+                    {/* DAWA Monthly Subscriber Toggle */}
+                    <label className="flex items-center justify-between text-xs font-bold text-gray-800 cursor-pointer p-1.5 rounded-xl hover:bg-white transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Sparkle className="w-4 h-4 text-purple-600 shrink-0" />
+                        <div>
+                          <span className="block">{language === 'ar' ? 'عضوية DAWA MED الشهري' : 'DAWA MED MONTHLY Member'}</span>
+                          <span className="text-[10px] font-normal text-purple-700">{language === 'ar' ? 'توصيل مجاني ($0.00) ومتابعة دورية' : 'Free Delivery ($0.00) & Refill Care'}</span>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={isDawaMonthlySubscriber}
+                        onChange={(e) => setIsDawaMonthlySubscriber(e.target.checked)}
+                        className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                      />
+                    </label>
+
+                    {/* Express Priority Delivery */}
+                    <label className="flex items-center justify-between text-xs font-bold text-gray-800 cursor-pointer p-1.5 rounded-xl hover:bg-white transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Truck className="w-4 h-4 text-amber-600 shrink-0" />
+                        <div>
+                          <span className="block">{language === 'ar' ? 'توصيل فوري مستعجل (خلال 30 دقيقة)' : 'Express Priority (Within 30 mins)'}</span>
+                          <span className="text-[10px] font-normal text-amber-700">{language === 'ar' ? '+3.00 دولار رسوم أولوية سريعة' : '+$3.00 express priority surcharge'}</span>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={isExpressDelivery}
+                        onChange={(e) => setIsExpressDelivery(e.target.checked)}
+                        className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Coupon Code Section */}
+                  <div className="bg-[#F8FAF9] p-3.5 rounded-2xl border border-[#D8E2DC]">
+                    {appliedCoupon ? (
+                      <div className="flex items-center justify-between bg-emerald-50 border border-[#74C69D] p-2.5 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 bg-[#2D6A4F] text-white text-[10px] font-mono font-black rounded-md">
+                            {appliedCoupon.code}
+                          </span>
+                          <span className="text-xs font-bold text-[#1B4332]">
+                            {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `$${appliedCoupon.discountValue} OFF`}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-[11px] font-bold text-red-600 hover:underline"
+                        >
+                          {language === 'ar' ? 'إزالة' : 'Remove'}
+                        </button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder={language === 'ar' ? 'كود الخصم (e.g. HEALTH20)' : 'Promo code (e.g. HEALTH20)'}
+                          value={couponInput}
+                          onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                          className="flex-1 px-3 py-1.5 bg-white border border-[#D8E2DC] rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isValidatingCoupon || !couponInput.trim()}
+                          className="px-3 py-1.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors"
+                        >
+                          {isValidatingCoupon ? '...' : (language === 'ar' ? 'تطبيق' : 'Apply')}
+                        </button>
+                      </form>
+                    )}
+                    {couponError && (
+                      <p className="text-[11px] font-bold text-red-600 mt-1.5">{couponError}</p>
+                    )}
+                  </div>
+
                   {/* Pricing Breakdown */}
                   <div className="bg-[#F8FAF9] p-4 rounded-2xl border border-[#D8E2DC] space-y-2 text-xs">
                     <div className="flex justify-between text-gray-600">
@@ -711,13 +881,33 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
 
                     <div className="flex justify-between text-gray-600">
                       <span>{t.deliveryFee}</span>
-                      <span className="font-semibold text-[#1B4332]">{formatCurrency(deliveryFeeUSD, selectedCountry, language)}</span>
+                      <span className="font-semibold text-[#1B4332]">
+                        {deliveryFeeUSD === 0 ? (
+                          <span className="text-emerald-700 font-bold">{language === 'ar' ? 'مجاني (DAWA Monthly)' : 'FREE ($0.00)'}</span>
+                        ) : (
+                          formatCurrency(deliveryFeeUSD, selectedCountry, language)
+                        )}
+                      </span>
                     </div>
+
+                    {expressSurchargeUSD > 0 && (
+                      <div className="flex justify-between text-amber-700">
+                        <span>{language === 'ar' ? 'رسوم التوصيل السريع:' : 'Express Priority Surcharge:'}</span>
+                        <span className="font-bold">{formatCurrency(expressSurchargeUSD, selectedCountry, language)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between text-gray-600">
                       <span>{t.serviceFee}</span>
                       <span className="font-semibold text-[#1B4332]">{formatCurrency(serviceFeeUSD, selectedCountry, language)}</span>
                     </div>
+
+                    {discountUSD > 0 && (
+                      <div className="flex justify-between text-red-600 font-bold">
+                        <span>{language === 'ar' ? 'خصم الكوبون:' : 'Discount Applied:'}</span>
+                        <span>-{formatCurrency(discountUSD, selectedCountry, language)}</span>
+                      </div>
+                    )}
 
                     <div className="border-t border-[#D8E2DC] pt-2 flex justify-between text-sm font-black text-[#1B4332]">
                       <span>{t.totalPayable}</span>

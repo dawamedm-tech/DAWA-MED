@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile containing identity, role, contact info, and security flags",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phoneNumber": { "type": "string", "maxLength": 30 },
+        "role": { "type": "string", "enum": ["customer", "pharmacy", "driver", "support", "admin", "super_admin", "medical_admin", "operations_admin"] },
+        "countryCode": { "type": "string", "maxLength": 4 },
+        "isActive": { "type": "boolean" },
+        "isVerified": { "type": "boolean" },
+        "requiresPasswordReset": { "type": "boolean" },
+        "twoFactorEnabled": { "type": "boolean" },
+        "pharmacyId": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "email", "role", "countryCode"]
+    },
+    "Pharmacy": {
+      "title": "Pharmacy",
+      "description": "Licensed retail or wholesale pharmacy entity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "licenseNumber": { "type": "string", "maxLength": 100 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "country": { "type": "string", "maxLength": 4 },
+        "city": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 300 },
+        "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "suspended"] },
+        "phone": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 150 },
+        "rating": { "type": "number" },
+        "hasColdChain": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "licenseNumber", "country", "approvalStatus"]
+    },
+    "Medicine": {
+      "title": "Medicine",
+      "description": "Pharmaceutical product registered in the platform catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "genericName": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 100 },
+        "requiresPrescription": { "type": "boolean" },
+        "requiresColdChain": { "type": "boolean" },
+        "approvalStatus": { "type": "string", "enum": ["pending_review", "approved", "rejected", "suspended"] },
+        "priceUSD": { "type": "number" },
+        "manufacturer": { "type": "string", "maxLength": 150 },
+        "batchNumber": { "type": "string", "maxLength": 100 },
+        "expiryDate": { "type": "string", "maxLength": 30 },
+        "submittedByPharmacyId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "category", "requiresPrescription", "approvalStatus", "priceUSD"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Medicine purchase and dispatch order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "pharmacyId": { "type": "string", "maxLength": 128 },
+        "assignedDriverId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["placed", "confirmed", "preparing", "ready_for_pickup", "in_transit", "delivered", "cancelled"] },
+        "paymentStatus": { "type": "string", "enum": ["pending", "processing", "paid", "failed", "refunded"] },
+        "totalAmount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "countryCode": { "type": "string", "maxLength": 4 },
+        "recipientName": { "type": "string", "maxLength": 150 },
+        "recipientPhone": { "type": "string", "maxLength": 30 },
+        "deliveryAddress": { "type": "string", "maxLength": 300 },
+        "deliveryPin": { "type": "string", "maxLength": 10 },
+        "requiresColdChain": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "customerId", "pharmacyId", "status", "paymentStatus", "totalAmount"]
+    },
+    "Prescription": {
+      "title": "Prescription",
+      "description": "Medical prescription metadata and review status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "patientId": { "type": "string", "maxLength": 128 },
+        "assignedPharmacyId": { "type": "string", "maxLength": 128 },
+        "doctorName": { "type": "string", "maxLength": 150 },
+        "clinicName": { "type": "string", "maxLength": 150 },
+        "storagePath": { "type": "string", "maxLength": 500 },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "patientNotes": { "type": "string", "maxLength": 1000 },
+        "pharmacistNotes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "patientId", "verificationStatus"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security, access, and compliance audit trail",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorRole": { "type": "string", "maxLength": 50 },
+        "action": { "type": "string", "maxLength": 100 },
+        "targetType": { "type": "string", "maxLength": 50 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string" },
+        "ip": { "type": "string", "maxLength": 50 },
+        "userAgent": { "type": "string", "maxLength": 300 },
+        "result": { "type": "string", "enum": ["SUCCESS", "FAILED", "BLOCKED", "DENIED"] },
+        "integrityHash": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "actorId", "action", "timestamp", "result"]
+    },
+    "Telemetry": {
+      "title": "Telemetry",
+      "description": "Real-time IoT temperature sensor & driver GPS telemetry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "deviceId": { "type": "string", "maxLength": 100 },
+        "deliveryId": { "type": "string", "maxLength": 128 },
+        "temperature": { "type": "number" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "battery": { "type": "number" },
+        "isAlert": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "deviceId", "temperature", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "UserProfile" },
+      "description": "User profile directory with RBAC and security properties"
+    },
+    "/pharmacies/{pharmacyId}": {
+      "schema": { "$ref": "Pharmacy" },
+      "description": "Licensed pharmacy records and regulatory verification states"
+    },
+    "/medicines/{medicineId}": {
+      "schema": { "$ref": "Medicine" },
+      "description": "Central medicine catalog with medical officer approval status"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "Order" },
+      "description": "Medicine purchase orders with multi-party access control"
+    },
+    "/prescriptions/{prescriptionId}": {
+      "schema": { "$ref": "Prescription" },
+      "description": "Confidential prescription records with pharmacist ACL"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "AuditLog" },
+      "description": "Cryptographically hashed tamper-evident audit logs"
+    },
+    "/telemetry/{telemetryId}": {
+      "schema": { "$ref": "Telemetry" },
+      "description": "Cold chain IoT telemetry and real-time sensor streams"
+    }
+  }
+}

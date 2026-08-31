@@ -88,23 +88,32 @@ export const Header: React.FC<HeaderProps> = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const roleNavItems: { id: UserRole; label: string; icon: React.ReactNode }[] = [
+  const roleNavItems: { id: UserRole; label: string; icon: React.ReactNode; badge?: string }[] = [
+    { id: 'customer', label: t.roleCustomer || 'Customer', icon: <User className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'pharmacy', label: t.rolePharmacy || 'Pharmacy', icon: <Building2 className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'driver', label: t.roleDriver || 'Driver', icon: <Bike className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'support', label: t.roleSupport || 'Support', icon: <Headphones className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'admin', label: t.roleAdmin || 'Admin', icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
+    { id: 'super_admin', label: t.roleSuperAdmin || 'Super Admin', icon: <KeyRound className="w-3.5 h-3.5 shrink-0 text-amber-500" /> },
+    { id: 'medical_admin', label: t.roleMedicalAdmin || 'Medical Admin', icon: <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-blue-400" /> },
+    { id: 'operations_admin', label: t.roleOperationsAdmin || 'Operations Admin', icon: <Zap className="w-3.5 h-3.5 shrink-0 text-emerald-400" /> },
     { id: 'website', label: t.roleWebsite || translate('roleWebsite', language), icon: <Globe className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'customer', label: t.roleCustomer || translate('roleCustomer', language), icon: <User className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'pharmacy', label: t.rolePharmacy || translate('rolePharmacy', language), icon: <Building2 className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'driver', label: t.roleDriver || translate('roleDriver', language), icon: <Bike className="w-3.5 h-3.5 shrink-0" /> },
     { id: 'subscription', label: t.roleSubscription || translate('roleSubscription', language), icon: <CalendarCheck className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'support', label: t.roleSupport || translate('roleSupport', language), icon: <Headphones className="w-3.5 h-3.5 shrink-0" /> },
-    { id: 'admin', label: t.roleAdmin || translate('roleAdmin', language), icon: <Shield className="w-3.5 h-3.5 shrink-0" /> },
   ];
 
   const getRoleLabel = (role: UserRole) => {
     switch (role) {
-      case 'customer': return t.roleCustomer || translate('roleCustomer', language);
-      case 'pharmacy': return t.rolePharmacy || translate('rolePharmacy', language);
-      case 'driver': return t.roleDriver || translate('roleDriver', language);
-      case 'admin': return t.roleAdmin || translate('roleAdmin', language);
-      case 'super_admin': return t.superAdmin || translate('superAdmin', language);
+      case 'customer': return t.roleCustomer || 'Customer';
+      case 'pharmacy': return t.rolePharmacy || 'Pharmacy';
+      case 'driver': return t.roleDriver || 'Driver';
+      case 'support': return t.roleSupport || 'Support';
+      case 'admin': return t.roleAdmin || 'Admin';
+      case 'super_admin': return t.roleSuperAdmin || 'Super Admin';
+      case 'medical_admin': return t.roleMedicalAdmin || 'Medical Admin';
+      case 'operations_admin': return t.roleOperationsAdmin || 'Operations Admin';
+      case 'support_admin': return t.roleSupportAdmin || 'Support Admin';
+      case 'subscription': return t.roleSubscription || 'Subscription';
+      case 'website': return t.roleWebsite || 'Website';
       default: return role;
     }
   };
@@ -497,6 +506,43 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           )}
+
+          {/* Mobile Role Quick Selector & Section Navigator */}
+          <div className="bg-white rounded-2xl p-3 border border-[#D8E2DC] shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-[#1B4332] flex items-center gap-1.5">
+                <Radio className="w-3 h-3 text-[#2D6A4F] animate-pulse" />
+                <span>{translate('portal', language)} & {translate('navigation', language)}</span>
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2D6A4F]">
+                {getRoleLabel(currentRole)}
+              </span>
+            </div>
+
+            {/* Role Switcher Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
+              {roleNavItems.map((item) => {
+                const isActive = currentRole === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onRoleChange(item.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-1.5 p-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-start ${
+                      isActive
+                        ? 'bg-[#2D6A4F] text-white shadow-xs'
+                        : 'bg-[#F8FAF9] text-[#1B4332] hover:bg-[#F0F7F4]'
+                    }`}
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Mobile Country & Quick Settings Grid */}
           <div className="grid grid-cols-2 gap-2 text-xs">

@@ -7,9 +7,9 @@ import {
   EmailProviderType, 
   Language 
 } from '../types';
-import { PRODUCTION_EMAIL_TEMPLATES, INITIAL_EMAIL_LOGS } from '../data/emailTemplates';
+import { PRODUCTION_EMAIL_TEMPLATES } from '../data/emailTemplates';
 
-// Global in-memory storage for email runtime state
+// Global production email service
 export class EmailService {
   private static instance: EmailService;
 
@@ -22,7 +22,7 @@ export class EmailService {
     fallbackProvider: 'smtp',
     resendApiKey: process.env.RESEND_API_KEY || '',
     resendDomain: 'dawamed.com',
-    resendDomainStatus: 'verified',
+    resendDomainStatus: process.env.RESEND_API_KEY ? 'verified' : 'unverified',
     smtpHost: process.env.SMTP_HOST || 'smtp.resend.com',
     smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
     smtpEncryption: process.env.SMTP_SECURE === 'true' ? 'SSL' : 'TLS',
@@ -31,9 +31,11 @@ export class EmailService {
     hasResendKeySet: Boolean(process.env.RESEND_API_KEY),
     hasSmtpPasswordSet: Boolean(process.env.SMTP_PASS),
     lastConnectionTestAt: new Date().toISOString(),
-    lastConnectionStatus: 'success',
-    lastConnectionMessage: 'System Email Engine initialized and verified ready for production dispatch.',
-    emailsSentToday: 142,
+    lastConnectionStatus: (process.env.RESEND_API_KEY || process.env.SMTP_PASS) ? 'success' : 'failed',
+    lastConnectionMessage: (process.env.RESEND_API_KEY || process.env.SMTP_PASS) 
+      ? 'Email service configured and ready for dispatch.' 
+      : 'Email provider not configured. Please supply RESEND_API_KEY or SMTP credentials.',
+    emailsSentToday: 0,
     emailsFailedToday: 0,
     emailsBouncedToday: 0,
     emailsQueued: 0,
@@ -41,13 +43,13 @@ export class EmailService {
   };
 
   public templates: Map<string, EmailTemplate> = new Map();
-  public logs: EmailLog[] = [...INITIAL_EMAIL_LOGS];
+  public logs: EmailLog[] = [];
 
   private resendClient: Resend | null = null;
   private smtpTransporter: nodemailer.Transporter | null = null;
 
   private constructor() {
-    // Populate templates
+    // Populate production templates
     PRODUCTION_EMAIL_TEMPLATES.forEach(tpl => {
       this.templates.set(tpl.id, tpl);
     });
@@ -58,6 +60,16 @@ export class EmailService {
       EmailService.instance = new EmailService();
     }
     return EmailService.instance;
+  }
+
+  public getStatus() {
+    return {
+      activeProvider: this.settings.activeProvider,
+      resendConfigured: !!(this.settings.resendApiKey || process.env.RESEND_API_KEY),
+      smtpConfigured: !!(this.settings.smtpPassword || process.env.SMTP_PASS),
+      senderEmail: this.settings.senderEmail,
+      readyForProduction: Boolean(this.settings.resendApiKey || process.env.RESEND_API_KEY || this.settings.smtpPassword || process.env.SMTP_PASS)
+    };
   }
 
   /**
@@ -81,7 +93,7 @@ export class EmailService {
     const user = this.settings.smtpUsername || process.env.SMTP_USER;
     const pass = this.settings.smtpPassword || process.env.SMTP_PASS;
 
-    if (!host) return null;
+    if (!host || !user || !pass) return null;
 
     const secure = port === 465 || this.settings.smtpEncryption === 'SSL';
 
@@ -89,7 +101,7 @@ export class EmailService {
       host,
       port,
       secure,
-      auth: user && pass ? { user, pass } : undefined,
+      auth: { user, pass },
       tls: {
         rejectUnauthorized: false
       }
@@ -104,14 +116,13 @@ export class EmailService {
   public updateSettings(updates: Partial<EmailSettings>): EmailSettings {
     const newSettings = { ...this.settings, ...updates, updatedAt: new Date().toISOString() };
 
-    // Maintain secret flag awareness
     if (updates.resendApiKey !== undefined) {
       newSettings.hasResendKeySet = Boolean(updates.resendApiKey || process.env.RESEND_API_KEY);
-      this.resendClient = null; // reset client
+      this.resendClient = null;
     }
     if (updates.smtpPassword !== undefined) {
       newSettings.hasSmtpPasswordSet = Boolean(updates.smtpPassword || process.env.SMTP_PASS);
-      this.smtpTransporter = null; // reset transporter
+      this.smtpTransporter = null;
     }
 
     this.settings = newSettings;
@@ -147,21 +158,19 @@ export class EmailService {
 
     if (targetProvider === 'resend') {
       const resend = this.getResendClient();
-      if (!resend) {
-        // If not configured in env, test validation structure
-        this.settings.lastConnectionStatus = 'success';
-        this.settings.lastConnectionMessage = 'Resend Client structure verified (Ready for API Key injection).';
+      if (!resend || !this.settings.hasResendKeySet) {
+        this.settings.lastConnectionStatus = 'failed';
+        this.settings.lastConnectionMessage = 'Resend API Key is missing. Please configure RESEND_API_KEY in settings or .env';
         return {
-          success: true,
+          success: false,
           provider: 'resend',
-          message: 'Resend API structure verified successfully. Using secure cloud delivery routing.'
+          message: 'Resend API Key not configured. Please supply a valid RESEND_API_KEY.'
         };
       }
 
       try {
-        // Attempt domain or token validation
         this.settings.lastConnectionStatus = 'success';
-        this.settings.lastConnectionMessage = 'Resend API connection established and authenticated successfully.';
+        this.settings.lastConnectionMessage = 'Resend API connection authenticated successfully.';
         return {
           success: true,
           provider: 'resend',
@@ -177,15 +186,14 @@ export class EmailService {
         };
       }
     } else {
-      // SMTP / Custom SMTP
       const transporter = this.getSmtpTransporter();
       if (!transporter) {
-        this.settings.lastConnectionStatus = 'success';
-        this.settings.lastConnectionMessage = 'SMTP protocol configuration verified.';
+        this.settings.lastConnectionStatus = 'failed';
+        this.settings.lastConnectionMessage = 'SMTP credentials not configured. Please provide SMTP host, user, and password.';
         return {
-          success: true,
+          success: false,
           provider: targetProvider,
-          message: 'SMTP configuration validated successfully.'
+          message: 'SMTP credentials missing. Please configure SMTP settings.'
         };
       }
 
@@ -199,12 +207,12 @@ export class EmailService {
           message: `Successfully connected to SMTP server ${this.settings.smtpHost}:${this.settings.smtpPort}.`
         };
       } catch (err: any) {
-        this.settings.lastConnectionStatus = 'success'; // Gracefully fallback for container sandbox
-        this.settings.lastConnectionMessage = `SMTP configuration mapped (Port ${this.settings.smtpPort}, Host ${this.settings.smtpHost}).`;
+        this.settings.lastConnectionStatus = 'failed';
+        this.settings.lastConnectionMessage = `SMTP connection failed: ${err?.message || 'Handshake error'}`;
         return {
-          success: true,
+          success: false,
           provider: targetProvider,
-          message: `SMTP configuration mapped and ready: ${this.settings.smtpHost}:${this.settings.smtpPort}.`
+          message: `SMTP verification failed: ${err?.message || 'Could not establish connection'}`
         };
       }
     }
@@ -239,7 +247,6 @@ export class EmailService {
     let bodyHtml = params.bodyHtml || '<p>DAWA MED notification.</p>';
     let templateName = 'Custom Notification';
 
-    // If template specified, resolve subject & body for language
     if (templateId && this.templates.has(templateId)) {
       const tpl = this.templates.get(templateId)!;
       templateName = tpl.name;
@@ -299,7 +306,7 @@ export class EmailService {
       // 1. Try Resend if configured
       if (provider === 'resend') {
         const resend = this.getResendClient();
-        if (resend && this.settings.resendApiKey) {
+        if (resend && this.settings.hasResendKeySet) {
           try {
             await resend.emails.send({
               from: `${this.settings.senderName} <${this.settings.senderEmail}>`,
@@ -315,16 +322,13 @@ export class EmailService {
               throw resendError;
             }
           }
-        } else {
-          // Simulated production dispatch when testing in dev container
-          dispatchSuccess = true;
         }
       }
 
       // 2. Try SMTP if provider is SMTP or if fallback from Resend
       if (!dispatchSuccess && (provider === 'smtp' || provider === 'custom_smtp' || this.settings.fallbackEnabled)) {
         const transporter = this.getSmtpTransporter();
-        if (transporter && this.settings.smtpUsername && this.settings.smtpPassword) {
+        if (transporter && this.settings.hasSmtpPasswordSet) {
           await transporter.sendMail({
             from: `"${this.settings.senderName}" <${this.settings.senderEmail}>`,
             to: recipient,
@@ -333,10 +337,18 @@ export class EmailService {
             html: bodyHtml
           });
           dispatchSuccess = true;
-        } else {
-          // Simulated delivery
-          dispatchSuccess = true;
         }
+      }
+
+      if (!dispatchSuccess) {
+        newLog.status = 'failed';
+        newLog.failureReason = 'Email service not configured (RESEND_API_KEY or SMTP credentials missing).';
+        this.settings.emailsFailedToday = (this.settings.emailsFailedToday || 0) + 1;
+        return { 
+          success: false, 
+          logId, 
+          error: 'Email provider credentials not configured. Please supply RESEND_API_KEY or SMTP settings.' 
+        };
       }
 
       newLog.status = 'sent';

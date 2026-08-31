@@ -17,7 +17,13 @@ import {
   MedicineReminder,
   NotificationPreferences,
   ReferralSystemConfig,
-  UserReferralStats
+  UserReferralStats,
+  PharmacySubscriptionPlan,
+  CouponCode,
+  PaymentGatewayConfig,
+  MonetizationSettings,
+  PharmacySubscriptionRecord,
+  FinancialSettlement
 } from '../types';
 
 export const COUNTRIES: CountryConfig[] = [
@@ -1991,3 +1997,517 @@ export const INITIAL_USER_REFERRAL: UserReferralStats = {
 export const INITIAL_DAWA_MONTHLY_SUB = INITIAL_DAWA_SUBSCRIPTION;
 export const INITIAL_MEDICINE_REMINDERS = SAMPLE_MEDICINE_REMINDERS;
 export const INITIAL_USER_REFERRAL_STATS = INITIAL_USER_REFERRAL;
+
+// ============================================================================
+// INITIAL MONETIZATION SETTINGS & REVENUE DATA
+// ============================================================================
+
+export const DEFAULT_PHARMACY_PLANS: PharmacySubscriptionPlan[] = [
+  {
+    id: 'basic',
+    name: 'Basic Pharmacy',
+    nameAr: 'الباقة الأساسية للصيدليات',
+    nameFr: 'Pharmacie Basique',
+    priceUSD: 10.0,
+    billingPeriod: 'monthly',
+    features: [
+      'Digital Order Receiving & Dispatch',
+      'Standard 10% Commission Rate',
+      'Single User Pharmacist Account',
+      'Standard Email & SMS Notifications',
+      'Basic Weekly Settlement Statements'
+    ],
+    featuresAr: [
+      'استقبال وتجهيز الطلبات الرقمية',
+      'عمولة المنصة القياسية 10%',
+      'حساب صيدلي واحد مصرح',
+      'إشعارات البريد والرسائل القياسية',
+      'كشوف تسوية أسبوعية أساسية'
+    ],
+    isActive: true,
+    maxMonthlyOrders: 150,
+    customCommissionRate: 10.0,
+  },
+  {
+    id: 'pro',
+    name: 'Professional Pharmacy',
+    nameAr: 'الباقة الاحترافية للصيدليات',
+    nameFr: 'Pharmacie Professionnelle',
+    priceUSD: 25.0,
+    billingPeriod: 'monthly',
+    features: [
+      'All Basic Features Included',
+      'Reduced 8% Platform Commission',
+      'Live ERP & Inventory Synchronization',
+      'Multi-Pharmacist Staff Accounts (Up to 5)',
+      'Cold-Chain Telemetry & Compliance Logs',
+      'Priority Algorithm Routing in City Zone',
+      'Dedicated WhatsApp VIP Account Manager'
+    ],
+    featuresAr: [
+      'جميع ميزات الباقة الأساسية',
+      'نسبة عمولة مخفضة 8% فقط',
+      'مزامنة المخزون وأنظمة الصيدلية ERP',
+      'حسابات متعددة لفريق العمل (حتى 5 صيادلة)',
+      'سجلات مراقبة سلسلة التبريد الدوائي',
+      'أولوية توجيه الطلبات جغرافياً في المنطقة',
+      'مدير حسابات مخصص عبر واتساب'
+    ],
+    isActive: true,
+    isPopular: true,
+    maxMonthlyOrders: 1000,
+    customCommissionRate: 8.0,
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise Hospital & Chain',
+    nameAr: 'باقة سلاسل الصيدليات والمستشفيات',
+    nameFr: 'Chaîne & Hôpital Entreprise',
+    priceUSD: 99.0,
+    billingPeriod: 'monthly',
+    features: [
+      'Unlimited Multi-Branch & Chain Management',
+      'Custom Low Commission (Negotiated 5%-6%)',
+      'Direct REST & HL7 / FHIR API Integration',
+      'Unlimited Pharmacists & Dispatch Staff',
+      'Automated Daily Bank / MoMo Settlement',
+      'B2B Wholesale & Hospital Redistribution',
+      '24/7 Dedicated Pharmacovigilance Support'
+    ],
+    featuresAr: [
+      'إدارة غير محدودة للفروع وسلاسل الصيدليات',
+      'نسبة عمولة منخفضة مخصصة (5% - 6%)',
+      'ربط برمجي مباشر عبر API و HL7 / FHIR',
+      'عدد غير محدود من الصيادلة والموظفين',
+      'تسوية مالية يومية تلقائية للبنوك ومحافظ الهاتف',
+      'توزيع وإعادة إمداد المستشفيات B2B',
+      'دعم فني وتيقظ دوائي على مدار 24/7'
+    ],
+    isActive: true,
+    maxMonthlyOrders: 0,
+    customCommissionRate: 5.0,
+  }
+];
+
+export const INITIAL_COUPON_CODES: CouponCode[] = [
+  {
+    id: 'coup-01',
+    code: 'WELCOME10',
+    description: '10% off your first medicine order with DAWA MED',
+    descriptionAr: 'خصم 10% على أول طلب دواء عبر منصة دواء ميد',
+    discountType: 'percentage',
+    discountValue: 10,
+    minOrderUSD: 10.0,
+    maxDiscountUSD: 5.0,
+    usageLimit: 5000,
+    usedCount: 342,
+    expiresAt: '2026-12-31',
+    isActive: true,
+  },
+  {
+    id: 'coup-02',
+    code: 'CHRONICFREE',
+    description: 'Free delivery on prescription refills over $20',
+    descriptionAr: 'توصيل مجاني لطلبات أدوية الأمراض المزمنة فوق 20 دولار',
+    discountType: 'fixed_amount',
+    discountValue: 2.50,
+    minOrderUSD: 20.0,
+    maxDiscountUSD: 2.50,
+    usageLimit: 1000,
+    usedCount: 189,
+    expiresAt: '2026-12-31',
+    isActive: true,
+  },
+  {
+    id: 'coup-03',
+    code: 'HEALTH20',
+    description: 'Special 20% discount on wellness & vitamins',
+    descriptionAr: 'خصم خاص 20% على الفيتامينات والمكملات الصحية',
+    discountType: 'percentage',
+    discountValue: 20,
+    minOrderUSD: 15.0,
+    maxDiscountUSD: 8.0,
+    usageLimit: 2000,
+    usedCount: 712,
+    expiresAt: '2026-11-30',
+    isActive: true,
+  }
+];
+
+export const INITIAL_PAYMENT_GATEWAYS: PaymentGatewayConfig[] = [
+  {
+    id: 'gw-mpesa',
+    name: 'Safaricom M-Pesa STK Push',
+    nameAr: 'إم-بيسا كينيا (M-Pesa STK Push)',
+    providerCode: 'mpesa_direct',
+    supportedCountries: ['KE', 'TZ'],
+    type: 'mobile_money',
+    feePercentage: 1.2,
+    fixedFeeUSD: 0.05,
+    isActive: true,
+    testMode: false,
+  },
+  {
+    id: 'gw-mtn-momo',
+    name: 'MTN Mobile Money Open API',
+    nameAr: 'إم تي إن مومو (MTN MoMo)',
+    providerCode: 'mtn_momo',
+    supportedCountries: ['UG', 'RW', 'GH', 'NG'],
+    type: 'mobile_money',
+    feePercentage: 1.4,
+    fixedFeeUSD: 0.05,
+    isActive: true,
+    testMode: false,
+  },
+  {
+    id: 'gw-airtel',
+    name: 'Airtel Money Direct Gateway',
+    nameAr: 'إيرتل موني (Airtel Money)',
+    providerCode: 'airtel_money',
+    supportedCountries: ['KE', 'UG', 'TZ', 'RW', 'NG'],
+    type: 'mobile_money',
+    feePercentage: 1.3,
+    fixedFeeUSD: 0.04,
+    isActive: true,
+    testMode: false,
+  },
+  {
+    id: 'gw-paystack',
+    name: 'Paystack PCI-DSS Gateway (Cards & Apple Pay)',
+    nameAr: 'بيستاك لدفع البطاقات وأبل باي (Paystack)',
+    providerCode: 'paystack',
+    supportedCountries: ['KE', 'NG', 'GH', 'ZA', 'EG'],
+    type: 'card',
+    feePercentage: 2.5,
+    fixedFeeUSD: 0.20,
+    isActive: true,
+    testMode: false,
+  },
+  {
+    id: 'gw-cod',
+    name: 'Cash on Verified Delivery (Cold-Chain Inspected)',
+    nameAr: 'الدفع عند الاستلام مع فحص سلامة الدواء',
+    providerCode: 'cash_on_delivery',
+    supportedCountries: ['KE', 'UG', 'TZ', 'RW', 'NG', 'EG'],
+    type: 'cash',
+    feePercentage: 0.0,
+    fixedFeeUSD: 0.0,
+    isActive: true,
+    testMode: false,
+  }
+];
+
+export const INITIAL_MONETIZATION_SETTINGS: MonetizationSettings = {
+  defaultPharmacyCommissionRate: 10.0, // 10%
+  minCommissionRate: 3.0,
+  maxCommissionRate: 30.0,
+  pharmacyCustomCommissions: {
+    'pharma-01': 8.0, // GoodLife has a negotiated 8% pro rate
+    'pharma-02': 10.0, // Nairobi Central standard 10%
+    'pharma-03': 12.0, // Karen Chemist standard 12%
+    'pharma-04': 5.0,  // Aga Khan Hospital 5% enterprise rate
+  },
+  baseDeliveryFeeUSD: 2.50,
+  perKmRateUSD: 0.35,
+  expressDeliveryFeeUSD: 3.00,
+  minDeliveryFeeUSD: 1.50,
+  maxDeliveryFeeUSD: 15.00,
+  freeDeliveryThresholdUSD: 35.00,
+  driverPayoutPercentage: 70.0, // 70% goes to driver, 30% retained as platform logistics fee
+  cityDeliveryMultipliers: {
+    'Nairobi': 1.0,
+    'Kampala': 0.95,
+    'Dar es Salaam': 1.05,
+    'Kigali': 1.0,
+    'Lagos': 1.15,
+    'Cairo': 0.90,
+    'Rural / Remote': 1.40,
+  },
+  dawaMonthlyPriceUSD: 5.00,
+  dawaMonthlyTrialDays: 0,
+  dawaMonthlyIsActive: true,
+  dawaMonthlyFeatures: [
+    'Zero Delivery Fees on all scheduled monthly refills',
+    'Smart Adherence SMS & Push dose reminders',
+    'Direct Certified Pharmacist WhatsApp consultation',
+    'Cold-chain temperature guaranteed priority courier',
+    'Doctor dose schedule sharing & Caregiver alerts'
+  ],
+  dawaMonthlyFeaturesAr: [
+    'توصيل مجاني بالكامل لجميع طلبيات إعادة تعبئة الأدوية الشهرية',
+    'تنبيهات ذكية للجرعات عبر الرسائل النصية القصيرة وتطبيق واتساب',
+    'استشارات صيدلانية مباشرة عبر واتساب مع صيادلة معتمدين',
+    'ضمان نقل الأدوية الحساسة في حافظات تبريد مخصصة مع مراقبة الحرارة',
+    'مشاركة جدول ومواعيد الأدوية مع الطبيب ومقدمي الرعاية العائلية'
+  ],
+  familyPlanPriceUSD: 9.99,
+  familyPlanMaxMembers: 6,
+  familyPlanEnabled: true,
+  pharmacyPlans: DEFAULT_PHARMACY_PLANS,
+  expressDeliveryEnabled: true,
+  pharmacyAnalyticsEnabled: true,
+  pharmacyAnalyticsPriceUSD: 15.00,
+  businessCorporateEnabled: true,
+  businessCorporatePriceUSD: 49.00,
+  logisticsB2BEnabled: true,
+  logisticsB2BRatePerStopUSD: 1.80,
+  saasWhiteLabelEnabled: true,
+  saasWhiteLabelPriceUSD: 299.00,
+  advertisingEnabled: false, // Disabled by default for strict medical ethics
+  coupons: INITIAL_COUPON_CODES,
+  taxVatRatePercentage: 0.0, // Prescription medicines VAT exempt in East Africa
+  serviceFeeUSD: 0.50,
+  paymentGateways: INITIAL_PAYMENT_GATEWAYS,
+  updatedAt: new Date().toISOString(),
+  updatedBy: 'System Administrator (Super Admin)'
+};
+
+export const INITIAL_PHARMACY_SUBSCRIPTIONS: PharmacySubscriptionRecord[] = [
+  {
+    id: 'ph-sub-01',
+    pharmacyId: 'pharma-01',
+    pharmacyName: 'GoodLife Pharmacy — Westlands Central',
+    licenseNumber: 'PPB-NRB-2026-0881',
+    city: 'Nairobi',
+    countryCode: 'KE',
+    planId: 'pro',
+    planName: 'Professional Pharmacy',
+    priceUSD: 25.0,
+    status: 'active',
+    startDate: '2026-01-01',
+    renewalDate: '2026-09-01',
+    paymentMethod: 'M-Pesa Business Till #981240',
+    autoRenew: true,
+    lastPaymentDate: '2026-08-01',
+    billingHistory: [
+      {
+        id: 'bill-ph-01',
+        date: '2026-08-01',
+        amountUSD: 25.0,
+        currency: 'USD',
+        paymentMethod: 'M-Pesa Business Till #981240',
+        status: 'paid',
+        receiptNumber: 'REC-PH-991823'
+      }
+    ]
+  },
+  {
+    id: 'ph-sub-02',
+    pharmacyId: 'pharma-02',
+    pharmacyName: 'Nairobi Central Chemist',
+    licenseNumber: 'PPB-NRB-2025-1142',
+    city: 'Nairobi',
+    countryCode: 'KE',
+    planId: 'basic',
+    planName: 'Basic Pharmacy',
+    priceUSD: 10.0,
+    status: 'active',
+    startDate: '2026-02-15',
+    renewalDate: '2026-09-15',
+    paymentMethod: 'M-Pesa STK Push',
+    autoRenew: true,
+    lastPaymentDate: '2026-08-15',
+    billingHistory: [
+      {
+        id: 'bill-ph-02',
+        date: '2026-08-15',
+        amountUSD: 10.0,
+        currency: 'USD',
+        paymentMethod: 'M-Pesa STK Push',
+        status: 'paid',
+        receiptNumber: 'REC-PH-991824'
+      }
+    ]
+  },
+  {
+    id: 'ph-sub-03',
+    pharmacyId: 'pharma-03',
+    pharmacyName: 'Karen Community Pharmacy',
+    licenseNumber: 'PPB-NRB-2026-0429',
+    city: 'Nairobi',
+    countryCode: 'KE',
+    planId: 'basic',
+    planName: 'Basic Pharmacy',
+    priceUSD: 10.0,
+    status: 'active',
+    startDate: '2026-03-10',
+    renewalDate: '2026-09-10',
+    paymentMethod: 'Visa Card •••• 4421',
+    autoRenew: true,
+    lastPaymentDate: '2026-08-10',
+    billingHistory: [
+      {
+        id: 'bill-ph-03',
+        date: '2026-08-10',
+        amountUSD: 10.0,
+        currency: 'USD',
+        paymentMethod: 'Visa Card •••• 4421',
+        status: 'paid',
+        receiptNumber: 'REC-PH-991825'
+      }
+    ]
+  },
+  {
+    id: 'ph-sub-04',
+    pharmacyId: 'pharma-04',
+    pharmacyName: 'Aga Khan Hospital Pharmacy',
+    licenseNumber: 'MOH-KEN-HOSP-0021',
+    city: 'Nairobi',
+    countryCode: 'KE',
+    planId: 'enterprise',
+    planName: 'Enterprise Hospital & Chain',
+    priceUSD: 99.0,
+    status: 'active',
+    startDate: '2026-01-01',
+    renewalDate: '2026-09-01',
+    paymentMethod: 'Direct Bank Wire (EFT / KES)',
+    autoRenew: true,
+    lastPaymentDate: '2026-08-01',
+    billingHistory: [
+      {
+        id: 'bill-ph-04',
+        date: '2026-08-01',
+        amountUSD: 99.0,
+        currency: 'USD',
+        paymentMethod: 'Direct Bank Wire',
+        status: 'paid',
+        receiptNumber: 'REC-PH-991826'
+      }
+    ]
+  }
+];
+
+export const INITIAL_FINANCIAL_SETTLEMENTS: FinancialSettlement[] = [
+  {
+    orderId: 'ord-101',
+    orderNumber: 'DM-2026-0881',
+    countryCode: 'KE',
+    city: 'Nairobi',
+    pharmacyId: 'pharma-01',
+    pharmacyName: 'GoodLife Pharmacy — Westlands Central',
+    customerId: 'usr-grace-muthoni',
+    customerName: 'Grace Muthoni',
+    driverId: 'drv-01',
+    driverName: 'Kofi Mensah',
+    paymentMethod: 'M-Pesa STK Push',
+    currency: 'KES',
+    itemsSubtotalUSD: 24.50,
+    deliveryFeeUSD: 2.50,
+    expressSurchargeUSD: 0.0,
+    discountUSD: 0.0,
+    serviceFeeUSD: 0.50,
+    taxAmountUSD: 0.0,
+    totalCustomerPaidUSD: 27.50,
+    commissionRateApplied: 8.0,
+    pharmacyCommissionUSD: 1.96,
+    netPharmacyPayableUSD: 22.54,
+    driverPayoutUSD: 1.75,
+    dawaNetDeliveryMarginUSD: 0.75,
+    gatewayFeeUSD: 0.33,
+    dawaGrossRevenueUSD: 4.96,
+    dawaNetProfitUSD: 2.88,
+    settlementStatus: 'settled',
+    orderStatus: 'delivered',
+    createdAt: '2026-08-30T10:14:00Z',
+    settledAt: '2026-08-30T11:45:00Z'
+  },
+  {
+    orderId: 'ord-102',
+    orderNumber: 'DM-2026-0882',
+    countryCode: 'KE',
+    city: 'Nairobi',
+    pharmacyId: 'pharma-02',
+    pharmacyName: 'Nairobi Central Chemist',
+    customerId: 'usr-002',
+    customerName: 'David Ochieng',
+    driverId: 'drv-02',
+    driverName: 'Samir Al-Mansoor',
+    paymentMethod: 'Airtel Money',
+    currency: 'KES',
+    itemsSubtotalUSD: 36.00,
+    deliveryFeeUSD: 3.20,
+    expressSurchargeUSD: 3.00,
+    discountUSD: 3.60, // 10% coupon
+    serviceFeeUSD: 0.50,
+    taxAmountUSD: 0.0,
+    totalCustomerPaidUSD: 39.10,
+    commissionRateApplied: 10.0,
+    pharmacyCommissionUSD: 3.60,
+    netPharmacyPayableUSD: 32.40,
+    driverPayoutUSD: 4.34,
+    dawaNetDeliveryMarginUSD: 1.86,
+    gatewayFeeUSD: 0.47,
+    dawaGrossRevenueUSD: 7.30,
+    dawaNetProfitUSD: 5.49,
+    settlementStatus: 'settled',
+    orderStatus: 'delivered',
+    createdAt: '2026-08-30T09:30:00Z',
+    settledAt: '2026-08-30T11:10:00Z'
+  },
+  {
+    orderId: 'ord-103',
+    orderNumber: 'DM-2026-0883',
+    countryCode: 'UG',
+    city: 'Kampala',
+    pharmacyId: 'pharma-03',
+    pharmacyName: 'Karen Community Pharmacy',
+    customerId: 'usr-003',
+    customerName: 'Sarah Nalwanga',
+    driverId: 'drv-03',
+    driverName: 'Joseph Kintu',
+    paymentMethod: 'MTN MoMo Uganda',
+    currency: 'UGX',
+    itemsSubtotalUSD: 18.00,
+    deliveryFeeUSD: 2.38,
+    expressSurchargeUSD: 0.0,
+    discountUSD: 0.0,
+    serviceFeeUSD: 0.50,
+    taxAmountUSD: 0.0,
+    totalCustomerPaidUSD: 20.88,
+    commissionRateApplied: 12.0,
+    pharmacyCommissionUSD: 2.16,
+    netPharmacyPayableUSD: 15.84,
+    driverPayoutUSD: 1.67,
+    dawaNetDeliveryMarginUSD: 0.71,
+    gatewayFeeUSD: 0.25,
+    dawaGrossRevenueUSD: 5.04,
+    dawaNetProfitUSD: 3.12,
+    settlementStatus: 'earned',
+    orderStatus: 'delivered',
+    createdAt: '2026-08-29T14:20:00Z',
+    settledAt: '2026-08-29T16:00:00Z'
+  },
+  {
+    orderId: 'ord-104',
+    orderNumber: 'DM-2026-0884',
+    countryCode: 'KE',
+    city: 'Nairobi',
+    pharmacyId: 'pharma-04',
+    pharmacyName: 'Aga Khan Hospital Pharmacy',
+    customerId: 'usr-004',
+    customerName: 'Fatma Al-Nour',
+    driverId: 'drv-01',
+    driverName: 'Kofi Mensah',
+    paymentMethod: 'Visa Card •••• 8821',
+    currency: 'USD',
+    itemsSubtotalUSD: 52.00,
+    deliveryFeeUSD: 2.50,
+    expressSurchargeUSD: 3.00,
+    discountUSD: 0.0,
+    serviceFeeUSD: 0.50,
+    taxAmountUSD: 0.0,
+    totalCustomerPaidUSD: 58.00,
+    commissionRateApplied: 5.0,
+    pharmacyCommissionUSD: 2.60,
+    netPharmacyPayableUSD: 49.40,
+    driverPayoutUSD: 3.85,
+    dawaNetDeliveryMarginUSD: 1.65,
+    gatewayFeeUSD: 1.45,
+    dawaGrossRevenueUSD: 6.10,
+    dawaNetProfitUSD: 3.30,
+    settlementStatus: 'pending',
+    orderStatus: 'in_transit',
+    createdAt: '2026-08-30T11:50:00Z'
+  }
+];
+

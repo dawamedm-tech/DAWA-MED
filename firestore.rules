@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions for RBAC and authentication
+    // Global Safety Helpers
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -16,19 +16,28 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return hasRole('admin') || hasRole('super_admin');
+      return isAuthenticated() && (
+        request.auth.token.role == 'admin' || 
+        request.auth.token.role == 'super_admin' || 
+        request.auth.token.role == 'medical_admin' || 
+        request.auth.token.role == 'operations_admin' || 
+        getUserData().role == 'admin' || 
+        getUserData().role == 'super_admin' ||
+        getUserData().role == 'medical_admin' || 
+        getUserData().role == 'operations_admin'
+      );
     }
     
     function isSupport() {
-      return hasRole('support') || isAdmin();
+      return isAuthenticated() && (hasRole('support') || isAdmin());
     }
     
     function isPharmacy() {
-      return hasRole('pharmacy');
+      return isAuthenticated() && (hasRole('pharmacy') || isAdmin());
     }
     
     function isDriver() {
-      return hasRole('driver');
+      return isAuthenticated() && (hasRole('driver') || isAdmin());
     }
     
     function isOwner(userId) {
@@ -38,33 +47,29 @@ service cloud.firestore {
     // USERS COLLECTION
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin() || isSupport());
-      allow create: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated();
       allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
       allow delete: if isAdmin();
     }
 
     // PHARMACIES COLLECTION
     match /pharmacies/{pharmacyId} {
-      allow read: if true; // Public directory for patients to view nearby approved pharmacies
+      allow read: if true; // Directory visible to patients
       allow create: if isAuthenticated();
       allow update: if isAdmin() || (isPharmacy() && resource.data.ownerId == request.auth.uid);
       allow delete: if isAdmin();
     }
 
-    // MEDICINES COLLECTION (Strict Regulatory Gating)
+    // MEDICINES CATALOG COLLECTION (Regulatory Enforcement)
     match /medicines/{medicineId} {
-      // Public / Patients can ONLY read approved medicines
       allow read: if resource.data.approvalStatus == 'approved' || isPharmacy() || isAdmin() || isSupport();
-      // Pharmacies can submit medicines in pending state
       allow create: if isPharmacy() || isAdmin();
-      // Only Admin / Medical Officer can approve, reject or suspend medicines
       allow update: if isAdmin() || (isPharmacy() && resource.data.submittedByPharmacyId == request.auth.uid && resource.data.approvalStatus != 'approved');
       allow delete: if isAdmin();
     }
 
-    // PRESCRIPTIONS COLLECTION (HIPAA / Zero-Public Leakage)
+    // PRESCRIPTIONS (Confidential Medical Records)
     match /prescriptions/{prescriptionId} {
-      // Only the patient owner, assigned licensed pharmacy, or Admin/Support can read
       allow read: if isAuthenticated() && (
         resource.data.patientId == request.auth.uid || 
         (isPharmacy() && resource.data.assignedPharmacyId == getUserData().pharmacyId) || 
@@ -100,26 +105,26 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // PAYMENTS COLLECTION (Strict Financial Ledger)
+    // PAYMENTS & FINANCIAL SETTLEMENTS (Immutable)
     match /payments/{paymentId} {
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid || 
         isAdmin()
       );
       allow create: if isAuthenticated();
-      allow update: if isAdmin(); // Only server webhooks / admins update payment settlements
-      allow delete: if false; // Immutable financial ledger
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
-    // AUDIT LOGS COLLECTION (Immutable Cryptographic Trail)
+    // AUDIT LOGS (Cryptographic Tamper-Evident Trail)
     match /audit_logs/{logId} {
       allow read: if isAdmin();
       allow create: if isAuthenticated();
-      allow update: if false; // Immutable
-      allow delete: if false; // Immutable
+      allow update: if false;
+      allow delete: if false;
     }
 
-    // SUPPORT TICKETS COLLECTION
+    // SUPPORT TICKETS
     match /support_tickets/{ticketId} {
       allow read: if isAuthenticated() && (
         resource.data.customerId == request.auth.uid || 
@@ -137,6 +142,17 @@ service cloud.firestore {
       allow create: if isDriver() || isAdmin();
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // SYSTEM HEALTH & STATUS CHECKS
+    match /system_health/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // DEFAULT CATCH-ALL
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

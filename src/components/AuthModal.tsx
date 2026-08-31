@@ -1324,34 +1324,70 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-bold">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-bold">
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('customer')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                id="demo-btn-customer"
               >
-                👤 {t.roleCustomer || translate('roleCustomer', language)}
+                👤 {t.roleCustomer || 'Customer'}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('pharmacy')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                id="demo-btn-pharmacy"
               >
-                🏥 {t.rolePharmacy || translate('rolePharmacy', language)}
+                🏥 {t.rolePharmacy || 'Pharmacy'}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('driver')}
                 className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                id="demo-btn-driver"
               >
-                🛵 {t.roleDriver || translate('roleDriver', language)}
+                🛵 {t.roleDriver || 'Driver'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoSwitch('support')}
+                className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                id="demo-btn-support"
+              >
+                🎧 {t.roleSupport || 'Support'}
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('admin')}
                 className="py-1.5 px-2 bg-[#1B4332] hover:bg-[#081C15] text-white rounded-xl text-center transition-colors cursor-pointer"
+                id="demo-btn-admin"
               >
-                🛡️ {t.roleAdmin || translate('roleAdmin', language)}
+                🛡️ {t.roleAdmin || 'Admin'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoSwitch('super_admin')}
+                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-amber-300 rounded-xl text-center border border-amber-500/30 transition-colors cursor-pointer"
+                id="demo-btn-superadmin"
+              >
+                👑 {t.roleSuperAdmin || 'Super Admin'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoSwitch('medical_admin')}
+                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-blue-300 rounded-xl text-center border border-blue-500/30 transition-colors cursor-pointer"
+                id="demo-btn-medicaladmin"
+              >
+                🩺 {t.roleMedicalAdmin || 'Medical Admin'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoSwitch('operations_admin')}
+                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-emerald-300 rounded-xl text-center border border-emerald-500/30 transition-colors cursor-pointer"
+                id="demo-btn-opsadmin"
+              >
+                ⚙️ {t.roleOperationsAdmin || 'Operations Admin'}
               </button>
             </div>
           </div>
