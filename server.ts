@@ -2991,6 +2991,42 @@ async function startServer() {
     });
   });
 
+  // Active Featured Promotion Endpoint (Public for Customer Home Banner)
+  app.get('/api/monetization/promotions/featured', (req, res) => {
+    const settings = monetizationEngine.getSettings();
+    const activeCoupon = settings.coupons?.find(
+      (c) => c.isActive && new Date(c.expiresAt) > new Date()
+    );
+
+    if (!activeCoupon) {
+      return res.json({ hasPromotion: false });
+    }
+
+    const discountLabel = activeCoupon.discountType === 'percentage' 
+      ? `${activeCoupon.discountValue}%` 
+      : `$${activeCoupon.discountValue}`;
+
+    res.json({
+      hasPromotion: true,
+      promotion: {
+        code: activeCoupon.code,
+        discountType: activeCoupon.discountType,
+        discountValue: activeCoupon.discountValue,
+        discountLabel,
+        headlineAr: `خصم ${discountLabel} على أول طلب`,
+        headlineEn: `${discountLabel} Off Your First Order`,
+        headlineSw: `Punguzo la ${discountLabel} kwa Agizo la Kwanza`,
+        badgeAr: `${discountLabel} خصم`,
+        badgeEn: `${discountLabel} OFF`,
+        badgeSw: `Punguzo ${discountLabel}`,
+        descriptionAr: activeCoupon.descriptionAr || activeCoupon.description,
+        descriptionEn: activeCoupon.description,
+        minOrderUSD: activeCoupon.minOrderUSD,
+        expiresAt: activeCoupon.expiresAt
+      }
+    });
+  });
+
   // Admin Revenue & Analytics Summary
   app.get('/api/admin/monetization/revenue-analytics', requirePermission('analytics.view'), (req, res) => {
     const { timeframe, countryCode, city, pharmacyId, source } = req.query as any;

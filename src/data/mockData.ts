@@ -2091,6 +2091,20 @@ export const DEFAULT_PHARMACY_PLANS: PharmacySubscriptionPlan[] = [
 
 export const INITIAL_COUPON_CODES: CouponCode[] = [
   {
+    id: 'coup-dawa20',
+    code: 'DAWA20',
+    description: '20% off your first order on DAWA MED platform',
+    descriptionAr: 'خصم 20% على أول طلب من صيدليات داوا ميد المعتمدة',
+    discountType: 'percentage',
+    discountValue: 20,
+    minOrderUSD: 10.0,
+    maxDiscountUSD: 10.0,
+    usageLimit: 10000,
+    usedCount: 154,
+    expiresAt: '2026-12-31',
+    isActive: true,
+  },
+  {
     id: 'coup-01',
     code: 'WELCOME10',
     description: '10% off your first medicine order with DAWA MED',

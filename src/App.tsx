@@ -657,38 +657,40 @@ function AppInner() {
         selectedCountry={selectedCountry}
       />
 
-      {/* Main Global Header */}
-      <Header
-        currentRole={currentRole}
-        onRoleChange={(role) => {
-          if ((role === 'admin' || role === 'super_admin') && (!userProfile?.isRegistered || (localStorage.getItem('dawa_user_role') !== 'admin' && localStorage.getItem('dawa_user_role') !== 'super_admin'))) {
-            handleOpenAuth('admin');
-          } else {
-            setCurrentRole(role);
-          }
-        }}
-        language={language}
-        onLanguageChange={setLanguage}
-        selectedCountry={selectedCountry}
-        onCountryChange={setSelectedCountry}
-        cartItems={cartItems}
-        onOpenCart={() => setCurrentRole('customer')}
-        onOpenUploadRx={() => setIsUploadRxOpen(true)}
-        onOpenSplash={() => setIsSplashOpen(true)}
-        onOpenAuth={(mode) => handleOpenAuth(mode || 'login')}
-        onLogout={handleLogout}
-        onOpenNotifications={() => setIsNotificationsOpen(true)}
-        onOpenLegal={() => setIsLegalModalOpen(true)}
-        onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
-        userProfile={userProfile}
-        notifications={notifications}
-        isLiteMode={isLiteMode}
-        onToggleLiteMode={() => setIsLiteMode(!isLiteMode)}
-        activeOrderCount={orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled').length}
-      />
+      {/* Main Global Header (Rendered for non-customer roles like Pharmacy, Driver, Admin, Support) */}
+      {currentRole !== 'customer' && (
+        <Header
+          currentRole={currentRole}
+          onRoleChange={(role) => {
+            if ((role === 'admin' || role === 'super_admin') && (!userProfile?.isRegistered || (localStorage.getItem('dawa_user_role') !== 'admin' && localStorage.getItem('dawa_user_role') !== 'super_admin'))) {
+              handleOpenAuth('admin');
+            } else {
+              setCurrentRole(role);
+            }
+          }}
+          language={language}
+          onLanguageChange={setLanguage}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
+          cartItems={cartItems}
+          onOpenCart={() => setCurrentRole('customer')}
+          onOpenUploadRx={() => setIsUploadRxOpen(true)}
+          onOpenSplash={() => setIsSplashOpen(true)}
+          onOpenAuth={(mode) => handleOpenAuth(mode || 'login')}
+          onLogout={handleLogout}
+          onOpenNotifications={() => setIsNotificationsOpen(true)}
+          onOpenLegal={() => setIsLegalModalOpen(true)}
+          onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
+          userProfile={userProfile}
+          notifications={notifications}
+          isLiteMode={isLiteMode}
+          onToggleLiteMode={() => setIsLiteMode(!isLiteMode)}
+          activeOrderCount={orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled').length}
+        />
+      )}
 
-      {/* Active Adherence Reminder Banner (Shown on Patient/Customer or Subscription View) */}
-      {(currentRole === 'customer' || currentRole === 'subscription') && activeReminderForBanner && (
+      {/* Active Adherence Reminder Banner (Shown on Subscription View) */}
+      {currentRole === 'subscription' && activeReminderForBanner && (
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 pt-4">
           <LiveReminderBanner
             activeReminder={activeReminderForBanner}
@@ -703,7 +705,7 @@ function AppInner() {
       )}
 
       {/* Main Content View based on Active Role */}
-      <main className={`flex-1 w-full ${currentRole === 'website' ? 'p-0' : 'max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8'}`}>
+      <main className={`flex-1 w-full ${(currentRole === 'website' || currentRole === 'customer') ? 'p-0' : 'max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8'}`}>
         {currentRole === 'website' && (
           <PublicWebsite
             language={language}
@@ -739,9 +741,25 @@ function AppInner() {
             }}
             userProfile={userProfile}
             language={language}
+            onLanguageChange={setLanguage}
             selectedCountry={selectedCountry}
+            onCountryChange={setSelectedCountry}
             isLiteMode={isLiteMode}
             onToggleLiteMode={() => setIsLiteMode(!isLiteMode)}
+            currentRole={currentRole}
+            onRoleChange={(role) => {
+              if ((role === 'admin' || role === 'super_admin') && (!userProfile?.isRegistered || (localStorage.getItem('dawa_user_role') !== 'admin' && localStorage.getItem('dawa_user_role') !== 'super_admin'))) {
+                handleOpenAuth('admin');
+              } else {
+                setCurrentRole(role);
+              }
+            }}
+            onOpenNotifications={() => setIsNotificationsOpen(true)}
+            onOpenAuth={(mode) => handleOpenAuth(mode || 'login')}
+            onLogout={handleLogout}
+            notifications={notifications}
+            onOpenLegal={() => setIsLegalModalOpen(true)}
+            onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
           />
         )}
 
