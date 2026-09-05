@@ -116,17 +116,17 @@ export const ProductionReadinessManager: React.FC<ProductionReadinessManagerProp
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#1B4332] text-white p-6 rounded-2xl shadow-sm border border-emerald-900">
+      <div className="bg-[#0E7A4B] text-white p-6 rounded-3xl shadow-xs border border-[#0B6B43]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-              <ShieldCheck className="w-8 h-8 text-emerald-400" />
+            <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+              <ShieldCheck className="w-8 h-8 text-emerald-300" />
             </div>
             <div>
               <h2 className="text-xl font-bold">
                 {language === 'ar' ? 'لوحة جاهزية الإنتاج والاتصال الحي' : language === 'fr' ? 'État de Préparation & Connectivité Production' : 'Production Readiness & Connectivity Health'}
               </h2>
-              <p className="text-sm text-emerald-200 mt-0.5">
+              <p className="text-sm text-white/80 mt-0.5">
                 {language === 'ar' 
                   ? 'مصفوفة الفحص المباشر لقواعد البيانات، بوابات الدفع الأفريقية، الرسائل القصيرة، أجهزة إنترنت الأشياء والبريد' 
                   : 'Live connectivity audit for Cloud Firestore, Pan-African Payments, SMS, IoT Cold Chain & Resend/SMTP'}
@@ -137,7 +137,7 @@ export const ProductionReadinessManager: React.FC<ProductionReadinessManagerProp
           <button
             onClick={fetchHealthAudit}
             disabled={loading}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#1B4332] text-sm font-bold rounded-xl hover:bg-emerald-50 transition-colors shadow-sm shrink-0"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#0E7A4B] text-sm font-bold rounded-2xl hover:bg-[#E8F5EE] transition-colors shadow-xs shrink-0 cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             <span>{language === 'ar' ? 'إعادة فحص الاتصالات الحية' : 'Run Live Diagnostics'}</span>
@@ -146,26 +146,26 @@ export const ProductionReadinessManager: React.FC<ProductionReadinessManagerProp
 
         {/* Summary Metrics */}
         {report && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-emerald-800/60">
-            <div className="bg-white/10 p-3.5 rounded-xl">
-              <span className="text-xs text-emerald-300 block">Overall Status</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/15">
+            <div className="bg-white/10 p-3.5 rounded-2xl">
+              <span className="text-xs text-emerald-200 block">Overall Status</span>
               <span className="text-base font-bold text-white mt-1 block">
                 {report.summary.unconfiguredCount === 0 ? '✅ 100% PRODUCTION READY' : '⚠️ LIVE WITH ENV KEYS'}
               </span>
             </div>
-            <div className="bg-white/10 p-3.5 rounded-xl">
-              <span className="text-xs text-emerald-300 block">Online Subsystems</span>
-              <span className="text-base font-bold text-emerald-300 mt-1 block">
+            <div className="bg-white/10 p-3.5 rounded-2xl">
+              <span className="text-xs text-emerald-200 block">Online Subsystems</span>
+              <span className="text-base font-bold text-emerald-200 mt-1 block">
                 {report.summary.onlineCount} / {report.summary.totalServices} Connected
               </span>
             </div>
-            <div className="bg-white/10 p-3.5 rounded-xl">
-              <span className="text-xs text-emerald-300 block">Database Architecture</span>
+            <div className="bg-white/10 p-3.5 rounded-2xl">
+              <span className="text-xs text-emerald-200 block">Database Architecture</span>
               <span className="text-base font-bold text-white mt-1 block">Cloud Firestore (Multi-Region)</span>
             </div>
-            <div className="bg-white/10 p-3.5 rounded-xl">
-              <span className="text-xs text-emerald-300 block">Runtime Environment</span>
-              <span className="text-base font-bold text-emerald-300 mt-1 block">
+            <div className="bg-white/10 p-3.5 rounded-2xl">
+              <span className="text-xs text-emerald-200 block">Runtime Environment</span>
+              <span className="text-base font-bold text-emerald-200 mt-1 block">
                 {report.environment.toUpperCase()}
               </span>
             </div>
@@ -174,18 +174,18 @@ export const ProductionReadinessManager: React.FC<ProductionReadinessManagerProp
       </div>
 
       {/* Services List Table */}
-      <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-neutral-100 flex items-center justify-between">
+      <div className="bg-white rounded-3xl border border-[#E8F5EE] overflow-hidden shadow-xs">
+        <div className="p-5 border-b border-[#E8F5EE] flex items-center justify-between bg-[#F1FAF4]">
           <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[#1B4332]" />
-            <h3 className="font-bold text-neutral-900 text-base">Infrastructure Services & Gateways</h3>
+            <Activity className="w-5 h-5 text-[#0E7A4B]" />
+            <h3 className="font-bold text-[#111827] text-base">Infrastructure Services & Gateways</h3>
           </div>
-          <span className="text-xs text-neutral-500 font-medium">
+          <span className="text-xs text-[#6B7280] font-medium">
             Zero Mock / Live Service Verification Matrix
           </span>
         </div>
 
-        <div className="divide-y divide-neutral-100">
+        <div className="divide-y divide-[#E8F5EE]">
           {report?.services.map((srv, idx) => (
             <div key={idx} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-neutral-50/80 transition-colors">
               <div className="flex items-start gap-3.5">

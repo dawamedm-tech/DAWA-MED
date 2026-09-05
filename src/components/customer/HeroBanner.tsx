@@ -17,7 +17,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ language }) => {
     >
       {/* Decorative Subtle Background Ring */}
       <div className="absolute -top-10 -start-10 w-36 h-36 rounded-full bg-white/40 blur-xl pointer-events-none" />
-      <div className="absolute -bottom-10 -end-10 w-44 h-44 rounded-full bg-[#74C69D]/15 blur-2xl pointer-events-none" />
+      <div className="absolute -bottom-10 -end-10 w-44 h-44 rounded-full bg-emerald-400/15 blur-2xl pointer-events-none" />
 
       <div className="relative z-10 flex items-center justify-between gap-2 sm:gap-4">
         {/* Text Content Column */}

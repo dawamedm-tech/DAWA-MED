@@ -128,14 +128,14 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
           id="rx-upload-card"
         >
           {/* Header */}
-          <div className="bg-[#1B4332] px-6 py-5 text-white flex items-center justify-between border-b border-[#2D6A4F]/40">
+          <div className="bg-[#0E7A4B] px-6 py-5 text-white flex items-center justify-between border-b border-[#0B6B43]">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-[#74C69D] border border-white/15">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-emerald-400 border border-white/15">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-black tracking-tight">{t.uploadRxTitle}</h3>
-                <p className="text-xs text-[#D8F3DC]/90">{t.uploadRxSubtitle}</p>
+                <p className="text-xs text-white/80/90">{t.uploadRxSubtitle}</p>
               </div>
             </div>
 
@@ -152,30 +152,30 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
             {/* Quick Demo Pre-fill presets */}
-            <div className="rounded-2xl bg-[#F0F7F4] border border-[#D8E2DC] p-3.5 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-bold text-[#1B4332] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#2D6A4F]" />
+            <div className="rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] p-3.5 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#0E7A4B]" />
                 <span>Quick Prescription Samples:</span>
               </span>
               <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
                   onClick={() => handleSimulateSample('chronic')}
-                  className="px-3 py-1 bg-white hover:bg-[#E9F5EE] border border-[#D8E2DC] text-[#1B4332] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  className="px-3 py-1 bg-white hover:bg-[#E8F5EE] border border-[#E8F5EE] text-[#111827] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
                 >
                   BP & Diabetes Refill
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSimulateSample('antibiotic')}
-                  className="px-3 py-1 bg-white hover:bg-[#E9F5EE] border border-[#D8E2DC] text-[#1B4332] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  className="px-3 py-1 bg-white hover:bg-[#E8F5EE] border border-[#E8F5EE] text-[#111827] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
                 >
                   Antibiotics Course
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSimulateSample('insulin')}
-                  className="px-3 py-1 bg-white hover:bg-[#E9F5EE] border border-[#D8E2DC] text-[#1B4332] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  className="px-3 py-1 bg-white hover:bg-[#E8F5EE] border border-[#E8F5EE] text-[#111827] text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
                 >
                   Insulin (Cold-Chain)
                 </button>
@@ -184,7 +184,7 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
 
             {/* Upload Method Selector (Camera, Device File, PDF) */}
             <div>
-              <label className="block text-xs font-bold text-[#1B4332] uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
                 Choose Upload Source
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -193,12 +193,12 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   onClick={() => handleSimulateFileSelect('camera')}
                   className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                     uploadMode === 'camera'
-                      ? 'border-[#2D6A4F] bg-[#F0F7F4] text-[#1B4332] ring-2 ring-[#2D6A4F]/20'
-                      : 'border-[#D8E2DC] bg-[#F8FAF9] text-gray-600 hover:bg-white'
+                      ? 'border-[#0E7A4B] bg-[#F1FAF4] text-[#111827] ring-2 ring-[#0E7A4B]/20'
+                      : 'border-[#E8F5EE] bg-[#F1FAF4] text-gray-600 hover:bg-white'
                   }`}
                   id="rx-mode-camera"
                 >
-                  <Camera className="w-5 h-5 text-[#2D6A4F]" />
+                  <Camera className="w-5 h-5 text-[#0E7A4B]" />
                   <span className="text-xs font-bold">{t.takePhoto}</span>
                 </button>
 
@@ -207,12 +207,12 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   onClick={() => handleSimulateFileSelect('file')}
                   className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                     uploadMode === 'file'
-                      ? 'border-[#2D6A4F] bg-[#F0F7F4] text-[#1B4332] ring-2 ring-[#2D6A4F]/20'
-                      : 'border-[#D8E2DC] bg-[#F8FAF9] text-gray-600 hover:bg-white'
+                      ? 'border-[#0E7A4B] bg-[#F1FAF4] text-[#111827] ring-2 ring-[#0E7A4B]/20'
+                      : 'border-[#E8F5EE] bg-[#F1FAF4] text-gray-600 hover:bg-white'
                   }`}
                   id="rx-mode-file"
                 >
-                  <ImageIcon className="w-5 h-5 text-[#2D6A4F]" />
+                  <ImageIcon className="w-5 h-5 text-[#0E7A4B]" />
                   <span className="text-xs font-bold">{t.uploadFromDevice}</span>
                 </button>
 
@@ -221,26 +221,26 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   onClick={() => handleSimulateFileSelect('pdf')}
                   className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                     uploadMode === 'pdf'
-                      ? 'border-[#2D6A4F] bg-[#F0F7F4] text-[#1B4332] ring-2 ring-[#2D6A4F]/20'
-                      : 'border-[#D8E2DC] bg-[#F8FAF9] text-gray-600 hover:bg-white'
+                      ? 'border-[#0E7A4B] bg-[#F1FAF4] text-[#111827] ring-2 ring-[#0E7A4B]/20'
+                      : 'border-[#E8F5EE] bg-[#F1FAF4] text-gray-600 hover:bg-white'
                   }`}
                   id="rx-mode-pdf"
                 >
-                  <FileText className="w-5 h-5 text-[#2D6A4F]" />
+                  <FileText className="w-5 h-5 text-[#0E7A4B]" />
                   <span className="text-xs font-bold">{t.uploadPdf}</span>
                 </button>
               </div>
             </div>
 
             {/* Document Preview & Compression Status */}
-            <div className="border border-[#D8E2DC] bg-[#F8FAF9] rounded-2xl p-4">
+            <div className="border border-[#E8F5EE] bg-[#F1FAF4] rounded-2xl p-4">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#D8F3DC] flex items-center justify-center text-[#2D6A4F]">
+                  <div className="w-8 h-8 rounded-xl bg-[#E8F5EE] flex items-center justify-center text-[#0E7A4B]">
                     <FileCheck className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-[#1B4332] block truncate">
+                    <span className="text-xs font-bold text-[#111827] block truncate">
                       {uploadedImageName}
                     </span>
                     <span className="text-[10px] text-gray-500">
@@ -249,14 +249,14 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   </div>
                 </div>
 
-                <span className="px-2 py-0.5 bg-[#D8F3DC] text-[#1B4332] text-[10px] font-black rounded-lg shrink-0">
+                <span className="px-2 py-0.5 bg-[#E8F5EE] text-[#111827] text-[10px] font-black rounded-lg shrink-0">
                   Ready to send
                 </span>
               </div>
 
               {/* Compression notice */}
-              <div className="flex items-center gap-1.5 text-[11px] text-[#2D6A4F] font-semibold">
-                <Zap className="w-3.5 h-3.5 text-[#52B788]" />
+              <div className="flex items-center gap-1.5 text-[11px] text-[#0E7A4B] font-semibold">
+                <Zap className="w-3.5 h-3.5 text-[#0E7A4B]" />
                 <span>{t.compressingNotice}</span>
               </div>
             </div>
@@ -264,7 +264,7 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
             {/* Patient & Clinic Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   {t.patientFullName} *
                 </label>
                 <input
@@ -272,14 +272,14 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   required
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] bg-white text-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] text-xs font-semibold focus:ring-2 focus:ring-[#0E7A4B] bg-white text-[#111827]"
                   placeholder="e.g. Grace Muthoni"
                   id="rx-patient-name-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   {t.patientPhoneLabel} *
                 </label>
                 <input
@@ -287,35 +287,35 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
                   required
                   value={patientPhone}
                   onChange={(e) => setPatientPhone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] bg-white text-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] text-xs font-semibold focus:ring-2 focus:ring-[#0E7A4B] bg-white text-[#111827]"
                   placeholder="+254 712 345 678"
                   id="rx-patient-phone-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   Doctor Name
                 </label>
                 <input
                   type="text"
                   value={doctorName}
                   onChange={(e) => setDoctorName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] bg-white text-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] text-xs font-semibold focus:ring-2 focus:ring-[#0E7A4B] bg-white text-[#111827]"
                   placeholder="e.g. Dr. David Omondi"
                   id="rx-doctor-name-input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   Medical Center / Clinic
                 </label>
                 <input
                   type="text"
                   value={clinicName}
                   onChange={(e) => setClinicName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] bg-white text-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] text-xs font-semibold focus:ring-2 focus:ring-[#0E7A4B] bg-white text-[#111827]"
                   placeholder="e.g. Nairobi West Endocrinology"
                   id="rx-clinic-name-input"
                 />
@@ -324,37 +324,37 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
 
             {/* Doctor Notes & Dosage instructions */}
             <div>
-              <label className="block text-xs font-bold text-[#1B4332] mb-1">
+              <label className="block text-xs font-bold text-[#111827] mb-1">
                 {t.doctorNotes}
               </label>
               <textarea
                 rows={2}
                 value={doctorNotes}
                 onChange={(e) => setDoctorNotes(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] text-xs font-semibold focus:ring-2 focus:ring-[#2D6A4F] bg-white text-[#1B4332]"
+                className="w-full px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] text-xs font-semibold focus:ring-2 focus:ring-[#0E7A4B] bg-white text-[#111827]"
                 placeholder="Prescription instructions, duration, or refill requests..."
                 id="rx-notes-textarea"
               />
             </div>
 
             {/* Chronic refill checkbox */}
-            <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-[#F8FAF9] border border-[#D8E2DC]">
+            <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]">
               <input
                 type="checkbox"
                 id="is-chronic-refill"
                 checked={isChronic}
                 onChange={(e) => setIsChronic(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-[#D8E2DC] text-[#2D6A4F] focus:ring-[#2D6A4F] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-[#E8F5EE] text-[#0E7A4B] focus:ring-[#0E7A4B] cursor-pointer"
               />
-              <label htmlFor="is-chronic-refill" className="text-xs text-[#1B4332] cursor-pointer">
-                <strong className="text-[#1B4332] block font-bold">{t.isChronicCheck}</strong>
+              <label htmlFor="is-chronic-refill" className="text-xs text-[#111827] cursor-pointer">
+                <strong className="text-[#111827] block font-bold">{t.isChronicCheck}</strong>
                 Enroll this prescription into DAWA MED Monthly for automatic refills and pill reminders.
               </label>
             </div>
 
             {/* Encryption & Security Guarantee Banner */}
-            <div className="p-3.5 rounded-2xl bg-[#F0F7F4] border border-[#74C69D] text-xs text-[#1B4332] flex items-start gap-2.5">
-              <Lock className="w-4 h-4 text-[#2D6A4F] shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#D0EADB] text-xs text-[#111827] flex items-start gap-2.5">
+              <Lock className="w-4 h-4 text-[#0E7A4B] shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">{t.encryptedSafeNotice}</p>
                 <p className="text-[11px] text-gray-600 mt-0.5">{t.licenseDisclaimer}</p>
@@ -366,7 +366,7 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-2xl border border-[#D8E2DC] text-[#1B4332] text-xs font-bold hover:bg-[#F8FAF9] transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-2xl border border-[#E8F5EE] text-[#111827] text-xs font-bold hover:bg-[#F1FAF4] transition-colors cursor-pointer"
                 id="rx-cancel-btn"
               >
                 {t.cancel}
@@ -374,17 +374,17 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold shadow-md shadow-[#2D6A4F]/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold shadow-md shadow-[#0E7A4B]/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                 id="rx-submit-btn"
               >
                 {isSubmitting ? (
                   <>
-                    <Clock className="w-4 h-4 animate-spin text-[#74C69D]" />
+                    <Clock className="w-4 h-4 animate-spin text-emerald-400" />
                     <span>Encrypting & Transmitting...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-[#74C69D]" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>{t.submitRxForVerification}</span>
                   </>
                 )}

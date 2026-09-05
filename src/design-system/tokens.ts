@@ -1,0 +1,30 @@
+export const DAWA_COLORS = {
+  primary: '#0E7A4B',
+  primaryHover: '#0B6B43',
+  primaryDark: '#084F30',
+  mint: '#E8F5EE',
+  mintBorder: '#D0EADB',
+  mintLight: '#F1FAF4',
+  bgLight: '#F1FAF4',
+  bgSurface: '#FFFFFF',
+  textPrimary: '#111827',
+  textSecondary: '#6B7280',
+  textMuted: '#9CA3AF',
+  border: '#E5E7EB',
+  borderLight: '#E8F5EE',
+  error: '#EF4444',
+  errorLight: '#FEE2E2',
+  warning: '#F59E0B',
+  warningLight: '#FEF3C7',
+  success: '#16A34A',
+  successLight: '#DCFCE7',
+  info: '#3B82F6',
+  infoLight: '#DBEAFE',
+} as const;
+
+export const DAWA_SHADOWS = {
+  card: '0 4px 16px rgba(0,0,0,0.04)',
+  cardHover: '0 8px 24px rgba(14,122,75,0.08)',
+  subtle: '0 1px 3px rgba(0,0,0,0.04)',
+  modal: '0 20px 40px -15px rgba(0,0,0,0.15)',
+} as const;

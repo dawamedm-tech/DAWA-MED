@@ -40,18 +40,18 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
   const displayList = filteredPharmacies.length > 0 ? filteredPharmacies : pharmacies;
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#D8E2DC] shadow-xs" id="nearby-pharmacies-section">
+    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#E8F5EE] shadow-xs" id="nearby-pharmacies-section">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#D8F3DC] flex items-center justify-center text-[#2D6A4F]">
+            <div className="w-8 h-8 rounded-xl bg-[#E8F5EE] flex items-center justify-center text-[#0E7A4B]">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-black text-[#1B4332]">
+              <h2 className="text-sm sm:text-base font-black text-[#111827]">
                 {t.nearbyPharmacies}
               </h2>
-              <p className="text-[11px] text-[#52B788] font-semibold">
+              <p className="text-[11px] text-[#0E7A4B] font-semibold">
                 Ministry of Health & {selectedCountry.regulatoryBody.split('(')[0]} Licensed
               </p>
             </div>
@@ -61,7 +61,7 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
         {selectedPharmacyId && (
           <button
             onClick={() => onSelectPharmacy(null)}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2D6A4F] bg-[#F0F7F4] hover:bg-[#D8F3DC] px-2.5 py-1 rounded-xl transition-colors"
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0E7A4B] bg-[#F1FAF4] hover:bg-[#E8F5EE] px-2.5 py-1 rounded-xl transition-colors"
             id="clear-pharmacy-filter-btn"
           >
             <Filter className="w-3 h-3" />
@@ -80,8 +80,8 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
               onClick={() => onSelectPharmacy(isSelected ? null : pharmacy.id)}
               className={`p-4 rounded-2xl border transition-all cursor-pointer text-start relative flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#2D6A4F] bg-[#F0F7F4] ring-2 ring-[#2D6A4F]/20 shadow-sm'
-                  : 'border-[#D8E2DC] bg-[#F8FAF9] hover:bg-white hover:border-[#74C69D]'
+                  ? 'border-[#0E7A4B] bg-[#F1FAF4] ring-2 ring-[#0E7A4B]/20 shadow-sm'
+                  : 'border-[#E8F5EE] bg-[#F1FAF4] hover:bg-white hover:border-[#D0EADB]'
               }`}
               id={`pharmacy-card-${pharmacy.id}`}
             >
@@ -89,9 +89,9 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
                 {/* Top Badge Row */}
                 <div className="flex items-center justify-between gap-1 mb-2">
                   <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                    pharmacy.isOpen ? 'bg-[#D8F3DC] text-[#1B4332]' : 'bg-gray-200 text-gray-600'
+                    pharmacy.isOpen ? 'bg-[#E8F5EE] text-[#111827]' : 'bg-gray-200 text-gray-600'
                   }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${pharmacy.isOpen ? 'bg-[#52B788] animate-ping' : 'bg-gray-400'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${pharmacy.isOpen ? 'bg-[#0E7A4B] animate-ping' : 'bg-gray-400'}`} />
                     <span>{pharmacy.isOpen ? t.pharmacyOpen : t.pharmacyClosed}</span>
                   </span>
 
@@ -101,24 +101,24 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
                   </div>
                 </div>
 
-                <h3 className="text-xs sm:text-sm font-black text-[#1B4332] line-clamp-1 mb-1">
+                <h3 className="text-xs sm:text-sm font-black text-[#111827] line-clamp-1 mb-1">
                   {pharmacy.name}
                 </h3>
 
                 <p className="text-[10px] text-gray-500 flex items-center gap-1 mb-2">
-                  <MapPin className="w-3 h-3 text-[#2D6A4F] shrink-0" />
+                  <MapPin className="w-3 h-3 text-[#0E7A4B] shrink-0" />
                   <span className="truncate">{pharmacy.address}</span>
                 </p>
 
                 {/* Badges / Attributes */}
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <span className="text-[10px] font-bold bg-white text-[#1B4332] border border-[#D8E2DC] px-2 py-0.5 rounded-lg flex items-center gap-1">
-                    <MapPin className="w-2.5 h-2.5 text-[#2D6A4F]" />
+                  <span className="text-[10px] font-bold bg-white text-[#111827] border border-[#E8F5EE] px-2 py-0.5 rounded-lg flex items-center gap-1">
+                    <MapPin className="w-2.5 h-2.5 text-[#0E7A4B]" />
                     <span>{pharmacy.distanceKm} km</span>
                   </span>
 
-                  <span className="text-[10px] font-bold bg-white text-[#1B4332] border border-[#D8E2DC] px-2 py-0.5 rounded-lg flex items-center gap-1">
-                    <Clock className="w-2.5 h-2.5 text-[#52B788]" />
+                  <span className="text-[10px] font-bold bg-white text-[#111827] border border-[#E8F5EE] px-2 py-0.5 rounded-lg flex items-center gap-1">
+                    <Clock className="w-2.5 h-2.5 text-[#0E7A4B]" />
                     <span>~{pharmacy.estimatedDeliveryMin} mins</span>
                   </span>
 
@@ -132,11 +132,11 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
               </div>
 
               {/* Footer row */}
-              <div className="pt-2 border-t border-[#D8E2DC]/80 flex items-center justify-between text-[10px]">
-                <span className="flex items-center gap-1 font-bold text-[#2D6A4F]">
+              <div className="pt-2 border-t border-[#E8F5EE]/80 flex items-center justify-between text-[10px]">
+                <span className="flex items-center gap-1 font-bold text-[#0E7A4B]">
                   {pharmacy.acceptsEPrescription ? (
                     <>
-                      <FileCheck className="w-3 h-3 text-[#52B788]" />
+                      <FileCheck className="w-3 h-3 text-[#0E7A4B]" />
                       <span>{t.eRxAccepted}</span>
                     </>
                   ) : (
@@ -147,7 +147,7 @@ export const NearbyPharmacies: React.FC<NearbyPharmaciesProps> = ({
                   )}
                 </span>
 
-                <span className={`font-black ${isSelected ? 'text-[#2D6A4F]' : 'text-gray-400'}`}>
+                <span className={`font-black ${isSelected ? 'text-[#0E7A4B]' : 'text-gray-400'}`}>
                   {isSelected ? '✓ Selected' : 'Filter →'}
                 </span>
               </div>

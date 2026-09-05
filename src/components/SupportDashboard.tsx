@@ -193,23 +193,23 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
   return (
     <div className="space-y-6" id="support-dashboard-root">
       {/* Header Banner */}
-      <div className="bg-[#1B4332] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#2D6A4F]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-[#0E7A4B] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#0B6B43] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-xs font-bold border border-white/15 mb-2">
-            <Headphones className="w-4 h-4 text-[#74C69D]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-xs font-bold border border-white/15 mb-2">
+            <Headphones className="w-4 h-4 text-emerald-400" />
             <span>24/7 Clinical & Operational Support Command</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white">
             {language === 'ar' ? 'مركز دعم العملاء والشركاء' : 'Support Desk & Escalation Hub'}
           </h2>
-          <p className="text-xs text-[#D8F3DC]/80 mt-0.5">
+          <p className="text-xs text-white/80/80 mt-0.5">
             SLA Response Time: <strong className="text-white">&lt; 4 mins</strong> • Active Market: {selectedCountry.name}
           </p>
         </div>
 
         <button
           onClick={() => setIsNewTicketOpen(true)}
-          className="px-4 py-2.5 rounded-2xl bg-[#74C69D] hover:bg-[#52B788] text-[#1B4332] text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-md"
+          className="px-4 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-md"
         >
           <Plus className="w-4 h-4" />
           <span>Open Ticket</span>
@@ -218,7 +218,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
 
       {/* SLA Metrics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-[#D8E2DC] shadow-xs">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-neutral-600">Open Tickets</span>
             <AlertCircle className="w-4 h-4 text-rose-600" />
@@ -227,7 +227,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
           <p className="text-[11px] text-rose-600 font-medium mt-0.5">Requires first response</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#D8E2DC] shadow-xs">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-neutral-600">In Resolution</span>
             <Sparkles className="w-4 h-4 text-blue-600" />
@@ -236,19 +236,19 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
           <p className="text-[11px] text-blue-600 font-medium mt-0.5">Assigned to specialists</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#D8E2DC] shadow-xs">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-neutral-600">Resolved Today</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-black text-[#1B4332]">{resolvedCount}</p>
+          <p className="text-2xl font-black text-[#111827]">{resolvedCount}</p>
           <p className="text-[11px] text-emerald-600 font-medium mt-0.5">99.4% CSAT Rating</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#D8E2DC] shadow-xs">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-neutral-600">Total Volume</span>
-            <Headphones className="w-4 h-4 text-[#2D6A4F]" />
+            <Headphones className="w-4 h-4 text-[#0E7A4B]" />
           </div>
           <p className="text-2xl font-black text-neutral-900">{ticketList.length}</p>
           <p className="text-[11px] text-neutral-500 font-medium mt-0.5">Across all channels</p>
@@ -259,7 +259,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Tickets List (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white p-3.5 rounded-2xl border border-[#D8E2DC] shadow-xs space-y-3">
+          <div className="bg-white p-3.5 rounded-2xl border border-[#E8F5EE] shadow-xs space-y-3">
             <div className="relative">
               <Search className="w-4 h-4 text-neutral-400 absolute start-3 top-1/2 -translate-y-1/2" />
               <input
@@ -267,7 +267,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search ticket #, title, user, officer..."
-                className="w-full ps-9 pe-3 py-2 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs text-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]"
+                className="w-full ps-9 pe-3 py-2 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs text-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#0E7A4B]"
               />
             </div>
 
@@ -275,7 +275,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                className="px-2.5 py-1.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl font-bold text-neutral-700"
+                className="px-2.5 py-1.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl font-bold text-neutral-700"
               >
                 <option value="all">All Statuses</option>
                 <option value="open">Open</option>
@@ -287,7 +287,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value as any)}
-                className="px-2.5 py-1.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl font-bold text-neutral-700"
+                className="px-2.5 py-1.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl font-bold text-neutral-700"
               >
                 <option value="all">All Priorities</option>
                 <option value="urgent">Urgent</option>
@@ -308,13 +308,13 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                   onClick={() => setSelectedTicketId(ticket.id)}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#E8F5E9] border-[#52B788] shadow-sm'
-                      : 'bg-white border-[#D8E2DC] hover:border-[#95D5B2]'
+                      ? 'bg-[#E8F5EE] border-[#D0EADB] shadow-sm'
+                      : 'bg-white border-[#E8F5EE] hover:border-[#95D5B2]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono font-bold text-xs text-[#2D6A4F]">{ticket.ticketNumber}</span>
+                      <span className="font-mono font-bold text-xs text-[#0E7A4B]">{ticket.ticketNumber}</span>
                       {getPriorityBadge(ticket.priority)}
                     </div>
                     {getStatusBadge(ticket.status)}
@@ -334,14 +334,14 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
         </div>
 
         {/* Right Column: Active Ticket Thread (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-[#D8E2DC] shadow-xs overflow-hidden flex flex-col h-[740px]">
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-[#E8F5EE] shadow-xs overflow-hidden flex flex-col h-[740px]">
           {selectedTicket ? (
             <>
               {/* Ticket Header */}
-              <div className="p-5 border-b border-neutral-100 bg-[#F8FAF9] space-y-3">
+              <div className="p-5 border-b border-neutral-100 bg-[#F1FAF4] space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-sm text-[#1B4332]">{selectedTicket.ticketNumber}</span>
+                    <span className="font-mono font-black text-sm text-[#111827]">{selectedTicket.ticketNumber}</span>
                     {getPriorityBadge(selectedTicket.priority)}
                     {getStatusBadge(selectedTicket.status)}
                   </div>
@@ -351,9 +351,9 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                     {selectedTicket.status !== 'resolved' ? (
                       <button
                         onClick={() => handleUpdateStatus('resolved')}
-                        className="px-3 py-1.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#74C69D]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Resolve Ticket</span>
                       </button>
                     ) : (
@@ -368,9 +368,9 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                 </div>
 
                 <div>
-                  <h3 className="text-base font-black text-[#1B4332]">{selectedTicket.title}</h3>
+                  <h3 className="text-base font-black text-[#111827]">{selectedTicket.title}</h3>
                   <p className="text-xs text-neutral-600 mt-1">
-                    Raised by: <strong className="text-neutral-900">{selectedTicket.raisedBy}</strong> ({selectedTicket.contactPhone}) &bull; Category: <span className="font-semibold capitalize">{selectedTicket.category.replace('_', ' ')}</span> &bull; Officer: <span className="text-[#2D6A4F] font-bold">{selectedTicket.assignedOfficer || 'General Queue'}</span>
+                    Raised by: <strong className="text-neutral-900">{selectedTicket.raisedBy}</strong> ({selectedTicket.contactPhone}) &bull; Category: <span className="font-semibold capitalize">{selectedTicket.category.replace('_', ' ')}</span> &bull; Officer: <span className="text-[#0E7A4B] font-bold">{selectedTicket.assignedOfficer || 'General Queue'}</span>
                   </p>
                 </div>
               </div>
@@ -398,8 +398,8 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                       <div
                         className={`p-3.5 rounded-2xl text-xs max-w-lg leading-relaxed ${
                           isAgent
-                            ? 'bg-[#1B4332] text-white rounded-br-none shadow-xs'
-                            : 'bg-[#F4F7F5] border border-[#D8E2DC] text-neutral-800 rounded-bl-none'
+                            ? 'bg-[#0E7A4B] text-white rounded-br-none shadow-xs'
+                            : 'bg-[#F1FAF4] border border-[#E8F5EE] text-neutral-800 rounded-bl-none'
                         }`}
                       >
                         {msg.message}
@@ -410,20 +410,20 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
               </div>
 
               {/* Reply Box */}
-              <form onSubmit={handleSendReply} className="p-4 border-t border-neutral-100 bg-[#F8FAF9] flex items-center gap-2">
+              <form onSubmit={handleSendReply} className="p-4 border-t border-neutral-100 bg-[#F1FAF4] flex items-center gap-2">
                 <input
                   type="text"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Type your official clinical support response..."
-                  className="flex-1 px-4 py-2.5 bg-white border border-[#D8E2DC] rounded-xl text-xs text-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]"
+                  className="flex-1 px-4 py-2.5 bg-white border border-[#E8F5EE] rounded-xl text-xs text-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#0E7A4B]"
                 />
                 <button
                   type="submit"
                   disabled={!replyText.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] disabled:opacity-40 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-4 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] disabled:opacity-40 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <Send className="w-3.5 h-3.5 text-[#74C69D]" />
+                  <Send className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Send Reply</span>
                 </button>
               </form>
@@ -445,12 +445,12 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#D8E2DC]"
+              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#E8F5EE]"
             >
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Headphones className="w-5 h-5 text-[#2D6A4F]" />
-                  <h3 className="text-base font-black text-[#1B4332]">Open Support / Complaint Ticket</h3>
+                  <Headphones className="w-5 h-5 text-[#0E7A4B]" />
+                  <h3 className="text-base font-black text-[#111827]">Open Support / Complaint Ticket</h3>
                 </div>
                 <button onClick={() => setIsNewTicketOpen(false)} className="text-neutral-400 hover:text-neutral-700">
                   <X className="w-5 h-5" />
@@ -463,7 +463,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] font-semibold text-neutral-800"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] font-semibold text-neutral-800"
                   >
                     <option value="customer_complaint">Customer Complaint</option>
                     <option value="pharmacy_complaint">Pharmacy Inquiry</option>
@@ -483,7 +483,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                     placeholder="e.g. Delayed insulin delivery"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] text-neutral-800 font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] text-neutral-800 font-semibold"
                   />
                 </div>
 
@@ -496,7 +496,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                       placeholder="e.g. Grace Muthoni"
                       value={newRaisedBy}
                       onChange={(e) => setNewRaisedBy(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] text-neutral-800 font-semibold"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] text-neutral-800 font-semibold"
                     />
                   </div>
                   <div>
@@ -506,7 +506,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                       placeholder="+254 700..."
                       value={newPhone}
                       onChange={(e) => setNewPhone(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] text-neutral-800 font-semibold"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] text-neutral-800 font-semibold"
                     />
                   </div>
                 </div>
@@ -516,7 +516,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                   <select
                     value={newPriority}
                     onChange={(e) => setNewPriority(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] font-semibold text-neutral-800"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] font-semibold text-neutral-800"
                   >
                     <option value="urgent">Urgent</option>
                     <option value="high">High</option>
@@ -533,7 +533,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                     placeholder="Provide full issue details..."
                     value={newDesc}
                     onChange={(e) => setNewDesc(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4F7F5] border border-[#D8E2DC] text-neutral-800"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] text-neutral-800"
                   />
                 </div>
 
@@ -547,7 +547,7 @@ export const SupportDashboard: React.FC<SupportDashboardProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold shadow-xs cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold shadow-xs cursor-pointer"
                   >
                     Log Ticket
                   </button>

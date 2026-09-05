@@ -226,10 +226,10 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="p-4 bg-[#D8F3DC] border border-[#74C69D] text-[#1B4332] rounded-2xl flex items-center justify-between shadow-lg"
+            className="p-4 bg-[#E8F5EE] border border-[#D0EADB] text-[#111827] rounded-2xl flex items-center justify-between shadow-lg"
           >
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[#2D6A4F] shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-[#0E7A4B] shrink-0" />
               <p className="text-sm font-semibold">{successToast}</p>
             </div>
           </motion.div>
@@ -237,11 +237,11 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
       </AnimatePresence>
 
       {/* Top Banner & Controls Header */}
-      <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs">
+      <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8F3DC] text-[#2D6A4F] uppercase tracking-wider flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E8F5EE] text-[#0E7A4B] uppercase tracking-wider flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {isAr ? 'نظام تحقيق الدخل المالي الكامل' : 'Full Monetization Engine (Phase 1 Ready)'}
               </span>
@@ -249,7 +249,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 {isAr ? 'حسابات خادومية 100% موثوقة' : '100% Server-Authoritative Math'}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#1B4332] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#111827] tracking-tight">
               {isAr ? 'الإيرادات وتحقيق الدخل والعمولات' : 'Revenue & Monetization Architecture'}
             </h1>
             <p className="text-sm text-gray-500 mt-1 max-w-2xl">
@@ -276,17 +276,17 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
 
             <button
               onClick={exportFinancialCSV}
-              className="px-4 py-2.5 rounded-2xl bg-white border border-[#D8E2DC] hover:border-[#2D6A4F] text-[#1B4332] font-bold text-sm flex items-center gap-2 transition-all shadow-xs"
+              className="px-4 py-2.5 rounded-2xl bg-white border border-[#E8F5EE] hover:border-[#0E7A4B] text-[#111827] font-bold text-sm flex items-center gap-2 transition-all shadow-xs"
               id="export-csv-btn"
             >
-              <Download className="w-4 h-4 text-[#2D6A4F]" />
+              <Download className="w-4 h-4 text-[#0E7A4B]" />
               {isAr ? 'تصدير كشف الحساب (CSV)' : 'Export Statement (CSV)'}
             </button>
 
             {onOpenSettings && (
               <button
                 onClick={onOpenSettings}
-                className="px-4 py-2.5 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
+                className="px-4 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
                 id="edit-monetization-rules-btn"
               >
                 <Sliders className="w-4 h-4" />
@@ -306,7 +306,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 onClick={() => setTimeframe(tf)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   timeframe === tf
-                    ? 'bg-[#1B4332] text-white shadow-xs'
+                    ? 'bg-[#0E7A4B] text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
                 }`}
                 id={`timeframe-${tf}-btn`}
@@ -327,7 +327,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
               <select
                 value={selectedCountryCode}
                 onChange={(e) => setSelectedCountryCode(e.target.value)}
-                className="text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-700 focus:outline-none focus:border-[#2D6A4F]"
+                className="text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-700 focus:outline-none focus:border-[#0E7A4B]"
                 id="revenue-country-select"
               >
                 <option value="all">{isAr ? 'جميع الدول الإفريقية' : 'All Countries'}</option>
@@ -344,7 +344,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
               <select
                 value={selectedPharmacyFilter}
                 onChange={(e) => setSelectedPharmacyFilter(e.target.value)}
-                className="text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-700 focus:outline-none focus:border-[#2D6A4F] max-w-[180px] truncate"
+                className="text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-gray-700 focus:outline-none focus:border-[#0E7A4B] max-w-[180px] truncate"
                 id="revenue-pharmacy-select"
               >
                 <option value="all">{isAr ? 'جميع الصيدليات' : 'All Pharmacies'}</option>
@@ -365,7 +365,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           onClick={() => setActiveSubTab('overview')}
           className={`px-4 py-2 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 ${
             activeSubTab === 'overview'
-              ? 'bg-[#1B4332] text-white shadow-xs'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
               : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-200'
           }`}
           id="tab-revenue-overview"
@@ -378,7 +378,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           onClick={() => setActiveSubTab('pharmacy_settlements')}
           className={`px-4 py-2 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 ${
             activeSubTab === 'pharmacy_settlements'
-              ? 'bg-[#1B4332] text-white shadow-xs'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
               : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-200'
           }`}
           id="tab-pharmacy-settlements"
@@ -391,7 +391,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           onClick={() => setActiveSubTab('sources_breakdown')}
           className={`px-4 py-2 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 ${
             activeSubTab === 'sources_breakdown'
-              ? 'bg-[#1B4332] text-white shadow-xs'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
               : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-200'
           }`}
           id="tab-sources-breakdown"
@@ -404,7 +404,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           onClick={() => setActiveSubTab('calculator_simulator')}
           className={`px-4 py-2 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 ${
             activeSubTab === 'calculator_simulator'
-              ? 'bg-[#1B4332] text-white shadow-xs'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
               : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-200'
           }`}
           id="tab-calculator-simulator"
@@ -420,17 +420,17 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           {/* Top 4 Primary Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Total Gross Revenue */}
-            <div className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                   {isAr ? 'إجمالي الإيرادات (Gross)' : 'Gross Platform Revenue'}
                 </span>
-                <div className="p-2 rounded-2xl bg-[#D8F3DC] text-[#2D6A4F]">
+                <div className="p-2 rounded-2xl bg-[#E8F5EE] text-[#0E7A4B]">
                   <DollarSign className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-3">
-                <h3 className="text-2xl sm:text-3xl font-black text-[#1B4332]">
+                <h3 className="text-2xl sm:text-3xl font-black text-[#111827]">
                   ${kpis ? kpis.totalGrossRevenueUSD.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '1,842.50'}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-2 text-xs font-bold text-emerald-600">
@@ -441,7 +441,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
             </div>
 
             {/* Card 2: Net DAWA Profit Margin */}
-            <div className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                   {isAr ? 'صافي أرباح دواء ميد (Net)' : 'DAWA Net Profit Margin'}
@@ -461,7 +461,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
             </div>
 
             {/* Card 3: Monthly Recurring Revenue (MRR) */}
-            <div className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                   {isAr ? 'الإيراد الشهري المتكرر (MRR)' : 'Monthly Recurring (MRR)'}
@@ -481,7 +481,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
             </div>
 
             {/* Card 4: Pharmacy Commissions Collected */}
-            <div className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                   {isAr ? 'عمولات الصيدليات المحصلة' : 'Pharmacy Commissions'}
@@ -505,19 +505,19 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-white rounded-2xl p-4 border border-gray-200">
               <span className="text-xs font-bold text-gray-500">{isAr ? 'رسوم التوصيل واللوجستيات' : 'Delivery & Courier Revenue'}</span>
-              <p className="text-lg font-black text-[#1B4332] mt-1">${kpis?.totalDeliveryGrossUSD || '380.20'}</p>
+              <p className="text-lg font-black text-[#111827] mt-1">${kpis?.totalDeliveryGrossUSD || '380.20'}</p>
               <p className="text-[11px] text-gray-400 mt-0.5">{isAr ? `صافي هامش دواء ميد: $${kpis?.totalDeliveryNetMarginUSD || '114.06'}` : `DAWA Net Margin: $${kpis?.totalDeliveryNetMarginUSD || '114.06'}`}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-gray-200">
               <span className="text-xs font-bold text-gray-500">{isAr ? 'متوسط قيمة الطلب (AOV)' : 'Avg Order Value (AOV)'}</span>
-              <p className="text-lg font-black text-[#1B4332] mt-1">${kpis?.averageOrderValueUSD || '32.40'}</p>
+              <p className="text-lg font-black text-[#111827] mt-1">${kpis?.averageOrderValueUSD || '32.40'}</p>
               <p className="text-[11px] text-emerald-600 font-bold mt-0.5">{isAr ? '98.6% نسبة نجاح الدفع' : '98.6% Payment Success'}</p>
             </div>
 
             <div className="bg-white rounded-2xl p-4 border border-gray-200">
               <span className="text-xs font-bold text-gray-500">{isAr ? 'اشتراكات الصيدليات (SaaS)' : 'Pharmacy Subscriptions'}</span>
-              <p className="text-lg font-black text-[#1B4332] mt-1">${kpis?.totalPharmacySubscriptionsUSD || '144.00'}</p>
+              <p className="text-lg font-black text-[#111827] mt-1">${kpis?.totalPharmacySubscriptionsUSD || '144.00'}</p>
               <p className="text-[11px] text-gray-400 mt-0.5">{isAr ? 'باقات Basic و Pro و Enterprise' : 'Basic, Pro & Enterprise'}</p>
             </div>
 
@@ -531,17 +531,17 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           {/* Revenue Breakdown & 7-Day Trend Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* 7-Day Revenue Trend Chart Simulation */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs">
+            <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-black text-[#1B4332]">
+                  <h3 className="text-base font-black text-[#111827]">
                     {isAr ? 'منحنى الإيرادات وصافي الأرباح الأسبوعي' : 'Weekly Revenue & Profit Velocity'}
                   </h3>
                   <p className="text-xs text-gray-500">{isAr ? 'توزيع الأرباح اليومية عبر العمولات والتوصيل والاشتراكات' : 'Daily gross revenue, pharmacy commissions, and net profit margins'}</p>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-bold">
                   <div className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-[#1B4332]" />
+                    <span className="w-3 h-3 rounded-full bg-[#0E7A4B]" />
                     <span className="text-gray-600">{isAr ? 'الإيراد الإجمالي' : 'Gross'}</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -569,7 +569,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 group relative">
                       {/* Tooltip */}
-                      <div className="absolute -top-12 bg-[#1B4332] text-white text-[11px] font-bold py-1 px-2.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-md">
+                      <div className="absolute -top-12 bg-[#0E7A4B] text-white text-[11px] font-bold py-1 px-2.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-md">
                         {day.date}: Gross ${day.grossRevenue} | Net ${day.netProfit}
                       </div>
 
@@ -577,7 +577,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                       <div className="w-full flex items-end justify-center gap-1.5 h-36">
                         <div 
                           style={{ height: `${grossHeight}%` }} 
-                          className="w-full max-w-[18px] bg-[#1B4332] rounded-t-md transition-all duration-300 group-hover:brightness-125"
+                          className="w-full max-w-[18px] bg-[#0E7A4B] rounded-t-md transition-all duration-300 group-hover:brightness-125"
                         />
                         <div 
                           style={{ height: `${netHeight}%` }} 
@@ -592,17 +592,17 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
 
               <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
                 <span>{isAr ? 'تم تحديث التسويات قبل 5 دقائق' : 'Settlements synced 5 min ago'}</span>
-                <span className="font-bold text-[#1B4332]">{isAr ? 'العملة الموحدة: USD (مع دعم العملات المحلية)' : 'Currency: USD Base (Local Gateways Auto-Converted)'}</span>
+                <span className="font-bold text-[#111827]">{isAr ? 'العملة الموحدة: USD (مع دعم العملات المحلية)' : 'Currency: USD Base (Local Gateways Auto-Converted)'}</span>
               </div>
             </div>
 
             {/* Core vs Future Streams Progress List */}
-            <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs">
+            <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-black text-[#1B4332]">
+                <h3 className="text-base font-black text-[#111827]">
                   {isAr ? 'توزيع مصادر الدخل الرئيسية' : 'Revenue by Stream'}
                 </h3>
-                <span className="px-2 py-0.5 text-[11px] font-bold bg-[#D8F3DC] text-[#2D6A4F] rounded-full">
+                <span className="px-2 py-0.5 text-[11px] font-bold bg-[#E8F5EE] text-[#0E7A4B] rounded-full">
                   {isAr ? 'المرحلة 1 الأساسية' : 'Phase 1 Core'}
                 </span>
               </div>
@@ -617,12 +617,12 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   <div key={i} className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-gray-800">{isAr ? src.labelAr : src.labelEn}</span>
-                      <span className="font-black text-[#1B4332]">${src.amountUSD.toFixed(2)} ({src.percentage}%)</span>
+                      <span className="font-black text-[#111827]">${src.amountUSD.toFixed(2)} ({src.percentage}%)</span>
                     </div>
                     <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
                       <div 
                         className={`h-full rounded-full ${
-                          i === 0 ? 'bg-[#1B4332]' : i === 1 ? 'bg-purple-600' : i === 2 ? 'bg-emerald-500' : 'bg-amber-500'
+                          i === 0 ? 'bg-[#0E7A4B]' : i === 1 ? 'bg-purple-600' : i === 2 ? 'bg-emerald-500' : 'bg-amber-500'
                         }`}
                         style={{ width: `${src.percentage}%` }}
                       />
@@ -634,7 +634,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <button
                   onClick={() => setActiveSubTab('sources_breakdown')}
-                  className="w-full py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-[#1B4332] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-[#111827] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <span>{isAr ? 'عرض جميع مصادر الدخل العشرة للمستقبل' : 'Explore All 10 Future Revenue Streams'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -692,10 +692,10 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 subscriptionPlan: 'Enterprise ($99/mo)'
               }
             ]).map((ph) => (
-              <div key={ph.pharmacyId} className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs flex flex-col justify-between">
+              <div key={ph.pharmacyId} className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-bold text-[#1B4332] line-clamp-1">{ph.pharmacyName}</h4>
+                    <h4 className="text-sm font-bold text-[#111827] line-clamp-1">{ph.pharmacyName}</h4>
                     <span className="px-2 py-0.5 text-[10px] font-black bg-emerald-50 text-emerald-800 rounded-md shrink-0">
                       {ph.commissionRate}% {isAr ? 'عمولة' : 'Comm'}
                     </span>
@@ -713,9 +713,9 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                     </div>
                   </div>
 
-                  <div className="mt-3 p-2.5 rounded-xl bg-[#D8F3DC]/40 border border-[#74C69D]/30 flex items-center justify-between text-xs">
-                    <span className="font-bold text-[#2D6A4F]">{isAr ? 'صافي المستحق:' : 'Net Payable:'}</span>
-                    <span className="font-black text-[#1B4332] text-sm">${ph.netPayableUSD.toFixed(2)}</span>
+                  <div className="mt-3 p-2.5 rounded-xl bg-[#E8F5EE]/40 border border-[#D0EADB]/30 flex items-center justify-between text-xs">
+                    <span className="font-bold text-[#0E7A4B]">{isAr ? 'صافي المستحق:' : 'Net Payable:'}</span>
+                    <span className="font-black text-[#111827] text-sm">${ph.netPayableUSD.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -730,7 +730,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                       });
                       setNewCommissionInput(ph.commissionRate.toString());
                     }}
-                    className="text-xs font-bold text-[#2D6A4F] hover:underline"
+                    className="text-xs font-bold text-[#0E7A4B] hover:underline"
                     id={`adjust-comm-${ph.pharmacyId}-btn`}
                   >
                     {isAr ? 'تعديل النسبة' : 'Adjust Rate'}
@@ -741,10 +741,10 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           </div>
 
           {/* Financial Settlements Table */}
-          <div className="bg-white rounded-3xl border border-[#D8E2DC] shadow-xs overflow-hidden">
+          <div className="bg-white rounded-3xl border border-[#E8F5EE] shadow-xs overflow-hidden">
             <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-black text-[#1B4332]">
+                <h3 className="text-base font-black text-[#111827]">
                   {isAr ? 'سجل تسويات الطلبيات الفردية والأرباح المحققة' : 'Detailed Order Settlements & Revenue Logs'}
                 </h3>
                 <p className="text-xs text-gray-500">{isAr ? 'كل طلب يتم حساب عمولته ورسوم التوصيل وصافي المستحقات خادومياً فور إتمام الطلب' : 'Server-side validated financial transactions with instant commission and driver payout splits'}</p>
@@ -757,7 +757,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   placeholder={isAr ? 'بحث برقم الطلب أو الصيدلية...' : 'Search by order #, pharmacy...'}
                   value={searchSettlement}
                   onChange={(e) => setSearchSettlement(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full pl-9 pr-4 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
             </div>
@@ -788,7 +788,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   ) : (
                     filteredSettlements.map((s) => (
                       <tr key={s.orderId} className="hover:bg-gray-50/80 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-bold text-[#1B4332]">
+                        <td className="py-3.5 px-4 font-mono font-bold text-[#111827]">
                           {s.orderNumber}
                         </td>
                         <td className="py-3.5 px-4">
@@ -818,13 +818,13 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                         <td className="py-3.5 px-4 font-bold text-emerald-700">
                           ${s.netPharmacyPayableUSD.toFixed(2)}
                         </td>
-                        <td className="py-3.5 px-4 font-black text-[#1B4332]">
+                        <td className="py-3.5 px-4 font-black text-[#111827]">
                           ${s.dawaNetProfitUSD.toFixed(2)}
                         </td>
                         <td className="py-3.5 px-4">
                           <span className={`px-2.5 py-1 rounded-full text-[11px] font-black inline-flex items-center gap-1 ${
                             s.settlementStatus === 'settled'
-                              ? 'bg-[#D8F3DC] text-[#2D6A4F]'
+                              ? 'bg-[#E8F5EE] text-[#0E7A4B]'
                               : s.settlementStatus === 'earned'
                               ? 'bg-blue-50 text-blue-800'
                               : 'bg-amber-50 text-amber-800'
@@ -848,8 +848,8 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
       {/* 10 Revenue Streams Overview View */}
       {activeSubTab === 'sources_breakdown' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs">
-            <h3 className="text-xl font-black text-[#1B4332]">
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs">
+            <h3 className="text-xl font-black text-[#111827]">
               {isAr ? 'الهيكل الشامل لتحقيق الدخل (10 مصادر للدخل)' : 'DAWA MED 10-Stream Monetization Blueprint'}
             </h3>
             <p className="text-sm text-gray-500 mt-1 max-w-3xl">
@@ -864,14 +864,14 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   key={sourceItem.source}
                   className={`rounded-3xl p-5 border transition-all ${
                     sourceItem.isPhase1Core
-                      ? 'bg-white border-[#2D6A4F] shadow-sm ring-1 ring-[#2D6A4F]/20'
+                      ? 'bg-white border-[#0E7A4B] shadow-xs ring-1 ring-[#0E7A4B]/20'
                       : 'bg-gray-50/80 border-gray-200 opacity-90'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <div className={`p-2.5 rounded-2xl ${
-                        sourceItem.isPhase1Core ? 'bg-[#D8F3DC] text-[#2D6A4F]' : 'bg-gray-200 text-gray-700'
+                        sourceItem.isPhase1Core ? 'bg-[#E8F5EE] text-[#0E7A4B]' : 'bg-gray-200 text-gray-700'
                       }`}>
                         {idx === 0 && <Percent className="w-5 h-5" />}
                         {idx === 1 && <Truck className="w-5 h-5" />}
@@ -885,7 +885,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                         {idx === 9 && <Code2Icon />}
                       </div>
                       <div>
-                        <h4 className="text-sm font-black text-[#1B4332]">{isAr ? sourceItem.labelAr : sourceItem.labelEn}</h4>
+                        <h4 className="text-sm font-black text-[#111827]">{isAr ? sourceItem.labelAr : sourceItem.labelEn}</h4>
                         <span className="text-[11px] text-gray-500 font-medium">
                           {sourceItem.isPhase1Core ? (isAr ? '🎯 المرحلة 1 (تركيز أساسي)' : '🎯 Phase 1 (Core Focus)') : (isAr ? '🚀 توسع مستقبلي مجهز' : '🚀 Phase 2/3 Extensible')}
                         </span>
@@ -902,7 +902,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
                     <div>
                       <span className="text-gray-400 block text-[11px]">{isAr ? 'الإيراد المحقق:' : 'Current Revenue:'}</span>
-                      <span className="font-black text-base text-[#1B4332]">${sourceItem.amountUSD.toFixed(2)}</span>
+                      <span className="font-black text-base text-[#111827]">${sourceItem.amountUSD.toFixed(2)}</span>
                     </div>
                     <div className="text-right">
                       <span className="text-gray-400 block text-[11px]">{isAr ? 'العمليات:' : 'Transactions:'}</span>
@@ -920,10 +920,10 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
       {activeSubTab === 'calculator_simulator' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Simulator Controls */}
-          <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
+          <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
             <div>
-              <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-[#2D6A4F]" />
+              <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-[#0E7A4B]" />
                 {isAr ? 'محاكي التسعير والعمولات' : 'Pricing Engine Simulator'}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
@@ -942,7 +942,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 step="0.5"
                 value={simMedicineTotal}
                 onChange={(e) => setSimMedicineTotal(Math.max(1, parseFloat(e.target.value) || 0))}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -957,7 +957,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 step="0.5"
                 value={simDistanceKm}
                 onChange={(e) => setSimDistanceKm(Math.max(0.5, parseFloat(e.target.value) || 0))}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -969,7 +969,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
               <select
                 value={simPharmacyId}
                 onChange={(e) => setSimPharmacyId(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               >
                 {SAMPLE_PHARMACIES.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -989,7 +989,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 placeholder="e.g. WELCOME10, HEALTH20"
                 value={simCouponCode}
                 onChange={(e) => setSimCouponCode(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs font-mono font-bold uppercase bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-xs font-mono font-bold uppercase bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -1000,7 +1000,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   type="checkbox"
                   checked={simIsExpress}
                   onChange={(e) => setSimIsExpress(e.target.checked)}
-                  className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                  className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
                 />
                 <span>{isAr ? 'توصيل فوري سريع (Express Surcharge)' : 'Express Priority Delivery (+$3.00)'}</span>
               </label>
@@ -1010,7 +1010,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                   type="checkbox"
                   checked={simIsDawaMonthlyUser}
                   onChange={(e) => setSimIsDawaMonthlyUser(e.target.checked)}
-                  className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                  className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
                 />
                 <span>{isAr ? 'العميل مشترك في DAWA MED MONTHLY (توصيل مجاني)' : 'Customer is DAWA MED MONTHLY Subscriber ($0 Delivery)'}</span>
               </label>
@@ -1018,15 +1018,15 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           </div>
 
           {/* Simulator Live Calculation Output Result */}
-          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div>
-                <h3 className="text-base font-black text-[#1B4332]">
+                <h3 className="text-base font-black text-[#111827]">
                   {isAr ? 'النتيجة الحسابية الموثوقة من الخادوم' : 'Server Calculation Output'}
                 </h3>
                 <span className="text-xs text-gray-400">Validated against server monetization rules</span>
               </div>
-              <span className="px-3 py-1 bg-emerald-50 text-[#2D6A4F] font-mono text-xs font-black rounded-full border border-emerald-200">
+              <span className="px-3 py-1 bg-emerald-50 text-[#0E7A4B] font-mono text-xs font-black rounded-full border border-emerald-200">
                 200 OK — PASS
               </span>
             </div>
@@ -1037,7 +1037,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200">
                     <span className="text-xs text-gray-500 font-bold block">{isAr ? 'يدفعه العميل:' : 'Customer Pays:'}</span>
-                    <span className="text-2xl font-black text-[#1B4332] mt-1 block">
+                    <span className="text-2xl font-black text-[#111827] mt-1 block">
                       ${simCalculationResult.totalCustomerPaidUSD.toFixed(2)}
                     </span>
                     <span className="text-[11px] text-gray-400 block mt-0.5">
@@ -1055,12 +1055,12 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#D8F3DC] border border-[#74C69D]">
-                    <span className="text-xs text-[#2D6A4F] font-bold block">{isAr ? 'صافي ربح دواء ميد:' : 'DAWA Net Profit:'}</span>
-                    <span className="text-2xl font-black text-[#1B4332] mt-1 block">
+                  <div className="p-4 rounded-2xl bg-[#E8F5EE] border border-[#D0EADB]">
+                    <span className="text-xs text-[#0E7A4B] font-bold block">{isAr ? 'صافي ربح دواء ميد:' : 'DAWA Net Profit:'}</span>
+                    <span className="text-2xl font-black text-[#111827] mt-1 block">
                       ${simCalculationResult.dawaNetProfitUSD.toFixed(2)}
                     </span>
-                    <span className="text-[11px] text-[#2D6A4F] block mt-0.5">
+                    <span className="text-[11px] text-[#0E7A4B] block mt-0.5">
                       {isAr ? 'العمولة + هامش التوصيل + رسوم الخدمة' : 'Commission + delivery margin + service fee'}
                     </span>
                   </div>
@@ -1109,7 +1109,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
 
                   <div className="flex justify-between py-1 text-gray-600">
                     <span>{isAr ? 'هامش المنصة اللوجستي (30%):' : 'Platform Logistics Margin (30%):'}</span>
-                    <span className="font-bold text-[#1B4332]">${simCalculationResult.dawaNetDeliveryMarginUSD.toFixed(2)}</span>
+                    <span className="font-bold text-[#111827]">${simCalculationResult.dawaNetDeliveryMarginUSD.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -1124,10 +1124,10 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl max-w-md w-full p-6 border border-[#D8E2DC] shadow-2xl space-y-4"
+            className="bg-white rounded-3xl max-w-md w-full p-6 border border-[#E8F5EE] shadow-2xl space-y-4"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-[#1B4332]">
+              <h3 className="text-base font-black text-[#111827]">
                 {isAr ? 'تعديل نسبة عمولة الصيدلية' : 'Adjust Pharmacy Commission Rate'}
               </h3>
               <button
@@ -1157,7 +1157,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                     step="0.5"
                     value={newCommissionInput}
                     onChange={(e) => setNewCommissionInput(e.target.value)}
-                    className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                     required
                   />
                   <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-500">%</span>
@@ -1176,7 +1176,7 @@ export const RevenueMonetizationDashboard: React.FC<RevenueMonetizationDashboard
                 <button
                   type="submit"
                   disabled={isSavingCommission}
-                  className="px-5 py-2 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold transition-colors disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-colors disabled:opacity-50"
                 >
                   {isSavingCommission ? (isAr ? 'جاري الحفظ...' : 'Saving...') : (isAr ? 'حفظ النسبة' : 'Save Commission Rate')}
                 </button>

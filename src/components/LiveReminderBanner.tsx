@@ -75,22 +75,22 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="w-full bg-[#1B4332] text-white border-b-2 border-[#52B788] shadow-lg sticky top-[57px] z-30 px-3 sm:px-6 py-3"
+        className="w-full bg-[#0E7A4B] text-white border-b-2 border-[#D0EADB] shadow-lg sticky top-[57px] z-30 px-3 sm:px-6 py-3"
         id="dawa-live-reminder-banner"
       >
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Left: Dose Announcement & Medicine Details */}
           <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#52B788] text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
+            <div className="w-10 h-10 rounded-2xl bg-[#0E7A4B] text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
               <Bell className="w-5 h-5" />
             </div>
 
             <div className="space-y-0.5 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/20 text-[#D8F3DC]">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/20 text-white/80">
                   {t.dawaReminderTitle}
                 </span>
-                <span className="text-[11px] font-bold text-[#74C69D]">
+                <span className="text-[11px] font-bold text-emerald-400">
                   {activeReminder.reminderTimes[0] || 'Scheduled Time'}
                 </span>
                 <span className="text-[10px] text-white/70 px-2 py-0.5 rounded-full bg-white/10">
@@ -102,12 +102,12 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
                 <h4 className="text-sm font-black text-white truncate">
                   {activeReminder.privacyHideName ? 'Scheduled Medication (Privacy Shield)' : activeReminder.medicineName}
                 </h4>
-                <span className="text-xs text-[#D8F3DC]/80 hidden sm:inline">
+                <span className="text-xs text-white/80/80 hidden sm:inline">
                   — {activeReminder.dosageInstructions}
                 </span>
               </div>
 
-              <p className="text-[11px] text-[#D8F3DC]/90 sm:hidden">
+              <p className="text-[11px] text-white/80/90 sm:hidden">
                 {activeReminder.dosageInstructions}
               </p>
             </div>
@@ -131,7 +131,7 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
             {/* Taken Button */}
             <button
               onClick={handleTaken}
-              className="px-4 py-1.5 rounded-xl bg-[#52B788] hover:bg-[#74C69D] text-white font-black text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+              className="px-4 py-1.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-black text-xs shadow-sm flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
               id="reminder-mark-taken-btn"
             >
               <Check className="w-4 h-4" />
@@ -145,18 +145,18 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
                 className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-white/20"
                 id="reminder-snooze-btn"
               >
-                <Clock className="w-3.5 h-3.5 text-[#74C69D]" />
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{t.snooze}</span>
               </button>
 
               {snoozeOpen && (
-                <div className="absolute right-0 bottom-full mb-2 sm:bottom-auto sm:top-full sm:mt-2 w-36 bg-white text-[#1B4332] rounded-2xl shadow-xl border border-[#D8E2DC] p-1.5 z-40 text-xs font-bold space-y-1">
+                <div className="absolute right-0 bottom-full mb-2 sm:bottom-auto sm:top-full sm:mt-2 w-36 bg-white text-[#111827] rounded-2xl shadow-xl border border-[#E8F5EE] p-1.5 z-40 text-xs font-bold space-y-1">
                   <button
                     onClick={() => {
                       onSnooze(activeReminder.id, 15);
                       setSnoozeOpen(false);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F0F7F4] flex items-center justify-between cursor-pointer"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F1FAF4] flex items-center justify-between cursor-pointer"
                   >
                     <span>15 Minutes</span>
                     <span className="text-[10px] text-gray-400">15m</span>
@@ -166,7 +166,7 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
                       onSnooze(activeReminder.id, 30);
                       setSnoozeOpen(false);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F0F7F4] flex items-center justify-between cursor-pointer"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F1FAF4] flex items-center justify-between cursor-pointer"
                   >
                     <span>30 Minutes</span>
                     <span className="text-[10px] text-gray-400">30m</span>
@@ -176,7 +176,7 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
                       onSnooze(activeReminder.id, 60);
                       setSnoozeOpen(false);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F0F7F4] flex items-center justify-between cursor-pointer"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#F1FAF4] flex items-center justify-between cursor-pointer"
                   >
                     <span>1 Hour</span>
                     <span className="text-[10px] text-gray-400">1h</span>
@@ -207,14 +207,14 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
 
         {/* Skip Reason Modal */}
         {showSkipModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs text-[#1B4332]">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs text-[#111827]">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-[#D8E2DC] space-y-4 text-xs"
+              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-[#E8F5EE] space-y-4 text-xs"
             >
               <div className="flex items-center justify-between">
-                <h4 className="text-base font-black text-[#1B4332]">Log Skipped Dose</h4>
+                <h4 className="text-base font-black text-[#111827]">Log Skipped Dose</h4>
                 <button onClick={() => setShowSkipModal(false)} className="text-gray-400 hover:text-gray-600">
                   <X className="w-4 h-4" />
                 </button>
@@ -225,11 +225,11 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
               </p>
 
               <div>
-                <label className="block font-bold text-[#1B4332] mb-1">Reason for skipping</label>
+                <label className="block font-bold text-[#111827] mb-1">Reason for skipping</label>
                 <select
                   value={skipReason}
                   onChange={(e) => setSkipReason(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8E2DC] bg-white font-bold text-xs text-[#1B4332]"
+                  className="w-full px-3 py-2 rounded-xl border border-[#E8F5EE] bg-white font-bold text-xs text-[#111827]"
                 >
                   <option value="Doctor/Pharmacist advised pause">Doctor/Pharmacist advised pause</option>
                   <option value="Fasting / Medical test">Fasting / Medical test</option>
@@ -243,7 +243,7 @@ export const LiveReminderBanner: React.FC<LiveReminderBannerProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowSkipModal(false)}
-                  className="px-3.5 py-2 rounded-xl border border-[#D8E2DC] bg-gray-50 hover:bg-gray-100 font-bold"
+                  className="px-3.5 py-2 rounded-xl border border-[#E8F5EE] bg-gray-50 hover:bg-gray-100 font-bold"
                 >
                   Cancel
                 </button>

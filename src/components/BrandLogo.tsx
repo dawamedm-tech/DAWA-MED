@@ -65,7 +65,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           onError={() => setImageError(true)}
         />
         {showTagline && (
-          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
+          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-white/80' : 'text-[#6B7280]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
             {language === 'ar' ? (settings?.taglineAr || t.tagline) : language === 'fr' ? (settings?.taglineFr || t.tagline) : (settings?.tagline || t.tagline)}
           </p>
         )}
@@ -77,30 +77,30 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`} id="dawa-brand-logo-container">
-      {/* Default Brand Icon: Forest green box with white 'D' and cross mark accent */}
+      {/* Default Brand Icon: Medical green box with white 'D' and cross mark accent */}
       <div
         className={`${iconSizes[size]} relative flex items-center justify-center ${
-          isLightOnDark ? 'bg-[#52B788]' : 'bg-[#2D6A4F]'
-        } shadow-sm shadow-[#2D6A4F]/20 shrink-0 font-bold text-white transition-transform group-hover:scale-105`}
+          isLightOnDark ? 'bg-white text-[#0E7A4B]' : 'bg-[#0E7A4B] text-white'
+        } shadow-xs shrink-0 font-black transition-transform group-hover:scale-105`}
         id="dawa-brand-icon"
       >
         <span>D</span>
-        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#74C69D] border-2 border-white" />
+        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
       </div>
 
       {/* Brand Name & Tagline */}
       <div className="flex flex-col min-w-0">
         <div className={textSizes[size]}>
-          <span className={isLightOnDark ? 'text-white' : 'text-[#2D6A4F]'}>
+          <span className={isLightOnDark ? 'text-white font-black' : 'text-[#0E7A4B] font-black'}>
             {siteName.split(' ')[0] || 'DAWA'}
           </span>
-          <span className={`ml-1 ${isLightOnDark ? 'text-[#95D5B2]' : 'text-[#74C69D]'}`}>
+          <span className={`ml-1 font-black ${isLightOnDark ? 'text-emerald-300' : 'text-[#111827]'}`}>
             {siteName.split(' ').slice(1).join(' ') || 'MED'}
           </span>
         </div>
         
         {showTagline && (
-          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-[#D8F3DC]' : 'text-[#52B788]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
+          <p className={`${taglineSizes[size]} font-semibold ${isLightOnDark ? 'text-white/80' : 'text-[#6B7280]'} uppercase tracking-wider truncate max-w-[140px] sm:max-w-[220px] md:max-w-none mt-0.5`}>
             {language === 'ar' ? (settings?.taglineAr || t.tagline) : language === 'fr' ? (settings?.taglineFr || t.tagline) : (settings?.tagline || t.tagline)}
           </p>
         )}

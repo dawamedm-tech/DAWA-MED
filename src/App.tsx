@@ -646,7 +646,7 @@ function AppInner() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col bg-[#F4F7F5] text-[#1B4332] w-full max-w-full min-w-0 box-border overflow-x-hidden"
+      className="min-h-screen flex flex-col bg-[#F1FAF4] text-[#111827] w-full max-w-full min-w-0 box-border overflow-x-hidden"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* Brand Splash Screen Modal */}

@@ -1572,7 +1572,7 @@ export const SAMPLE_MARKETING_BANNERS: MarketingBanner[] = [
     promoCode: 'COLDCHAIN',
     discountPercent: 10,
     active: true,
-    bgColor: '#1B4332',
+    bgColor: '#0E7A4B',
   },
   {
     id: 'bnr-02',
@@ -1582,7 +1582,7 @@ export const SAMPLE_MARKETING_BANNERS: MarketingBanner[] = [
     promoCode: 'DAWACARE',
     discountPercent: 15,
     active: true,
-    bgColor: '#2D6A4F',
+    bgColor: '#0B6B43',
   },
   {
     id: 'bnr-03',

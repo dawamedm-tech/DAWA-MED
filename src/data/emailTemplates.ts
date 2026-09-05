@@ -14,18 +14,18 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 28px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 28px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1px;">DAWA MED</h1>
-        <p style="margin: 6px 0 0; color: #74C69D; font-size: 13px;">Ministry-Certified Pharmacy & Telemedicine Network</p>
+        <p style="margin: 6px 0 0; color: #10B981; font-size: 13px;">Ministry-Certified Pharmacy & Telemedicine Network</p>
       </div>
       <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-        <h2 style="color: #1B4332; font-size: 20px; margin-top: 0;">Welcome, {{customer_name}}!</h2>
+        <h2 style="color: #0E7A4B; font-size: 20px; margin-top: 0;">Welcome, {{customer_name}}!</h2>
         <p>Your account on DAWA MED has been successfully created. You now have direct access to verified pharmacies, certified cold-chain prescription delivery, and 24/7 licensed clinical support across Africa.</p>
-        <div style="background: #F8FBF9; border-left: 4px solid #2D6A4F; padding: 16px; margin: 24px 0; border-radius: 4px;">
-          <p style="margin: 0; font-weight: bold; color: #1B4332;">Registered Email: {{customer_email}}</p>
+        <div style="background: #F1FAF4; border-left: 4px solid #0E7A4B; padding: 16px; margin: 24px 0; border-radius: 4px;">
+          <p style="margin: 0; font-weight: bold; color: #0E7A4B;">Registered Email: {{customer_email}}</p>
         </div>
         <p style="text-align: center; margin: 32px 0;">
-          <a href="{{login_url}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
+          <a href="{{login_url}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
         </p>
         <p style="font-size: 13px; color: #64748b;">If you did not create this account, please contact our security team immediately at {{support_email}}.</p>
       </div>
@@ -34,18 +34,18 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
       </div>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; text-align: right;">
-      <div style="background: #1B4332; padding: 28px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 28px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 24px; font-weight: 800;">دواء ميد — DAWA MED</h1>
-        <p style="margin: 6px 0 0; color: #74C69D; font-size: 13px;">المنظومة الدوائية المعتمدة للرعاية الصحية وتوصيل الأدوية</p>
+        <p style="margin: 6px 0 0; color: #10B981; font-size: 13px;">المنظومة الدوائية المعتمدة للرعاية الصحية وتوصيل الأدوية</p>
       </div>
       <div style="padding: 32px; color: #1e293b; line-height: 1.8;">
-        <h2 style="color: #1B4332; font-size: 20px; margin-top: 0;">أهلاً بك، {{customer_name}}!</h2>
+        <h2 style="color: #0E7A4B; font-size: 20px; margin-top: 0;">أهلاً بك، {{customer_name}}!</h2>
         <p>تم إنشاء حسابك في دواء ميد بنجاح. يمكنك الآن الوصول المباشر إلى الصيدليات المرخصة، وطلب الأدوية المعتمدة مع ضمان سلسلة التبريد الدوائي، ومتابعة وصفاتك الطبية بكل أمان وخصوصية.</p>
-        <div style="background: #F8FBF9; border-right: 4px solid #2D6A4F; padding: 16px; margin: 24px 0; border-radius: 4px;">
-          <p style="margin: 0; font-weight: bold; color: #1B4332;">البريد الإلكتروني المسجل: {{customer_email}}</p>
+        <div style="background: #F1FAF4; border-right: 4px solid #0E7A4B; padding: 16px; margin: 24px 0; border-radius: 4px;">
+          <p style="margin: 0; font-weight: bold; color: #0E7A4B;">البريد الإلكتروني المسجل: {{customer_email}}</p>
         </div>
         <p style="text-align: center; margin: 32px 0;">
-          <a href="{{login_url}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">الدخول إلى حسابك</a>
+          <a href="{{login_url}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">الدخول إلى حسابك</a>
         </p>
         <p style="font-size: 13px; color: #64748b;">إذا لم تقم بإنشاء هذا الحساب، يرجى التواصل فوراً مع الدعم الفني على {{support_email}}.</p>
       </div>
@@ -54,15 +54,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
       </div>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 28px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 28px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 24px; font-weight: 800;">DAWA MED</h1>
-        <p style="margin: 6px 0 0; color: #74C69D; font-size: 13px;">Réseau Pharmaceutique et Télémédecine Certifié</p>
+        <p style="margin: 6px 0 0; color: #10B981; font-size: 13px;">Réseau Pharmaceutique et Télémédecine Certifié</p>
       </div>
       <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-        <h2 style="color: #1B4332; font-size: 20px; margin-top: 0;">Bienvenue, {{customer_name}}!</h2>
+        <h2 style="color: #0E7A4B; font-size: 20px; margin-top: 0;">Bienvenue, {{customer_name}}!</h2>
         <p>Votre compte sur DAWA MED a été créé avec succès. Vous bénéficiez désormais d'un accès direct aux pharmacies agréées et à la livraison sécurisée sous chaîne du froid.</p>
         <p style="text-align: center; margin: 32px 0;">
-          <a href="{{login_url}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Accéder à votre compte</a>
+          <a href="{{login_url}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Accéder à votre compte</a>
         </p>
       </div>
       <div style="background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b;">
@@ -84,26 +84,26 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
-      <h2 style="color: #1B4332;">Verify Your Email Address</h2>
+      <h2 style="color: #0E7A4B;">Verify Your Email Address</h2>
       <p>Hello {{customer_name}}, please confirm your email address to unlock full healthcare and dispensing access.</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{verification_link}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Verify Email Now</a>
+        <a href="{{verification_link}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Verify Email Now</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">This secure link expires in {{expires_in_minutes}} minutes.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: right;">
-      <h2 style="color: #1B4332;">تأكيد عنوان بريدك الإلكتروني</h2>
+      <h2 style="color: #0E7A4B;">تأكيد عنوان بريدك الإلكتروني</h2>
       <p>مرحباً {{customer_name}}، يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك والوصول الكامل لكافة خدمات الصرف الدوائي.</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{verification_link}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">تأكيد البريد الآن</a>
+        <a href="{{verification_link}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">تأكيد البريد الآن</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">هذا الرابط الآمن صالح لمدة {{expires_in_minutes}} دقيقة فقط.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
-      <h2 style="color: #1B4332;">Vérifiez votre adresse e-mail</h2>
+      <h2 style="color: #0E7A4B;">Vérifiez votre adresse e-mail</h2>
       <p>Bonjour {{customer_name}}, veuillez confirmer votre e-mail pour activer votre compte.</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{verification_link}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Confirmer l'e-mail</a>
+        <a href="{{verification_link}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Confirmer l'e-mail</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">Ce lien expire dans {{expires_in_minutes}} minutes.</p>
     </div>`
@@ -122,26 +122,26 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: center;">
-      <h2 style="color: #1B4332; margin-top: 0;">DAWA MED Authentication Code</h2>
+      <h2 style="color: #0E7A4B; margin-top: 0;">DAWA MED Authentication Code</h2>
       <p style="color: #475569;">Use the following one-time code to complete your secure verification:</p>
-      <div style="background: #F0FDF4; border: 2px dashed #2D6A4F; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
-        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #1B4332;">{{verification_code}}</span>
+      <div style="background: #F1FAF4; border: 2px dashed #0E7A4B; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
+        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #0E7A4B;">{{verification_code}}</span>
       </div>
       <p style="font-size: 13px; color: #64748b;">This code will expire in {{expires_in_minutes}} minutes. Do not share this code with anyone, including DAWA MED staff.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: center;">
-      <h2 style="color: #1B4332; margin-top: 0;">رمز التحقق الآمن — دواء ميد</h2>
+      <h2 style="color: #0E7A4B; margin-top: 0;">رمز التحقق الآمن — دواء ميد</h2>
       <p style="color: #475569;">استخدم رمز التحقق لمرة واحدة التالي لإتمام عملية الدخول الآمن:</p>
-      <div style="background: #F0FDF4; border: 2px dashed #2D6A4F; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
-        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #1B4332;">{{verification_code}}</span>
+      <div style="background: #F1FAF4; border: 2px dashed #0E7A4B; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
+        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #0E7A4B;">{{verification_code}}</span>
       </div>
       <p style="font-size: 13px; color: #64748b;">تنتهي صلاحية هذا الرمز خلال {{expires_in_minutes}} دقائق. لا تشارك هذا الرمز مع أي شخص حفاظاً على أمان بياناتك.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: center;">
-      <h2 style="color: #1B4332;">Code de sécurité DAWA MED</h2>
+      <h2 style="color: #0E7A4B;">Code de sécurité DAWA MED</h2>
       <p>Utilisez le code suivant pour votre vérification sécurisée :</p>
-      <div style="background: #F0FDF4; border: 2px dashed #2D6A4F; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
-        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #1B4332;">{{verification_code}}</span>
+      <div style="background: #F1FAF4; border: 2px dashed #0E7A4B; padding: 18px; margin: 24px auto; max-width: 240px; border-radius: 12px;">
+        <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #0E7A4B;">{{verification_code}}</span>
       </div>
       <p style="font-size: 13px; color: #64748b;">Ce code expire dans {{expires_in_minutes}} minutes. Ne le partagez avec personne.</p>
     </div>`
@@ -160,26 +160,26 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
-      <h2 style="color: #1B4332;">Password Reset Instructions</h2>
+      <h2 style="color: #0E7A4B;">Password Reset Instructions</h2>
       <p>Hello {{customer_name}}, a request was received to reset your password. Click the secure button below to set a new password:</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{reset_link}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+        <a href="{{reset_link}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">This link will expire in {{expires_in_minutes}} minutes. If you did not request this change, please ignore this email or notify {{support_email}}.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; text-align: right;">
-      <h2 style="color: #1B4332;">إعادة تعيين كلمة المرور</h2>
+      <h2 style="color: #0E7A4B;">إعادة تعيين كلمة المرور</h2>
       <p>مرحباً {{customer_name}}، لقد استلمنا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك. اضغط على الزر أدناه لاختيار كلمة مرور جديدة:</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{reset_link}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">إعادة تعيين كلمة المرور</a>
+        <a href="{{reset_link}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">إعادة تعيين كلمة المرور</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">هذا الرابط الآمن صالح لمدة {{expires_in_minutes}} دقيقة فقط. إذا لم تطلب هذا التغيير، يرجى تجاهل الرسالة والتواصل مع الدعم {{support_email}}.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
-      <h2 style="color: #1B4332;">Réinitialisation du mot de passe</h2>
+      <h2 style="color: #0E7A4B;">Réinitialisation du mot de passe</h2>
       <p>Bonjour {{customer_name}}, cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
       <p style="text-align: center; margin: 28px 0;">
-        <a href="{{reset_link}}" style="background: #2D6A4F; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Réinitialiser</a>
+        <a href="{{reset_link}}" style="background: #0E7A4B; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">Réinitialiser</a>
       </p>
       <p style="font-size: 12px; color: #64748b;">Ce lien expire dans {{expires_in_minutes}} minutes.</p>
     </div>`
@@ -198,17 +198,17 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Password Successfully Changed</h2>
+      <h2 style="color: #0E7A4B;">Password Successfully Changed</h2>
       <p>Hello {{customer_name}}, this is confirmation that your DAWA MED account password was changed at {{timestamp}}.</p>
       <p>If you did not authorize this change, please contact support immediately at {{support_email}} to secure your account.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; text-align: right;">
-      <h2 style="color: #1B4332;">تم تغيير كلمة المرور بنجاح</h2>
+      <h2 style="color: #0E7A4B;">تم تغيير كلمة المرور بنجاح</h2>
       <p>مرحباً {{customer_name}}، نؤكد لك أن كلمة المرور لحسابك في دواء ميد قد تم تغييرها في {{timestamp}}.</p>
       <p>إذا لم تقم بهذا الإجراء بنفسك، يرجى التواصل فوراً مع فريق الدعم على {{support_email}} لتأمين حسابك.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Mot de passe modifié avec succès</h2>
+      <h2 style="color: #0E7A4B;">Mot de passe modifié avec succès</h2>
       <p>Bonjour {{customer_name}}, votre mot de passe a été modifié le {{timestamp}}.</p>
       <p>En cas de doute, contactez {{support_email}}.</p>
     </div>`
@@ -227,47 +227,47 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">Order Placed Successfully</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">Order Reference: #{{order_id}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">Order Reference: #{{order_id}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b; line-height: 1.6;">
         <p>Dear {{customer_name}}, thank you for your order. Your prescription and medicine items have been forwarded to <strong>{{pharmacy_name}}</strong> for pharmacist verification and preparation.</p>
-        <div style="background: #F8FBF9; padding: 16px; border-radius: 8px; margin: 20px 0;">
+        <div style="background: #F1FAF4; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0 0 8px;"><strong>Total Amount:</strong> {{order_total}}</p>
           <p style="margin: 0;"><strong>Delivery Destination:</strong> {{delivery_address}}</p>
         </div>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Track Your Order</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Track Your Order</a>
         </p>
       </div>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; text-align: right;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">تم استلام طلبك بنجاح</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">رقم الطلب: #{{order_id}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">رقم الطلب: #{{order_id}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b; line-height: 1.8;">
         <p>عزيزي {{customer_name}}، شكراً لطلبك. تم إرسال الأدوية والوصفة إلى صيدلية <strong>{{pharmacy_name}}</strong> للبدء في المراجعة الدوائية والتجهيز.</p>
-        <div style="background: #F8FBF9; padding: 16px; border-radius: 8px; margin: 20px 0;">
+        <div style="background: #F1FAF4; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0 0 8px;"><strong>إجمالي المبلغ:</strong> {{order_total}}</p>
           <p style="margin: 0;"><strong>عنوان التوصيل:</strong> {{delivery_address}}</p>
         </div>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">تتبع مسار الطلب</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">تتبع مسار الطلب</a>
         </p>
       </div>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">Commande confirmée</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">Réf : #{{order_id}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">Réf : #{{order_id}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b;">
         <p>Bonjour {{customer_name}}, votre commande a été transmise à <strong>{{pharmacy_name}}</strong>.</p>
         <p><strong>Total :</strong> {{order_total}}</p>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Suivre la commande</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Suivre la commande</a>
         </p>
       </div>
     </div>`
@@ -286,17 +286,17 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Order Confirmed & Prepared</h2>
+      <h2 style="color: #0E7A4B;">Order Confirmed & Prepared</h2>
       <p>Hello {{customer_name}}, your order #{{order_id}} has been reviewed and approved by pharmacist <strong>{{pharmacist_name}}</strong> at {{pharmacy_name}}.</p>
       <p>It is now being sealed in a tamper-proof package for driver dispatch.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; text-align: right;">
-      <h2 style="color: #1B4332;">تم اعتماد الطلب وتجهيزه صيدلانياً</h2>
+      <h2 style="color: #0E7A4B;">تم اعتماد الطلب وتجهيزه صيدلانياً</h2>
       <p>مرحباً {{customer_name}}، تم فحص وتأكيد طلبك رقم #{{order_id}} بواسطة الصيدلي المرخص <strong>{{pharmacist_name}}</strong> في {{pharmacy_name}}.</p>
       <p>يجري الآن تغليف الشحنة بغلاف محكم ومقاوم للعبث تمهيداً لتسليمها لمندوب التوصيل.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Commande validée</h2>
+      <h2 style="color: #0E7A4B;">Commande validée</h2>
       <p>Bonjour {{customer_name}}, votre commande #{{order_id}} a été validée par le pharmacien {{pharmacist_name}}.</p>
     </div>`
   },
@@ -314,15 +314,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Order Processing</h2>
+      <h2 style="color: #0E7A4B;">Order Processing</h2>
       <p>Hello {{customer_name}}, your order #{{order_id}} is currently being safely packed at {{pharmacy_name}}.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">الطلب قيد التجهيز</h2>
+      <h2 style="color: #0E7A4B;">الطلب قيد التجهيز</h2>
       <p>مرحباً {{customer_name}}، يجري حالياً تغليف وتجهيز طلبك #{{order_id}} في {{pharmacy_name}} وفق أعلى معايير السلامة الدوائية.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Commande en préparation</h2>
+      <h2 style="color: #0E7A4B;">Commande en préparation</h2>
       <p>Bonjour {{customer_name}}, votre commande #{{order_id}} est en cours de conditionnement sécurisé.</p>
     </div>`
   },
@@ -340,15 +340,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Your Order is Ready</h2>
+      <h2 style="color: #0E7A4B;">Your Order is Ready</h2>
       <p>Hello {{customer_name}}, order #{{order_id}} is ready and awaiting courier dispatch at {{pharmacy_name}}.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">طلبك جاهز للتوصيل</h2>
+      <h2 style="color: #0E7A4B;">طلبك جاهز للتوصيل</h2>
       <p>مرحباً {{customer_name}}، تم الانتهاء من تجهيز طلبك #{{order_id}} في {{pharmacy_name}} وهو بانتظار استلام السائق.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Votre commande est prête</h2>
+      <h2 style="color: #0E7A4B;">Votre commande est prête</h2>
       <p>Bonjour {{customer_name}}, votre commande #{{order_id}} est prête pour le coursier.</p>
     </div>`
   },
@@ -366,9 +366,9 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">Out for Delivery</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">Courier: {{driver_name}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">Courier: {{driver_name}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b; line-height: 1.6;">
         <p>Hello {{customer_name}}, your medication package is now on the road with verified courier <strong>{{driver_name}}</strong>.</p>
@@ -378,14 +378,14 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
           <p style="margin: 6px 0 0; font-size: 11px; color: #B45309;">Provide this 4-digit code to the courier upon physical receipt.</p>
         </div>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Live Delivery Tracking</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Live Delivery Tracking</a>
         </p>
       </div>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; text-align: right;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">طلبك في الطريق إليك</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">مندوب التوصيل: {{driver_name}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">مندوب التوصيل: {{driver_name}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b; line-height: 1.8;">
         <p>مرحباً {{customer_name}}، شحنتك الدوائية في الطريق إليك مع السائق المعتمد <strong>{{driver_name}}</strong> مع الحفاظ التام على سلسلة التبريد.</p>
@@ -395,20 +395,20 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
           <p style="margin: 6px 0 0; font-size: 11px; color: #B45309;">أعطِ هذا الرمز للمندوب عند استلامك الفعلي للطرد.</p>
         </div>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">تتبع موقع السائق مباشرة</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">تتبع موقع السائق مباشرة</a>
         </p>
       </div>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div style="background: #1B4332; padding: 24px; text-align: center; color: white;">
+      <div style="background: #0E7A4B; padding: 24px; text-align: center; color: white;">
         <h1 style="margin: 0; font-size: 22px;">Commande en cours de livraison</h1>
-        <p style="margin: 4px 0 0; color: #74C69D;">Coursier : {{driver_name}}</p>
+        <p style="margin: 4px 0 0; color: #10B981;">Coursier : {{driver_name}}</p>
       </div>
       <div style="padding: 28px; color: #1e293b;">
         <p>Bonjour {{customer_name}}, votre coursier est en route.</p>
         <p><strong>Code de confirmation :</strong> {{delivery_otp}}</p>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="{{tracking_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Suivre le coursier</a>
+          <a href="{{tracking_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Suivre le coursier</a>
         </p>
       </div>
     </div>`
@@ -427,24 +427,24 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Order Delivered Successfully</h2>
+      <h2 style="color: #0E7A4B;">Order Delivered Successfully</h2>
       <p>Hello {{customer_name}}, your order #{{order_id}} has been successfully delivered and confirmed.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{receipt_url}}" style="background: #2D6A4F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Download Official Receipt</a>
+        <a href="{{receipt_url}}" style="background: #0E7A4B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Download Official Receipt</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; text-align: right;">
-      <h2 style="color: #1B4332;">تم تسليم الطلب بنجاح</h2>
+      <h2 style="color: #0E7A4B;">تم تسليم الطلب بنجاح</h2>
       <p>مرحباً {{customer_name}}، تم تسليم طلبك رقم #{{order_id}} وتأكيده بنجاح. نتمنى لك دوام الصحة والعافية.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{receipt_url}}" style="background: #2D6A4F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">تحميل الإيصال الرسمي</a>
+        <a href="{{receipt_url}}" style="background: #0E7A4B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">تحميل الإيصال الرسمي</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
-      <h2 style="color: #1B4332;">Commande livrée avec succès</h2>
+      <h2 style="color: #0E7A4B;">Commande livrée avec succès</h2>
       <p>Bonjour {{customer_name}}, votre commande #{{order_id}} est bien livrée.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{receipt_url}}" style="background: #2D6A4F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Télécharger le reçu</a>
+        <a href="{{receipt_url}}" style="background: #0E7A4B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Télécharger le reçu</a>
       </p>
     </div>`
   },
@@ -496,13 +496,13 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
         <h2 style="margin: 0;">Payment Confirmed</h2>
         <p style="margin: 4px 0 0; font-size: 14px;">Transaction ID: {{transaction_id}}</p>
       </div>
-      <div style="background: #F0FDF4; padding: 20px; border-radius: 8px; margin: 24px 0;">
+      <div style="background: #F1FAF4; padding: 20px; border-radius: 8px; margin: 24px 0;">
         <p style="margin: 0 0 8px;"><strong>Amount Paid:</strong> {{order_total}}</p>
         <p style="margin: 0 0 8px;"><strong>Payment Method:</strong> {{payment_method}}</p>
         <p style="margin: 0;"><strong>Order Reference:</strong> #{{order_id}}</p>
       </div>
       <p style="text-align: center;">
-        <a href="{{receipt_url}}" style="background: #2D6A4F; color: white; padding: 10px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Full Receipt</a>
+        <a href="{{receipt_url}}" style="background: #0E7A4B; color: white; padding: 10px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Full Receipt</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; text-align: right;">
@@ -510,13 +510,13 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
         <h2 style="margin: 0;">تم تأكيد الدفع بنجاح</h2>
         <p style="margin: 4px 0 0; font-size: 14px;">رقم المعاملة: {{transaction_id}}</p>
       </div>
-      <div style="background: #F0FDF4; padding: 20px; border-radius: 8px; margin: 24px 0;">
+      <div style="background: #F1FAF4; padding: 20px; border-radius: 8px; margin: 24px 0;">
         <p style="margin: 0 0 8px;"><strong>المبلغ المدفوع:</strong> {{order_total}}</p>
         <p style="margin: 0 0 8px;"><strong>طريقة الدفع:</strong> {{payment_method}}</p>
         <p style="margin: 0;"><strong>رقم الطلب:</strong> #{{order_id}}</p>
       </div>
       <p style="text-align: center;">
-        <a href="{{receipt_url}}" style="background: #2D6A4F; color: white; padding: 10px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">عرض الإيصال الكامل</a>
+        <a href="{{receipt_url}}" style="background: #0E7A4B; color: white; padding: 10px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">عرض الإيصال الكامل</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px;">
@@ -575,15 +575,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Prescription Received</h2>
+      <h2 style="color: #0E7A4B;">Prescription Received</h2>
       <p>Hello {{customer_name}}, your prescription (ID: {{prescription_id}}) has been received securely and assigned to {{pharmacy_name}} for clinical validation.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم استلام وصفتك الطبية</h2>
+      <h2 style="color: #0E7A4B;">تم استلام وصفتك الطبية</h2>
       <p>مرحباً {{customer_name}}، تم استلام الوصفة الطبية (رقم: {{prescription_id}}) بأمان ونقلها إلى {{pharmacy_name}} للمراجعة والاعتماد الصيدلاني.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Ordonnance reçue</h2>
+      <h2 style="color: #0E7A4B;">Ordonnance reçue</h2>
       <p>Bonjour {{customer_name}}, votre ordonnance (ID : {{prescription_id}}) est en cours d'examen par {{pharmacy_name}}.</p>
     </div>`
   },
@@ -601,21 +601,21 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Prescription Approved</h2>
+      <h2 style="color: #0E7A4B;">Prescription Approved</h2>
       <p>Hello {{customer_name}}, your prescription (ID: {{prescription_id}}) was approved by pharmacist {{pharmacist_name}}.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{checkout_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Proceed to Checkout</a>
+        <a href="{{checkout_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Proceed to Checkout</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم اعتماد وصفتك الطبية</h2>
+      <h2 style="color: #0E7A4B;">تم اعتماد وصفتك الطبية</h2>
       <p>مرحباً {{customer_name}}، قام الصيدلي المرخص {{pharmacist_name}} بفحص واعتماد وصفتك الطبية (رقم: {{prescription_id}}).</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{checkout_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">المتابعة للدفع والاستلام</a>
+        <a href="{{checkout_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">المتابعة للدفع والاستلام</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Ordonnance approuvée</h2>
+      <h2 style="color: #0E7A4B;">Ordonnance approuvée</h2>
       <p>Bonjour {{customer_name}}, votre ordonnance a été validée par le pharmacien {{pharmacist_name}}.</p>
     </div>`
   },
@@ -637,7 +637,7 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
       <p>Hello {{customer_name}}, our pharmacist was unable to validate prescription {{prescription_id}}.</p>
       <p><strong>Clinical Reason:</strong> {{rejection_reason}}</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{reupload_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Upload Clear Prescription</a>
+        <a href="{{reupload_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Upload Clear Prescription</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
@@ -645,7 +645,7 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
       <p>مرحباً {{customer_name}}، تعذر اعتماد الوصفة الطبية رقم {{prescription_id}} من قبل الصيدلي المشرف.</p>
       <p><strong>السبب الطبي:</strong> {{rejection_reason}}</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{reupload_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">إعادة رفع صورة واضحة</a>
+        <a href="{{reupload_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">إعادة رفع صورة واضحة</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
@@ -667,15 +667,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Pharmacy Application Received</h2>
+      <h2 style="color: #0E7A4B;">Pharmacy Application Received</h2>
       <p>Thank you for registering <strong>{{pharmacy_name}}</strong> (License: {{license_number}}). Our compliance officers are verifying your credentials with {{regulatory_body}}.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم استلام طلب انضمام الصيدلية</h2>
+      <h2 style="color: #0E7A4B;">تم استلام طلب انضمام الصيدلية</h2>
       <p>شكراً لتسجيل صيدلية <strong>{{pharmacy_name}}</strong> (ترخيص رقم: {{license_number}}). يقوم مسؤولو الامتثال بمراجعة وتدقيق المستندات مع {{regulatory_body}}.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Demande de pharmacie reçue</h2>
+      <h2 style="color: #0E7A4B;">Demande de pharmacie reçue</h2>
       <p>Votre demande pour {{pharmacy_name}} (Licence : {{license_number}}) est en cours de vérification.</p>
     </div>`
   },
@@ -696,14 +696,14 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
       <h2 style="color: #166534;">Pharmacy Verified & Active</h2>
       <p>We are delighted to confirm that <strong>{{pharmacy_name}}</strong> has passed regulatory verification and is now active on the DAWA MED network.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{portal_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Open Pharmacy Portal</a>
+        <a href="{{portal_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Open Pharmacy Portal</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
       <h2 style="color: #166534;">تم اعتماد الصيدلية وتفعيلها بنجاح</h2>
       <p>يسعدنا إبلاغكم بأن صيدلية <strong>{{pharmacy_name}}</strong> قد اجتازت الفحص التنظيمي وأصبحت الآن مفعلة في شبكة دواء ميد لاستقبال وصرف الطلبات.</p>
       <p style="text-align: center; margin: 24px 0;">
-        <a href="{{portal_url}}" style="background: #2D6A4F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">الدخول إلى لوحة الصيدلية</a>
+        <a href="{{portal_url}}" style="background: #0E7A4B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">الدخول إلى لوحة الصيدلية</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
@@ -753,15 +753,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Medicine Submitted for Review</h2>
+      <h2 style="color: #0E7A4B;">Medicine Submitted for Review</h2>
       <p>Product <strong>{{medicine_name}}</strong> ({{generic_name}}, {{dosage}}) has been submitted by {{pharmacy_name}} and is currently under review by our Chief Medical Officer.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم تقديم الدواء للمراجعة والاعتماد</h2>
+      <h2 style="color: #0E7A4B;">تم تقديم الدواء للمراجعة والاعتماد</h2>
       <p>تم استلام بيانات المستحضر <strong>{{medicine_name}}</strong> ({{generic_name}}, {{dosage}}) من صيدلية {{pharmacy_name}} وهو قيد التدقيق لدى الإدارة الطبية.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Médicament soumis</h2>
+      <h2 style="color: #0E7A4B;">Médicament soumis</h2>
       <p>Le produit {{medicine_name}} est en cours d’examen médical.</p>
     </div>`
   },
@@ -831,21 +831,21 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">New Delivery Dispatch</h2>
+      <h2 style="color: #0E7A4B;">New Delivery Dispatch</h2>
       <p>Hello {{driver_name}}, order #{{order_id}} is ready for pickup at <strong>{{pharmacy_name}}</strong> in {{delivery_zone}}.</p>
       <p style="text-align: center;">
-        <a href="{{driver_app_url}}" style="background: #2D6A4F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Accept & Navigate</a>
+        <a href="{{driver_app_url}}" style="background: #0E7A4B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">Accept & Navigate</a>
       </p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">مهمة توصيل دوائي جديدة</h2>
+      <h2 style="color: #0E7A4B;">مهمة توصيل دوائي جديدة</h2>
       <p>مرحباً {{driver_name}}، الطلب رقم #{{order_id}} جاهز للاستلام من صيدلية <strong>{{pharmacy_name}}</strong> في منطقة {{delivery_zone}}.</p>
       <p style="text-align: center;">
-        <a href="{{driver_app_url}}" style="background: #2D6A4F; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">قبول وبدء التوصيل</a>
+        <a href="{{driver_app_url}}" style="background: #0E7A4B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;">قبول وبدء التوصيل</a>
       </p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Nouvelle course assignée</h2>
+      <h2 style="color: #0E7A4B;">Nouvelle course assignée</h2>
       <p>Bonjour {{driver_name}}, commande #{{order_id}} à récupérer chez {{pharmacy_name}}.</p>
     </div>`
   },
@@ -863,15 +863,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Support Ticket Received</h2>
+      <h2 style="color: #0E7A4B;">Support Ticket Received</h2>
       <p>Hello {{customer_name}}, your support ticket #{{support_ticket_id}} ("{{ticket_title}}") has been logged with our medical support desk.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم استلام تذكرة الدعم الفني</h2>
+      <h2 style="color: #0E7A4B;">تم استلام تذكرة الدعم الفني</h2>
       <p>مرحباً {{customer_name}}، تم تسجيل تذكرتك رقم #{{support_ticket_id}} ("{{ticket_title}}") وسيقوم فريق الدعم بالرد عليك في أقرب وقت.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Ticket de support ouvert</h2>
+      <h2 style="color: #0E7A4B;">Ticket de support ouvert</h2>
       <p>Bonjour {{customer_name}}, votre ticket #{{support_ticket_id}} a bien été pris en compte.</p>
     </div>`
   },
@@ -889,21 +889,21 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Support Ticket Update</h2>
+      <h2 style="color: #0E7A4B;">Support Ticket Update</h2>
       <p>Hello {{customer_name}}, new update on ticket #{{support_ticket_id}} (Status: {{ticket_status}}):</p>
       <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin: 16px 0;">
         <p style="margin: 0; font-style: italic;">"{{reply_message}}"</p>
       </div>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تحديث على تذكرة الدعم</h2>
+      <h2 style="color: #0E7A4B;">تحديث على تذكرة الدعم</h2>
       <p>مرحباً {{customer_name}}، هناك رد جديد على التذكرة رقم #{{support_ticket_id}} (الحالة: {{ticket_status}}):</p>
       <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin: 16px 0;">
         <p style="margin: 0; font-style: italic;">"{{reply_message}}"</p>
       </div>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Réponse du support</h2>
+      <h2 style="color: #0E7A4B;">Réponse du support</h2>
       <p>Bonjour {{customer_name}}, réponse pour le ticket #{{support_ticket_id}} : {{reply_message}}.</p>
     </div>`
   },
@@ -921,15 +921,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Subscription Active</h2>
+      <h2 style="color: #0E7A4B;">Subscription Active</h2>
       <p>Hello {{customer_name}}, your <strong>{{subscription_plan}}</strong> is now active. Your chronic medications will be refilled automatically on {{next_billing_date}}.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">تم تفعيل اشتراك الصرف التلقائي</h2>
+      <h2 style="color: #0E7A4B;">تم تفعيل اشتراك الصرف التلقائي</h2>
       <p>مرحباً {{customer_name}}، اشتراكك في <strong>{{subscription_plan}}</strong> نشط الآن. سيتم تجهيز وإعادة صرف أدويتك المزمنة تلقائياً في {{next_billing_date}}.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Abonnement activé</h2>
+      <h2 style="color: #0E7A4B;">Abonnement activé</h2>
       <p>Bonjour {{customer_name}}, votre formule {{subscription_plan}} est active. Prochain renouvellement : {{next_billing_date}}.</p>
     </div>`
   },
@@ -947,15 +947,15 @@ export const PRODUCTION_EMAIL_TEMPLATES: EmailTemplate[] = [
     isActive: true,
     updatedAt: '2026-08-25T08:00:00Z',
     bodyHtmlEn: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Monthly Refill In Progress</h2>
+      <h2 style="color: #0E7A4B;">Monthly Refill In Progress</h2>
       <p>Hello {{customer_name}}, your subscription order #{{order_id}} for {{subscription_plan}} has been generated and queued for pharmacy preparation.</p>
     </div>`,
     bodyHtmlAr: `<div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto; text-align: right;">
-      <h2 style="color: #1B4332;">جاري تجهيز الصرف الشهري التلقائي</h2>
+      <h2 style="color: #0E7A4B;">جاري تجهيز الصرف الشهري التلقائي</h2>
       <p>مرحباً {{customer_name}}، تم إنشاء طلب الصرف الشهري رقم #{{order_id}} لباقة {{subscription_plan}} وجاري تجهيزه صيدلانياً.</p>
     </div>`,
     bodyHtmlFr: `<div style="font-family: Arial, sans-serif; padding: 32px; border: 1px solid #e2e8f0; border-radius: 16px; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #1B4332;">Renouvellement mensuel</h2>
+      <h2 style="color: #0E7A4B;">Renouvellement mensuel</h2>
       <p>Bonjour {{customer_name}}, votre commande périodique #{{order_id}} est en cours de préparation.</p>
     </div>`
   },

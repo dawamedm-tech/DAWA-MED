@@ -19,7 +19,7 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   logoUrl: '',
   supportEmail: 'support@dawamed.com',
   supportPhone: '+254 700 000 000',
-  primaryBrandColor: '#2D6A4F',
+  primaryBrandColor: '#0E7A4B',
   enablePatientRegistration: true,
   enablePharmacyRegistration: true,
   requireMfaForAdmins: true,

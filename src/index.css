@@ -2,17 +2,19 @@
 
 @layer base {
   :root {
-    --bg-main: #F4F7F5;
-    --brand-forest: #1B4332;
-    --brand-primary: #2D6A4F;
-    --brand-mint: #52B788;
-    --brand-light-green: #74C69D;
-    --brand-pale-sage: #95D5B2;
-    --brand-mint-tint: #D8F3DC;
-    --brand-soft-tint: #E9F5EE;
-    --border-light: #D8E2DC;
-    --surface-soft: #F8FAF9;
-    --surface-pill: #F0F7F4;
+    --bg-main: #F1FAF4;
+    --brand-forest: #084F30;
+    --brand-primary: #0E7A4B;
+    --brand-mint: #E8F5EE;
+    --brand-light-green: #10B981;
+    --brand-pale-sage: #D0EADB;
+    --brand-mint-tint: #E8F5EE;
+    --brand-soft-tint: #F1FAF4;
+    --border-light: #E8F5EE;
+    --surface-soft: #F1FAF4;
+    --surface-pill: #E8F5EE;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
   }
 
   *, ::before, ::after {
@@ -29,8 +31,8 @@
   }
 
   body {
-    background-color: #F4F7F5;
-    color: #1B4332;
+    background-color: #F1FAF4;
+    color: #111827;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     width: 100%;
     max-width: 100%;

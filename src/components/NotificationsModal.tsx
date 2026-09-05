@@ -80,13 +80,13 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
     switch (type) {
       case 'order':
       case 'rx':
-        return <FileText className="w-4 h-4 text-[#2D6A4F]" />;
+        return <FileText className="w-4 h-4 text-[#0E7A4B]" />;
       case 'delivery':
-        return <Bike className="w-4 h-4 text-[#52B788]" />;
+        return <Bike className="w-4 h-4 text-[#0E7A4B]" />;
       case 'cold_chain':
         return <Thermometer className="w-4 h-4 text-blue-600" />;
       case 'medicine_reminder':
-        return <Pill className="w-4 h-4 text-[#2D6A4F]" />;
+        return <Pill className="w-4 h-4 text-[#0E7A4B]" />;
       case 'refill_reminder':
         return <RotateCcw className="w-4 h-4 text-amber-600" />;
       case 'subscription':
@@ -111,17 +111,17 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#D8E2DC] my-6"
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#E8F5EE] my-6"
         id="notifications-modal-container"
       >
         {/* Top Header */}
-        <div className="p-5 border-b border-[#D8E2DC] flex items-center justify-between bg-[#F8FAF9]">
+        <div className="p-5 border-b border-[#E8F5EE] flex items-center justify-between bg-[#F1FAF4]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#D8F3DC] flex items-center justify-center text-[#2D6A4F]">
+            <div className="w-9 h-9 rounded-2xl bg-[#E8F5EE] flex items-center justify-center text-[#0E7A4B]">
               <Bell className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-[#1B4332]">{t.notificationsTitle}</h2>
+              <h2 className="text-sm font-black text-[#111827]">{t.notificationsTitle}</h2>
               <p className="text-[11px] text-gray-500">
                 {notifications.filter((n) => !n.read).length} unread updates
               </p>
@@ -132,7 +132,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             <button
               onClick={() => setActiveTab(activeTab === 'notifications' ? 'preferences' : 'notifications')}
               className={`p-2 rounded-xl transition-colors cursor-pointer ${
-                activeTab === 'preferences' ? 'bg-[#2D6A4F] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                activeTab === 'preferences' ? 'bg-[#0E7A4B] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
               }`}
               title="Notification Settings"
             >
@@ -151,7 +151,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         {activeTab === 'notifications' ? (
           <>
             {/* Category Filter Pills */}
-            <div className="px-4 py-2 bg-[#F8FAF9]/60 border-b border-[#D8E2DC] flex items-center gap-1.5 overflow-x-auto text-[11px]">
+            <div className="px-4 py-2 bg-[#F1FAF4]/60 border-b border-[#E8F5EE] flex items-center gap-1.5 overflow-x-auto text-[11px]">
               {[
                 { id: 'all', label: 'All' },
                 { id: 'reminders', label: 'Dose Reminders' },
@@ -166,8 +166,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-3 py-1 rounded-full font-bold transition-all whitespace-nowrap cursor-pointer ${
                     selectedCategory === cat.id
-                      ? 'bg-[#1B4332] text-white shadow-xs'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-[#D8E2DC]'
+                      ? 'bg-[#0E7A4B] text-white shadow-xs'
+                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-[#E8F5EE]'
                   }`}
                 >
                   {cat.label}
@@ -176,7 +176,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </div>
 
             {/* Notifications List */}
-            <div className="max-h-[420px] overflow-y-auto divide-y divide-[#E9F5EE] p-2 text-xs">
+            <div className="max-h-[420px] overflow-y-auto divide-y divide-[#E8F5EE] p-2 text-xs">
               {filteredNotifications.length === 0 ? (
                 <div className="py-12 text-center text-gray-400">
                   <Bell className="w-8 h-8 mx-auto mb-2 opacity-40" />
@@ -187,16 +187,16 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                   <div
                     key={notif.id}
                     className={`p-3.5 rounded-2xl transition-colors flex gap-3 ${
-                      notif.read ? 'bg-white hover:bg-gray-50' : 'bg-[#F0F7F4]/70 hover:bg-[#F0F7F4]'
+                      notif.read ? 'bg-white hover:bg-gray-50' : 'bg-[#F1FAF4]/70 hover:bg-[#F1FAF4]'
                     }`}
                   >
-                    <div className="mt-0.5 p-2 rounded-xl bg-white border border-[#D8E2DC] shadow-xs shrink-0 h-fit">
+                    <div className="mt-0.5 p-2 rounded-xl bg-white border border-[#E8F5EE] shadow-xs shrink-0 h-fit">
                       {getCategoryIcon(notif.type)}
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center justify-between gap-1">
-                        <h3 className="text-xs font-bold text-[#1B4332] truncate">
+                        <h3 className="text-xs font-bold text-[#111827] truncate">
                           {notificationPreferences.privacyShieldMode && notif.type === 'medicine_reminder'
                             ? 'DAWA MED Reminder (Privacy Protected)'
                             : notif.title}
@@ -223,9 +223,9 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                               }
                               onClose();
                             }}
-                            className="px-3 py-1 rounded-lg bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer"
+                            className="px-3 py-1 rounded-lg bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer"
                           >
-                            <Check className="w-3 h-3 text-[#74C69D]" />
+                            <Check className="w-3 h-3 text-emerald-400" />
                             <span>Mark Taken</span>
                           </button>
                         )}
@@ -263,7 +263,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                               if (onSelectOrderNotification) onSelectOrderNotification(notif.orderId);
                               onClose();
                             }}
-                            className="px-3 py-1 rounded-lg bg-[#D8F3DC] hover:bg-[#B7E4C7] text-[#2D6A4F] font-bold text-[10px] cursor-pointer"
+                            className="px-3 py-1 rounded-lg bg-[#E8F5EE] hover:bg-[#B7E4C7] text-[#0E7A4B] font-bold text-[10px] cursor-pointer"
                           >
                             View Order Tracking →
                           </button>
@@ -272,7 +272,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                     </div>
 
                     {!notif.read && (
-                      <span className="w-2 h-2 rounded-full bg-[#52B788] shrink-0 self-center" />
+                      <span className="w-2 h-2 rounded-full bg-[#0E7A4B] shrink-0 self-center" />
                     )}
                   </div>
                 ))
@@ -280,10 +280,10 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </div>
 
             {/* Bottom Bar */}
-            <div className="p-3 bg-[#F8FAF9] border-t border-[#D8E2DC] flex items-center justify-between">
+            <div className="p-3 bg-[#F1FAF4] border-t border-[#E8F5EE] flex items-center justify-between">
               <button
                 onClick={onMarkAllRead}
-                className="text-xs font-bold text-[#2D6A4F] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#0E7A4B] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>{t.markAllAsRead}</span>
@@ -291,7 +291,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
               <button
                 onClick={onClose}
-                className="px-4 py-1.5 bg-white hover:bg-gray-100 border border-[#D8E2DC] rounded-xl text-xs font-bold text-[#1B4332]"
+                className="px-4 py-1.5 bg-white hover:bg-gray-100 border border-[#E8F5EE] rounded-xl text-xs font-bold text-[#111827]"
               >
                 {t.close}
               </button>
@@ -300,11 +300,11 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         ) : (
           /* Preferences Tab */
           <div className="p-5 space-y-4 text-xs max-h-[460px] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#E9F5EE] pb-2">
-              <h3 className="font-black text-[#1B4332] text-sm">Notification Channels & Privacy</h3>
+            <div className="flex items-center justify-between border-b border-[#E8F5EE] pb-2">
+              <h3 className="font-black text-[#111827] text-sm">Notification Channels & Privacy</h3>
               <button
                 onClick={() => setActiveTab('notifications')}
-                className="text-xs font-bold text-[#2D6A4F] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#0E7A4B] hover:underline cursor-pointer"
               >
                 ← Back to Alerts
               </button>
@@ -316,7 +316,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                   key: 'medicineReminders' as keyof NotificationPreferences,
                   title: 'Daily Medicine Reminders',
                   desc: 'Punctual sound and banner reminders at scheduled dose hours.',
-                  icon: <Pill className="w-4 h-4 text-[#2D6A4F]" />,
+                  icon: <Pill className="w-4 h-4 text-[#0E7A4B]" />,
                 },
                 {
                   key: 'refillReminders' as keyof NotificationPreferences,
@@ -328,13 +328,13 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                   key: 'orderUpdates' as keyof NotificationPreferences,
                   title: 'Order Status & Prescription Verification',
                   desc: 'Notifications when pharmacy confirms or prepares medications.',
-                  icon: <FileText className="w-4 h-4 text-[#2D6A4F]" />,
+                  icon: <FileText className="w-4 h-4 text-[#0E7A4B]" />,
                 },
                 {
                   key: 'deliveryTracking' as keyof NotificationPreferences,
                   title: 'Rider GPS Tracking & Handover PIN',
                   desc: 'Live ETA updates and security handover OTP codes.',
-                  icon: <Bike className="w-4 h-4 text-[#52B788]" />,
+                  icon: <Bike className="w-4 h-4 text-[#0E7A4B]" />,
                 },
                 {
                   key: 'subscriptionBilling' as keyof NotificationPreferences,
@@ -357,14 +357,14 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
               ].map((item) => (
                 <div
                   key={item.key}
-                  className="p-3.5 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC] flex items-center justify-between gap-3"
+                  className="p-3.5 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE] flex items-center justify-between gap-3"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="p-2 bg-white rounded-xl border border-[#D8E2DC] shadow-2xs">
+                    <div className="p-2 bg-white rounded-xl border border-[#E8F5EE] shadow-2xs">
                       {item.icon}
                     </div>
                     <div>
-                      <h4 className="font-bold text-[#1B4332]">{item.title}</h4>
+                      <h4 className="font-bold text-[#111827]">{item.title}</h4>
                       <p className="text-[11px] text-gray-500">{item.desc}</p>
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
                       onChange={() => handleTogglePreference(item.key)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2D6A4F]"></div>
+                    <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0E7A4B]"></div>
                   </label>
                 </div>
               ))}
@@ -385,7 +385,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             <div className="pt-2">
               <button
                 onClick={() => setActiveTab('notifications')}
-                className="w-full py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold text-xs"
+                className="w-full py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-xs"
               >
                 Save Preferences
               </button>

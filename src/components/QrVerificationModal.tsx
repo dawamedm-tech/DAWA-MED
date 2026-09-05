@@ -76,18 +76,18 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-md w-full border border-[#D8E2DC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-3xl max-w-md w-full border border-[#E8F5EE] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-5 bg-[#1B4332] text-white flex items-center justify-between">
+        <div className="p-5 bg-[#0E7A4B] text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#52B788]/20 border border-[#52B788]/40 flex items-center justify-center text-[#74C69D]">
+            <div className="w-10 h-10 rounded-2xl bg-[#E8F5EE] border border-[#D0EADB]/40 flex items-center justify-center text-emerald-400">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-base font-black">
                 {isAr ? 'التحقق الأمني برمز QR' : 'Tamper-Proof QR Verification'}
               </h2>
-              <p className="text-xs text-[#D8F3DC]">
+              <p className="text-xs text-white/80">
                 {order.orderNumber} • {order.pharmacyName}
               </p>
             </div>
@@ -101,13 +101,13 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
         </div>
 
         {/* Tab Switcher */}
-        <div className="p-2 bg-[#F4F7F5] border-b border-[#D8E2DC] flex gap-2">
+        <div className="p-2 bg-[#F1FAF4] border-b border-[#E8F5EE] flex gap-2">
           <button
             onClick={() => { setActiveTab('qr_display'); setScanResult(null); }}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               activeTab === 'qr_display'
-                ? 'bg-white text-[#1B4332] shadow-xs'
-                : 'text-gray-600 hover:text-[#1B4332]'
+                ? 'bg-white text-[#111827] shadow-xs'
+                : 'text-gray-600 hover:text-[#111827]'
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
@@ -118,8 +118,8 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
             onClick={() => { setActiveTab('scanner'); handleSimulateScan(); }}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               activeTab === 'scanner'
-                ? 'bg-white text-[#1B4332] shadow-xs'
-                : 'text-gray-600 hover:text-[#1B4332]'
+                ? 'bg-white text-[#111827] shadow-xs'
+                : 'text-gray-600 hover:text-[#111827]'
             }`}
           >
             <Scan className="w-3.5 h-3.5" />
@@ -132,22 +132,22 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
           {activeTab === 'qr_display' ? (
             <div className="space-y-4 text-center">
               {/* QR Visual */}
-              <div className="p-5 bg-white rounded-2xl border-2 border-dashed border-[#52B788] inline-block mx-auto shadow-inner">
+              <div className="p-5 bg-white rounded-2xl border-2 border-dashed border-[#D0EADB] inline-block mx-auto shadow-inner">
                 {/* SVG Visual QR Mock representation */}
                 <div className="w-48 h-48 bg-white flex flex-col items-center justify-center relative p-2">
-                  <svg className="w-full h-full text-[#1B4332]" viewBox="0 0 100 100" fill="currentColor">
+                  <svg className="w-full h-full text-[#111827]" viewBox="0 0 100 100" fill="currentColor">
                     {/* Corners */}
-                    <rect x="5" y="5" width="28" height="28" rx="2" fill="#1B4332" />
+                    <rect x="5" y="5" width="28" height="28" rx="2" fill="#0E7A4B" />
                     <rect x="9" y="9" width="20" height="20" rx="1" fill="#FFFFFF" />
-                    <rect x="13" y="13" width="12" height="12" rx="1" fill="#1B4332" />
+                    <rect x="13" y="13" width="12" height="12" rx="1" fill="#0E7A4B" />
 
-                    <rect x="67" y="5" width="28" height="28" rx="2" fill="#1B4332" />
+                    <rect x="67" y="5" width="28" height="28" rx="2" fill="#0E7A4B" />
                     <rect x="71" y="9" width="20" height="20" rx="1" fill="#FFFFFF" />
-                    <rect x="75" y="13" width="12" height="12" rx="1" fill="#1B4332" />
+                    <rect x="75" y="13" width="12" height="12" rx="1" fill="#0E7A4B" />
 
-                    <rect x="5" y="67" width="28" height="28" rx="2" fill="#1B4332" />
+                    <rect x="5" y="67" width="28" height="28" rx="2" fill="#0E7A4B" />
                     <rect x="9" y="71" width="20" height="20" rx="1" fill="#FFFFFF" />
-                    <rect x="13" y="75" width="12" height="12" rx="1" fill="#1B4332" />
+                    <rect x="13" y="75" width="12" height="12" rx="1" fill="#0E7A4B" />
 
                     {/* Data Matrix Dots */}
                     <rect x="38" y="8" width="6" height="6" />
@@ -156,12 +156,12 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
                     <rect x="58" y="18" width="6" height="6" />
                     <rect x="8" y="38" width="6" height="6" />
                     <rect x="18" y="48" width="6" height="6" />
-                    <rect x="38" y="38" width="8" height="8" rx="1" fill="#2D6A4F" />
+                    <rect x="38" y="38" width="8" height="8" rx="1" fill="#0E7A4B" />
                     <rect x="50" y="38" width="6" height="6" />
                     <rect x="62" y="38" width="8" height="8" />
                     <rect x="76" y="38" width="6" height="6" />
                     <rect x="38" y="52" width="6" height="6" />
-                    <rect x="52" y="52" width="10" height="10" fill="#52B788" />
+                    <rect x="52" y="52" width="10" height="10" fill="#10B981" />
                     <rect x="70" y="52" width="6" height="6" />
                     <rect x="84" y="52" width="6" height="6" />
                     <rect x="38" y="68" width="6" height="6" />
@@ -174,15 +174,15 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
                     <rect x="80" y="82" width="8" height="8" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="bg-white p-1 rounded-md shadow-xs border border-[#D8E2DC]">
-                      <span className="text-[10px] font-black text-[#1B4332]">DAWA</span>
+                    <div className="bg-white p-1 rounded-md shadow-xs border border-[#E8F5EE]">
+                      <span className="text-[10px] font-black text-[#111827]">DAWA</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-black text-[#1B4332] uppercase tracking-wider">
+                <p className="text-xs font-black text-[#111827] uppercase tracking-wider">
                   {isAr ? 'رمز تحقق الطرد الآمن' : 'Tamper-Evident Package QR'}
                 </p>
                 <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
@@ -193,8 +193,8 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
               </div>
 
               {/* Strict Privacy Notice Banner */}
-              <div className="p-3 bg-[#E9F5EE] border border-[#52B788]/40 rounded-2xl text-left flex items-start gap-2.5 text-xs text-[#1B4332]">
-                <Lock className="w-4 h-4 text-[#2D6A4F] shrink-0 mt-0.5" />
+              <div className="p-3 bg-[#E8F5EE] border border-[#D0EADB]/40 rounded-2xl text-left flex items-start gap-2.5 text-xs text-[#111827]">
+                <Lock className="w-4 h-4 text-[#0E7A4B] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-bold">
                     {isAr ? 'حماية تامة لخصوصية المريض' : 'Zero Patient PII in QR Payload'}
@@ -209,7 +209,7 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
 
               <button
                 onClick={handleCopyPayload}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D8E2DC] text-xs font-bold text-gray-600 hover:text-[#1B4332] hover:bg-[#F4F7F5] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E8F5EE] text-xs font-bold text-gray-600 hover:text-[#111827] hover:bg-[#F1FAF4] transition-colors cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? (isAr ? 'تم نسخ الرمز' : 'Copied') : (isAr ? 'نسخ الرمز الأمني' : 'Copy Verification String')}</span>
@@ -256,11 +256,11 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
                   <div className="grid grid-cols-2 gap-2 text-xs text-gray-700 pt-2 border-t border-emerald-200/60 font-medium">
                     <div>
                       <span className="text-gray-400 block text-[10px]">Order Reference</span>
-                      <strong className="text-[#1B4332]">{scanResult.orderId}</strong>
+                      <strong className="text-[#111827]">{scanResult.orderId}</strong>
                     </div>
                     <div>
                       <span className="text-gray-400 block text-[10px]">Dispensing Pharmacy</span>
-                      <strong className="text-[#1B4332]">{scanResult.pharmacy}</strong>
+                      <strong className="text-[#111827]">{scanResult.pharmacy}</strong>
                     </div>
                     <div>
                       <span className="text-gray-400 block text-[10px]">Tamper Seal Status</span>
@@ -277,7 +277,7 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
               <button
                 onClick={handleSimulateScan}
                 disabled={isScanning}
-                className="w-full py-3 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-black text-xs transition-colors cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-black text-xs transition-colors cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Scan className="w-4 h-4" />
                 <span>{isScanning ? (isAr ? 'جارِ المسح...' : 'Scanning...') : (isAr ? 'إعادة مسح الرمز' : 'Scan Package Again')}</span>
@@ -287,7 +287,7 @@ export const QrVerificationModal: React.FC<QrVerificationModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#F8FAF9] border-t border-[#D8E2DC] flex justify-end">
+        <div className="p-4 bg-[#F1FAF4] border-t border-[#E8F5EE] flex justify-end">
           <button
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-black transition-colors cursor-pointer"

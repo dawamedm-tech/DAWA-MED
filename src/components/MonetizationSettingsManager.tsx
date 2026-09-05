@@ -198,8 +198,8 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
   if (isLoading || !settings) {
     return (
-      <div className="bg-white rounded-3xl p-12 border border-[#D8E2DC] text-center">
-        <div className="w-8 h-8 border-3 border-[#2D6A4F] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+      <div className="bg-white rounded-3xl p-12 border border-[#E8F5EE] text-center">
+        <div className="w-8 h-8 border-3 border-[#0E7A4B] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm font-bold text-gray-600">{isAr ? 'جاري تحميل إعدادات تحقيق الدخل...' : 'Loading monetization settings...'}</p>
       </div>
     );
@@ -214,13 +214,13 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
           animate={{ opacity: 1, y: 0 }}
           className={`p-4 rounded-2xl flex items-center justify-between border shadow-sm ${
             saveStatus.type === 'success'
-              ? 'bg-[#D8F3DC] border-[#74C69D] text-[#1B4332]'
+              ? 'bg-[#E8F5EE] border-[#D0EADB] text-[#111827]'
               : 'bg-red-50 border-red-200 text-red-800'
           }`}
         >
           <div className="flex items-center gap-3">
             {saveStatus.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-[#2D6A4F]" />
+              <CheckCircle2 className="w-5 h-5 text-[#0E7A4B]" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-600" />
             )}
@@ -230,14 +230,14 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
       )}
 
       {/* Header Container */}
-      <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8F3DC] text-[#2D6A4F]">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E8F5EE] text-[#0E7A4B]">
               {isAr ? 'إدارة التسعير والعمولات' : 'Dynamic Pricing & Commission Engine'}
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-[#1B4332]">
+          <h2 className="text-xl sm:text-2xl font-black text-[#111827]">
             {isAr ? 'إعدادات تحقيق الدخل وقواعد التسعير' : 'Monetization & Revenue Settings'}
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
@@ -259,7 +259,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
           <button
             onClick={handleSaveSettings}
             disabled={isSaving}
-            className="px-5 py-2.5 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
+            className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
             id="save-monetization-btn"
           >
             <Save className="w-4 h-4" />
@@ -273,7 +273,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('commissions')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'commissions' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'commissions' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Percent className="w-4 h-4" />
@@ -283,7 +283,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('delivery')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'delivery' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'delivery' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Truck className="w-4 h-4" />
@@ -293,7 +293,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('patient_subs')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'patient_subs' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'patient_subs' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Sparkles className="w-4 h-4" />
@@ -303,7 +303,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('pharmacy_plans')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'pharmacy_plans' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'pharmacy_plans' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -313,7 +313,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('coupons')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'coupons' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'coupons' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Tag className="w-4 h-4" />
@@ -323,7 +323,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('future_streams')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'future_streams' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'future_streams' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -333,7 +333,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
         <button
           onClick={() => setActiveSubTab('gateways')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
-            activeSubTab === 'gateways' ? 'bg-[#1B4332] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
+            activeSubTab === 'gateways' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'bg-white text-gray-600 border border-gray-200 hover:text-gray-900'
           }`}
         >
           <Smartphone className="w-4 h-4" />
@@ -345,9 +345,9 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
       {activeSubTab === 'commissions' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Default Platform Commission */}
-          <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 text-[#1B4332]">
-              <Percent className="w-5 h-5 text-[#2D6A4F]" />
+          <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5 text-[#111827]">
+              <Percent className="w-5 h-5 text-[#0E7A4B]" />
               <h3 className="text-base font-black">{isAr ? 'نسبة العمولة الافتراضية' : 'Default Platform Commission'}</h3>
             </div>
             <p className="text-xs text-gray-500">
@@ -371,7 +371,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                     ...settings,
                     defaultPharmacyCommissionRate: parseFloat(e.target.value) || 0
                   })}
-                  className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-500">%</span>
               </div>
@@ -384,10 +384,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
           </div>
 
           {/* Custom Per-Pharmacy Overrides */}
-          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
+          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-black text-[#1B4332]">{isAr ? 'استثناءات العمولات المخصصة لكل صيدلية' : 'Custom Pharmacy Commission Overrides'}</h3>
+                <h3 className="text-base font-black text-[#111827]">{isAr ? 'استثناءات العمولات المخصصة لكل صيدلية' : 'Custom Pharmacy Commission Overrides'}</h3>
                 <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'تحديد نسب تفاوضية خاصة للسلاسل الكبرى أو المستشفيات' : 'Special negotiated rates for hospital networks or enterprise partners'}</p>
               </div>
             </div>
@@ -399,7 +399,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 <select
                   value={newOverridePharmacyId}
                   onChange={(e) => setNewOverridePharmacyId(e.target.value)}
-                  className="w-full px-3 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-3 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#0E7A4B]"
                 >
                   {SAMPLE_PHARMACIES.map((p) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
@@ -416,7 +416,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                   step="0.5"
                   value={newOverrideRate}
                   onChange={(e) => setNewOverrideRate(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-3 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
 
@@ -424,7 +424,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 <button
                   type="button"
                   onClick={handleAddCustomCommission}
-                  className="w-full sm:w-auto px-4 py-2 bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   {isAr ? 'إضافة استثناء' : 'Add Rate'}
@@ -449,7 +449,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 bg-[#D8F3DC] text-[#2D6A4F] font-mono text-xs font-black rounded-lg border border-[#74C69D]">
+                        <span className="px-3 py-1 bg-[#E8F5EE] text-[#0E7A4B] font-mono text-xs font-black rounded-lg border border-[#D0EADB]">
                           {rate}%
                         </span>
                         <button
@@ -471,10 +471,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
       {/* Tab 2: Delivery Pricing Settings */}
       {activeSubTab === 'delivery' && (
-        <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
           <div>
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <Truck className="w-5 h-5 text-[#2D6A4F]" />
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <Truck className="w-5 h-5 text-[#0E7A4B]" />
               {isAr ? 'محرك تسعير رسوم التوصيل واللوجستيات' : 'Logistics & Delivery Pricing Engine'}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -493,7 +493,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="0.1"
                 value={settings.baseDeliveryFeeUSD}
                 onChange={(e) => setSettings({ ...settings, baseDeliveryFeeUSD: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -507,7 +507,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="0.05"
                 value={settings.perKmRateUSD}
                 onChange={(e) => setSettings({ ...settings, perKmRateUSD: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -521,7 +521,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="0.5"
                 value={settings.expressDeliveryFeeUSD}
                 onChange={(e) => setSettings({ ...settings, expressDeliveryFeeUSD: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -535,7 +535,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="1"
                 value={settings.freeDeliveryThresholdUSD}
                 onChange={(e) => setSettings({ ...settings, freeDeliveryThresholdUSD: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -550,7 +550,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="1"
                 value={settings.driverPayoutPercentage}
                 onChange={(e) => setSettings({ ...settings, driverPayoutPercentage: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -564,7 +564,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 step="0.1"
                 value={settings.serviceFeeUSD}
                 onChange={(e) => setSettings({ ...settings, serviceFeeUSD: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3.5 py-2 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
           </div>
@@ -573,10 +573,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
       {/* Tab 3: DAWA MED MONTHLY Subscription */}
       {activeSubTab === 'patient_subs' && (
-        <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
+              <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-600" />
                 {isAr ? 'اشتراك DAWA MED MONTHLY للمرضى' : 'DAWA MED MONTHLY Patient Subscription'}
               </h3>
@@ -590,7 +590,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 type="checkbox"
                 checked={settings.dawaMonthlyIsActive}
                 onChange={(e) => setSettings({ ...settings, dawaMonthlyIsActive: e.target.checked })}
-                className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
               />
               <span className="text-xs font-bold text-gray-700">{isAr ? 'تفعيل الخدمة للمرضى' : 'Service Active in App'}</span>
             </label>
@@ -608,7 +608,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                   step="0.5"
                   value={settings.dawaMonthlyPriceUSD}
                   onChange={(e) => setSettings({ ...settings, dawaMonthlyPriceUSD: parseFloat(e.target.value) || 5.0 })}
-                  className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-bold text-gray-500">$ USD</span>
               </div>
@@ -624,7 +624,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 max="30"
                 value={settings.dawaMonthlyTrialDays}
                 onChange={(e) => setSettings({ ...settings, dawaMonthlyTrialDays: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-4 py-2.5 text-base font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
           </div>
@@ -643,9 +643,9 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
       {/* Tab 4: Pharmacy Subscription Plans */}
       {activeSubTab === 'pharmacy_plans' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs">
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-[#2D6A4F]" />
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs">
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-[#0E7A4B]" />
               {isAr ? 'باقات اشتراكات الصيدليات في المنصة (SaaS Tiers)' : 'Pharmacy SaaS Subscription Plans'}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -654,11 +654,11 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
               {settings.pharmacyPlans.map((plan, idx) => (
-                <div key={plan.id} className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs flex flex-col justify-between">
+                <div key={plan.id} className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs flex flex-col justify-between">
                   <div>
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="text-base font-black text-[#1B4332]">{isAr ? plan.nameAr : plan.name}</h4>
+                        <h4 className="text-base font-black text-[#111827]">{isAr ? plan.nameAr : plan.name}</h4>
                         <span className="text-[11px] text-gray-400 uppercase tracking-wider">{plan.id}</span>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -672,7 +672,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                           }}
                           className="sr-only peer"
                         />
-                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2D6A4F]" />
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0E7A4B]" />
                       </label>
                     </div>
 
@@ -688,7 +688,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                           updatedPlans[idx].priceUSD = parseFloat(e.target.value) || 0;
                           setSettings({ ...settings, pharmacyPlans: updatedPlans });
                         }}
-                        className="w-full px-3 py-1.5 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                        className="w-full px-3 py-1.5 text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                       />
                     </div>
 
@@ -713,11 +713,11 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
       {/* Tab 5: Coupons & Promo Codes */}
       {activeSubTab === 'coupons' && (
-        <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#2D6A4F]" />
+              <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+                <Tag className="w-5 h-5 text-[#0E7A4B]" />
                 {isAr ? 'إدارة كوبونات الخصم والعروض الترويجية' : 'Coupon Codes & Discount Engine'}
               </h3>
               <p className="text-xs text-gray-500 mt-1">
@@ -727,7 +727,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
             <button
               onClick={() => setShowAddCouponModal(true)}
-              className="px-4 py-2 bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
             >
               <Plus className="w-4 h-4" />
               {isAr ? 'إنشاء كود خصم جديد' : 'New Coupon'}
@@ -751,7 +751,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-[#1B4332]">
+                  <span className="text-xs font-black text-[#111827]">
                     {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `$${coupon.discountValue} OFF`}
                   </span>
                   <button
@@ -770,10 +770,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
       {/* Tab 6: Future Extensible Streams */}
       {activeSubTab === 'future_streams' && (
-        <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
           <div>
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#2D6A4F]" />
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#0E7A4B]" />
               {isAr ? 'مصادر الدخل المستقبلية المجهزة مسبقاً' : 'Future Income Streams & Expansion Modules'}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -792,7 +792,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 type="checkbox"
                 checked={settings.expressDeliveryEnabled}
                 onChange={(e) => setSettings({ ...settings, expressDeliveryEnabled: e.target.checked })}
-                className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
               />
             </div>
 
@@ -806,7 +806,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 type="checkbox"
                 checked={settings.familyPlanEnabled}
                 onChange={(e) => setSettings({ ...settings, familyPlanEnabled: e.target.checked })}
-                className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
               />
             </div>
 
@@ -820,7 +820,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 type="checkbox"
                 checked={settings.pharmacyAnalyticsEnabled}
                 onChange={(e) => setSettings({ ...settings, pharmacyAnalyticsEnabled: e.target.checked })}
-                className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
               />
             </div>
 
@@ -834,7 +834,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                 type="checkbox"
                 checked={settings.businessCorporateEnabled}
                 onChange={(e) => setSettings({ ...settings, businessCorporateEnabled: e.target.checked })}
-                className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
               />
             </div>
           </div>
@@ -843,10 +843,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
       {/* Tab 7: Payment Gateways */}
       {activeSubTab === 'gateways' && (
-        <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-6">
           <div>
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-[#2D6A4F]" />
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-[#0E7A4B]" />
               {isAr ? 'بوابات الدفع الإلكتروني ومحافظ الهاتف الإفريقية' : 'African Mobile Money & Card Gateways'}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -875,7 +875,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                     }}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2D6A4F]" />
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0E7A4B]" />
                 </label>
               </div>
             ))}
@@ -889,10 +889,10 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl max-w-md w-full p-6 border border-[#D8E2DC] shadow-2xl space-y-4"
+            className="bg-white rounded-3xl max-w-md w-full p-6 border border-[#E8F5EE] shadow-2xl space-y-4"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-[#1B4332]">
+              <h3 className="text-base font-black text-[#111827]">
                 {isAr ? 'إنشاء كود خصم ترويجي' : 'Create New Promo Coupon'}
               </h3>
               <button
@@ -913,7 +913,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                   required
                   value={newCouponCode}
                   onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2 text-xs font-mono font-bold uppercase bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-3.5 py-2 text-xs font-mono font-bold uppercase bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
 
@@ -925,7 +925,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                   type="text"
                   value={newCouponDesc}
                   onChange={(e) => setNewCouponDesc(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full px-3.5 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
 
@@ -937,7 +937,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                   <select
                     value={newCouponType}
                     onChange={(e) => setNewCouponType(e.target.value as any)}
-                    className="w-full px-3 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full px-3 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                   >
                     <option value="percentage">{isAr ? 'نسبة مئوية (%)' : 'Percentage (%)'}</option>
                     <option value="fixed_amount">{isAr ? 'مبلغ ثابت ($)' : 'Fixed Amount ($)'}</option>
@@ -954,7 +954,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
                     required
                     value={newCouponValue}
                     onChange={(e) => setNewCouponValue(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full px-3 py-2 text-xs font-bold bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0E7A4B]"
                   />
                 </div>
               </div>
@@ -970,7 +970,7 @@ export const MonetizationSettingsManager: React.FC<MonetizationSettingsManagerPr
 
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold transition-colors"
+                  className="px-5 py-2 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-colors"
                 >
                   {isAr ? 'إنشاء الكود' : 'Create Coupon'}
                 </button>

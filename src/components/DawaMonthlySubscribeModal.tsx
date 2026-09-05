@@ -139,11 +139,11 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#D8E2DC] my-6"
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#E8F5EE] my-6"
         id="subscribe-modal-container"
       >
         {/* Modal Top Header */}
-        <div className="bg-[#1B4332] text-white p-5 sm:p-6 relative">
+        <div className="bg-[#0E7A4B] text-white p-5 sm:p-6 relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -152,7 +152,7 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
             <X className="w-4 h-4" />
           </button>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-[11px] font-bold border border-white/15 mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-[11px] font-bold border border-white/15 mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>DAWA MED MONTHLY</span>
           </div>
@@ -160,14 +160,14 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
             {t.subHeroTitle}
           </h2>
-          <p className="text-xs text-[#D8F3DC]/90 mt-1 leading-relaxed">
+          <p className="text-xs text-white/80/90 mt-1 leading-relaxed">
             {t.subHeroSubtitle}
           </p>
 
-          <div className="mt-4 flex items-baseline gap-2 bg-[#2D6A4F]/60 p-3 rounded-2xl border border-[#52B788]/30">
+          <div className="mt-4 flex items-baseline gap-2 bg-[#0E7A4B]/60 p-3 rounded-2xl border border-[#D0EADB]">
             <span className="text-2xl font-black text-white">$5 USD</span>
-            <span className="text-xs text-[#D8F3DC]">/ month</span>
-            <span className="text-xs font-bold text-[#74C69D] ml-auto">
+            <span className="text-xs text-white/80">/ month</span>
+            <span className="text-xs font-bold text-emerald-400 ml-auto">
               ≈ {localPrice.toLocaleString()} {selectedCountry.currencySymbol} / mo
             </span>
           </div>
@@ -177,21 +177,21 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
         {!isSuccess ? (
           <form onSubmit={handleProcessCheckout} className="p-5 sm:p-6 space-y-5 text-xs">
             {/* Features Highlight */}
-            <div className="grid grid-cols-2 gap-2 bg-[#F8FAF9] p-3 rounded-2xl border border-[#D8E2DC]">
-              <div className="flex items-center gap-2 text-[#1B4332]">
-                <BellRing className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+            <div className="grid grid-cols-2 gap-2 bg-[#F1FAF4] p-3 rounded-2xl border border-[#E8F5EE]">
+              <div className="flex items-center gap-2 text-[#111827]">
+                <BellRing className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span className="text-[11px] font-bold">Smart Medicine Reminders</span>
               </div>
-              <div className="flex items-center gap-2 text-[#1B4332]">
-                <RotateCcw className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+              <div className="flex items-center gap-2 text-[#111827]">
+                <RotateCcw className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span className="text-[11px] font-bold">Refill Expiry Warnings</span>
               </div>
-              <div className="flex items-center gap-2 text-[#1B4332]">
-                <Users className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+              <div className="flex items-center gap-2 text-[#111827]">
+                <Users className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span className="text-[11px] font-bold">Family Profiles</span>
               </div>
-              <div className="flex items-center gap-2 text-[#1B4332]">
-                <Flame className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+              <div className="flex items-center gap-2 text-[#111827]">
+                <Flame className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span className="text-[11px] font-bold">Adherence Tracking</span>
               </div>
             </div>
@@ -206,7 +206,7 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
 
             {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="block font-bold text-[#1B4332] text-xs">
+              <label className="block font-bold text-[#111827] text-xs">
                 {t.selectPayment} ($5.00 USD / {localPrice.toLocaleString()} {selectedCountry.currencySymbol})
               </label>
 
@@ -216,11 +216,11 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                   onClick={() => setPaymentType('mobile_money')}
                   className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     paymentType === 'mobile_money'
-                      ? 'bg-[#E9F5EE] border-[#2D6A4F] text-[#1B4332] font-black ring-1 ring-[#2D6A4F]'
-                      : 'bg-white border-[#D8E2DC] text-gray-600 hover:bg-[#F8FAF9]'
+                      ? 'bg-[#E8F5EE] border-[#0E7A4B] text-[#111827] font-black ring-1 ring-[#0E7A4B]'
+                      : 'bg-white border-[#E8F5EE] text-gray-600 hover:bg-[#F1FAF4]'
                   }`}
                 >
-                  <Smartphone className="w-4 h-4 text-[#2D6A4F]" />
+                  <Smartphone className="w-4 h-4 text-[#0E7A4B]" />
                   <span className="text-[11px]">Mobile Money</span>
                 </button>
 
@@ -229,11 +229,11 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                   onClick={() => setPaymentType('card')}
                   className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     paymentType === 'card'
-                      ? 'bg-[#E9F5EE] border-[#2D6A4F] text-[#1B4332] font-black ring-1 ring-[#2D6A4F]'
-                      : 'bg-white border-[#D8E2DC] text-gray-600 hover:bg-[#F8FAF9]'
+                      ? 'bg-[#E8F5EE] border-[#0E7A4B] text-[#111827] font-black ring-1 ring-[#0E7A4B]'
+                      : 'bg-white border-[#E8F5EE] text-gray-600 hover:bg-[#F1FAF4]'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 text-[#2D6A4F]" />
+                  <CreditCard className="w-4 h-4 text-[#0E7A4B]" />
                   <span className="text-[11px]">Bank Card</span>
                 </button>
 
@@ -242,8 +242,8 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                   onClick={() => setPaymentType('apple_pay')}
                   className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     paymentType === 'apple_pay'
-                      ? 'bg-[#E9F5EE] border-[#2D6A4F] text-[#1B4332] font-black ring-1 ring-[#2D6A4F]'
-                      : 'bg-white border-[#D8E2DC] text-gray-600 hover:bg-[#F8FAF9]'
+                      ? 'bg-[#E8F5EE] border-[#0E7A4B] text-[#111827] font-black ring-1 ring-[#0E7A4B]'
+                      : 'bg-white border-[#E8F5EE] text-gray-600 hover:bg-[#F1FAF4]'
                   }`}
                 >
                   <span className="text-xs font-black"> Pay</span>
@@ -255,8 +255,8 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                   onClick={() => setPaymentType('google_pay')}
                   className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     paymentType === 'google_pay'
-                      ? 'bg-[#E9F5EE] border-[#2D6A4F] text-[#1B4332] font-black ring-1 ring-[#2D6A4F]'
-                      : 'bg-white border-[#D8E2DC] text-gray-600 hover:bg-[#F8FAF9]'
+                      ? 'bg-[#E8F5EE] border-[#0E7A4B] text-[#111827] font-black ring-1 ring-[#0E7A4B]'
+                      : 'bg-white border-[#E8F5EE] text-gray-600 hover:bg-[#F1FAF4]'
                   }`}
                 >
                   <span className="text-xs font-black text-blue-600">G Pay</span>
@@ -267,13 +267,13 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
 
             {/* Method Details Input */}
             {paymentType === 'mobile_money' && (
-              <div className="space-y-3 p-4 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC]">
+              <div className="space-y-3 p-4 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE]">
                 <div>
-                  <label className="block font-bold text-[#1B4332] mb-1">Select Network Provider</label>
+                  <label className="block font-bold text-[#111827] mb-1">Select Network Provider</label>
                   <select
                     value={selectedMomoProvider}
                     onChange={(e) => setSelectedMomoProvider(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs font-bold text-[#1B4332]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs font-bold text-[#111827]"
                   >
                     {selectedCountry.mobileMoneyProviders.map((provider) => (
                       <option key={provider} value={provider}>{provider}</option>
@@ -282,13 +282,13 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-[#1B4332] mb-1">Mobile Money Phone Number</label>
+                  <label className="block font-bold text-[#111827] mb-1">Mobile Money Phone Number</label>
                   <input
                     type="tel"
                     required
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs text-[#1B4332] font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs text-[#111827] font-mono"
                     placeholder="+254 7XX XXX XXX"
                   />
                   <p className="text-[10px] text-gray-500 mt-1">An instant push STK prompt will be triggered for monthly renewal approval.</p>
@@ -297,52 +297,52 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
             )}
 
             {paymentType === 'card' && (
-              <div className="space-y-3 p-4 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC]">
+              <div className="space-y-3 p-4 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE]">
                 <div>
-                  <label className="block font-bold text-[#1B4332] mb-1">Cardholder Full Name</label>
+                  <label className="block font-bold text-[#111827] mb-1">Cardholder Full Name</label>
                   <input
                     type="text"
                     required
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs"
                     placeholder="Grace Muthoni"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-[#1B4332] mb-1">Card Number (Tokenized Simulation)</label>
+                  <label className="block font-bold text-[#111827] mb-1">Card Number (Tokenized Simulation)</label>
                   <input
                     type="text"
                     required
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs font-mono"
                     placeholder="4242 •••• •••• 4242"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-bold text-[#1B4332] mb-1">Expires (MM/YY)</label>
+                    <label className="block font-bold text-[#111827] mb-1">Expires (MM/YY)</label>
                     <input
                       type="text"
                       required
                       value={cardExpiry}
                       onChange={(e) => setCardExpiry(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs font-mono"
                       placeholder="12/28"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#1B4332] mb-1">CVV / CVC</label>
+                    <label className="block font-bold text-[#111827] mb-1">CVV / CVC</label>
                     <input
                       type="password"
                       maxLength={4}
                       required
                       value={cardCvv}
                       onChange={(e) => setCardCvv(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] bg-white text-xs font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] bg-white text-xs font-mono"
                       placeholder="•••"
                     />
                   </div>
@@ -350,15 +350,15 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
 
                 {/* PCI Compliance Tokenization Note */}
                 <div className="flex items-center gap-2 text-[10px] text-gray-500 pt-1">
-                  <Lock className="w-3.5 h-3.5 text-[#2D6A4F] shrink-0" />
+                  <Lock className="w-3.5 h-3.5 text-[#0E7A4B] shrink-0" />
                   <span>Card data is never stored locally; tokenized via PCI-DSS Vault.</span>
                 </div>
               </div>
             )}
 
             {(paymentType === 'apple_pay' || paymentType === 'google_pay') && (
-              <div className="p-4 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC] text-center space-y-2">
-                <p className="text-xs text-[#1B4332] font-bold">
+              <div className="p-4 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE] text-center space-y-2">
+                <p className="text-xs text-[#111827] font-bold">
                   {paymentType === 'apple_pay' ? ' Apple Pay One-Touch' : 'Google Pay Fast Checkout'}
                 </p>
                 <p className="text-[11px] text-gray-600">
@@ -372,7 +372,7 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full py-3.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
+                className="w-full py-3.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
                 id="confirm-subscribe-btn"
               >
                 {isProcessing ? (
@@ -382,7 +382,7 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-[#74C69D]" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>{t.subscribeNow} ($5 USD / Month)</span>
                   </>
                 )}
@@ -392,33 +392,33 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
         ) : (
           /* Success Screen */
           <div className="p-6 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-[#D8F3DC] text-[#2D6A4F] flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-[#E8F5EE] text-[#0E7A4B] flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-[#1B4332]">Subscription Active!</h3>
+              <h3 className="text-xl font-black text-[#111827]">Subscription Active!</h3>
               <p className="text-xs text-gray-600 max-w-sm mx-auto">
                 Welcome to <strong>DAWA MED MONTHLY</strong>. Your smart medicine reminders and chronic refill schedules are now active.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F8FAF9] border border-[#D8E2DC] text-left text-xs space-y-2 font-mono">
+            <div className="p-4 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-left text-xs space-y-2 font-mono">
               <div className="flex justify-between text-gray-500">
                 <span>Receipt Number:</span>
-                <strong className="text-[#1B4332]">{generatedReceipt}</strong>
+                <strong className="text-[#111827]">{generatedReceipt}</strong>
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>Plan:</span>
-                <strong className="text-[#1B4332]">DAWA MED MONTHLY ($5.00/mo)</strong>
+                <strong className="text-[#111827]">DAWA MED MONTHLY ($5.00/mo)</strong>
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>Tokenized ID:</span>
-                <strong className="text-[#2D6A4F]">tok_secure_{generatedReceipt.slice(-4)}</strong>
+                <strong className="text-[#0E7A4B]">tok_secure_{generatedReceipt.slice(-4)}</strong>
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>Renewal Date:</span>
-                <strong className="text-[#1B4332]">
+                <strong className="text-[#111827]">
                   {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                 </strong>
               </div>
@@ -427,7 +427,7 @@ export const DawaMonthlySubscribeModal: React.FC<DawaMonthlySubscribeModalProps>
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+              className="w-full py-3 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
             >
               Go to My Medication Reminders
             </button>

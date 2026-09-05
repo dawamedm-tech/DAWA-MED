@@ -49,8 +49,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           id="printable-receipt-card"
         >
           {/* Action Bar (Not printed) */}
-          <div className="bg-[#1B4332] text-white px-6 py-3.5 flex items-center justify-between print:hidden border-b border-[#2D6A4F]/40">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#74C69D]">
+          <div className="bg-[#0E7A4B] text-white px-6 py-3.5 flex items-center justify-between print:hidden border-b border-[#0B6B43]">
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
               <ShieldCheck className="w-4 h-4" />
               <span>Official Verified Medical Receipt & QR Seal</span>
             </div>
@@ -77,44 +77,44 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           {/* Receipt Body */}
           <div className="p-6 sm:p-8 space-y-6">
             {/* Header: DAWA MED Brand & Pharmacy Verification Stamp */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#D8E2DC] pb-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E8F5EE] pb-5">
               <div>
                 <BrandLogo size="md" showTagline language={language} />
-                <p className="text-[11px] text-[#1B4332]/60 mt-1.5">
-                  Platform Order ID: <strong className="text-[#1B4332]">{order.orderNumber}</strong>
+                <p className="text-[11px] text-[#111827]/60 mt-1.5">
+                  Platform Order ID: <strong className="text-[#111827]">{order.orderNumber}</strong>
                 </p>
-                <p className="text-[11px] text-[#1B4332]/60">
+                <p className="text-[11px] text-[#111827]/60">
                   Date: {order.createdAt}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-[#F0F7F4] border border-[#D8E2DC] p-3 text-right sm:text-right">
-                <div className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2D6A4F] uppercase tracking-wider">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2D6A4F]" />
+              <div className="rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] p-3 text-right sm:text-right">
+                <div className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0E7A4B] uppercase tracking-wider">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#0E7A4B]" />
                   <span>Licensed Partner Pharmacy</span>
                 </div>
-                <p className="text-xs font-black text-[#1B4332] mt-0.5">{order.pharmacyName}</p>
-                <p className="text-[10px] text-[#1B4332]/70">Reg / License: {order.pharmacistLicense}</p>
+                <p className="text-xs font-black text-[#111827] mt-0.5">{order.pharmacyName}</p>
+                <p className="text-[10px] text-[#111827]/70">Reg / License: {order.pharmacistLicense}</p>
               </div>
             </div>
 
             {/* Patient & Delivery Details */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs bg-[#F8FAF9] rounded-2xl p-4 border border-[#D8E2DC]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs bg-[#F1FAF4] rounded-2xl p-4 border border-[#E8F5EE]">
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#52B788] block">Patient Name</span>
-                <span className="font-bold text-[#1B4332]">{order.customerName}</span>
-                <span className="text-[11px] text-[#1B4332]/60 block">{order.customerPhone}</span>
+                <span className="text-[10px] uppercase font-bold text-[#0E7A4B] block">Patient Name</span>
+                <span className="font-bold text-[#111827]">{order.customerName}</span>
+                <span className="text-[11px] text-[#111827]/60 block">{order.customerPhone}</span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#52B788] block">Delivery Address</span>
-                <span className="font-semibold text-[#1B4332]">{order.deliveryAddress}</span>
-                <span className="text-[11px] text-[#1B4332]/60 block">{order.city}, {selectedCountry.name}</span>
+                <span className="text-[10px] uppercase font-bold text-[#0E7A4B] block">Delivery Address</span>
+                <span className="font-semibold text-[#111827]">{order.deliveryAddress}</span>
+                <span className="text-[11px] text-[#111827]/60 block">{order.city}, {selectedCountry.name}</span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#52B788] block">Payment Method</span>
-                <span className="inline-flex items-center gap-1 font-bold text-[#2D6A4F] bg-[#E9F5EE] px-2.5 py-0.5 rounded-lg border border-[#D8E2DC]">
+                <span className="text-[10px] uppercase font-bold text-[#0E7A4B] block">Payment Method</span>
+                <span className="inline-flex items-center gap-1 font-bold text-[#0E7A4B] bg-[#E8F5EE] px-2.5 py-0.5 rounded-lg border border-[#E8F5EE]">
                   {order.paymentMethod} • {order.paymentStatus.toUpperCase()}
                 </span>
               </div>
@@ -122,12 +122,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
             {/* Items Table */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#52B788] mb-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#0E7A4B] mb-2">
                 Dispensed Medications
               </h4>
-              <div className="border border-[#D8E2DC] rounded-2xl overflow-hidden overflow-x-auto">
+              <div className="border border-[#E8F5EE] rounded-2xl overflow-hidden overflow-x-auto">
                 <table className="w-full text-start text-xs min-w-[320px]">
-                  <thead className="bg-[#F0F7F4] text-[#1B4332] font-semibold border-b border-[#D8E2DC]">
+                  <thead className="bg-[#F1FAF4] text-[#111827] font-semibold border-b border-[#E8F5EE]">
                     <tr>
                       <th className="p-3.5 text-start">Medicine & Dosage</th>
                       <th className="p-3.5 text-center">Type</th>
@@ -135,12 +135,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                       <th className="p-3.5 text-end">Price ({selectedCountry.currency})</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E9F5EE]">
+                  <tbody className="divide-y divide-[#E8F5EE]">
                     {order.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-[#F8FAF9]">
+                      <tr key={idx} className="hover:bg-[#F1FAF4]">
                         <td className="p-3.5">
-                          <p className="font-bold text-[#1B4332]">{item.medicine.name}</p>
-                          <p className="text-[11px] text-[#1B4332]/60">{item.medicine.genericName} • {item.medicine.dosage}</p>
+                          <p className="font-bold text-[#111827]">{item.medicine.name}</p>
+                          <p className="text-[11px] text-[#111827]/60">{item.medicine.genericName} • {item.medicine.dosage}</p>
                         </td>
                         <td className="p-3.5 text-center">
                           {item.medicine.requiresPrescription ? (
@@ -148,13 +148,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                               Rx Required
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E9F5EE] text-[#2D6A4F] border border-[#D8E2DC]">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E8F5EE] text-[#0E7A4B] border border-[#E8F5EE]">
                               OTC
                             </span>
                           )}
                         </td>
-                        <td className="p-3.5 text-center font-bold text-[#1B4332]">{item.quantity}</td>
-                        <td className="p-3.5 text-right font-bold text-[#1B4332]">
+                        <td className="p-3.5 text-center font-bold text-[#111827]">{item.quantity}</td>
+                        <td className="p-3.5 text-right font-bold text-[#111827]">
                           {selectedCountry.currencySymbol} {(item.unitPrice * item.quantity * selectedCountry.exchangeRateToUSD).toFixed(0)}
                         </td>
                       </tr>
@@ -165,10 +165,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
 
             {/* Financial Summary */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-3xl bg-[#1B4332] text-white">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-3xl bg-[#0E7A4B] text-white">
               <div>
-                <span className="text-xs text-[#D8F3DC]/80 block">Total Amount Dispensed & Delivered</span>
-                <span className="text-2xl font-black text-[#74C69D]">
+                <span className="text-xs text-white/80/80 block">Total Amount Dispensed & Delivered</span>
+                <span className="text-2xl font-black text-emerald-400">
                   {selectedCountry.currencySymbol} {(order.totalAmount * selectedCountry.exchangeRateToUSD).toFixed(0)} {selectedCountry.currency}
                 </span>
               </div>
@@ -176,11 +176,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               {/* Tamper Proof Security Stamp & OTP */}
               <div className="flex items-center gap-3 bg-white/10 p-2.5 rounded-2xl border border-white/15">
                 <div className="h-10 w-10 bg-white p-1 rounded-xl flex items-center justify-center shrink-0">
-                  <QrCode className="w-8 h-8 text-[#1B4332]" />
+                  <QrCode className="w-8 h-8 text-[#111827]" />
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-bold text-[#D8F3DC]/80 block">Security Delivery Code</span>
-                  <span className="text-base font-black tracking-widest text-[#95D5B2]">
+                  <span className="text-[10px] font-bold text-white/80/80 block">Security Delivery Code</span>
+                  <span className="text-base font-black tracking-widest text-emerald-300">
                     OTP: {order.deliveryOtp}
                   </span>
                 </div>
@@ -188,16 +188,16 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
 
             {/* Cold Chain & Pharmacist Endorsement */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-[11px] text-[#1B4332]">
-              <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#F0F7F4] border border-[#D8E2DC]">
-                <Thermometer className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-[11px] text-[#111827]">
+              <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]">
+                <Thermometer className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span>
                   <strong>Cold-Chain Monitored:</strong> Insulated pack at {order.driverTemperature || 4.2}°C
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#F0F7F4] border border-[#D8E2DC]">
-                <Building2 className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+              <div className="flex items-center gap-2 p-3 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]">
+                <Building2 className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                 <span>
                   <strong>Batch Verified:</strong> {order.packageBatchNumber || 'BATCH-2026-N90'} (Exp: {order.expiryDate || '12/2027'})
                 </span>
@@ -205,7 +205,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             </div>
 
             {/* Legal compliance notice */}
-            <p className="text-[10px] text-[#1B4332]/50 text-center leading-relaxed border-t border-[#D8E2DC] pt-3">
+            <p className="text-[10px] text-[#111827]/50 text-center leading-relaxed border-t border-[#E8F5EE] pt-3">
               This digital invoice certifies that prescribed items were reviewed, approved, and dispensed in accordance with {selectedCountry.regulatoryBody} regulations. DAWA MED operates as a technology and fulfillment network.
             </p>
           </div>

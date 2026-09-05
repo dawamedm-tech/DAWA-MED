@@ -367,7 +367,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-5 ${isRtl ? 'left-5' : 'right-5'} z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-white font-medium ${
-              toastMessage.type === 'success' ? 'bg-[#2D6A4F]' : 'bg-red-600'
+              toastMessage.type === 'success' ? 'bg-[#0E7A4B]' : 'bg-red-600'
             }`}
           >
             {toastMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
@@ -384,7 +384,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
             onClick={() => setActiveSubTab('administrators')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
               activeSubTab === 'administrators'
-                ? 'bg-[#2D6A4F] text-white shadow-xs'
+                ? 'bg-[#0E7A4B] text-white shadow-xs'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -400,7 +400,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
             onClick={() => setActiveSubTab('platform_users')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
               activeSubTab === 'platform_users'
-                ? 'bg-[#2D6A4F] text-white shadow-xs'
+                ? 'bg-[#0E7A4B] text-white shadow-xs'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -416,7 +416,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
             onClick={() => setActiveSubTab('role_matrix')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
               activeSubTab === 'role_matrix'
-                ? 'bg-[#2D6A4F] text-white shadow-xs'
+                ? 'bg-[#0E7A4B] text-white shadow-xs'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -429,7 +429,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
           <button
             type="button"
             onClick={() => setIsCreateAdminModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs sm:text-sm shadow-xs transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-xs sm:text-sm shadow-xs transition-all"
           >
             <UserPlus className="w-4 h-4" />
             {language === 'ar' ? 'إضافة مسؤول جديد' : 'Add New Administrator'}
@@ -447,7 +447,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={language === 'ar' ? 'بحث بالاسم، البريد الإلكتروني، اسم المستخدم أو الدور...' : 'Search by name, email, username or role...'}
-              className={`w-full ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden`}
+              className={`w-full ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl border border-gray-200 text-xs sm:text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden`}
             />
           </div>
 
@@ -497,7 +497,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#2D6A4F] to-[#1B4332] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0E7A4B] to-[#0B6B43] text-white flex items-center justify-center font-bold text-lg shadow-sm">
                           {admin.name.charAt(0)}
                         </div>
                         <div>
@@ -557,7 +557,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                           setSelectedUserForAction(admin);
                           setIsResetPasswordModalOpen(true);
                         }}
-                        className="p-2 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-[#2D6A4F] text-gray-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                        className="p-2 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-[#0E7A4B] text-gray-700 text-xs font-semibold flex items-center gap-1 transition-colors"
                         title={language === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}
                       >
                         <Key className="w-3.5 h-3.5" />
@@ -653,7 +653,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                     <tr key={user.id} className="hover:bg-gray-50/80 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-[#2D6A4F]/10 text-[#2D6A4F] flex items-center justify-center font-bold text-xs shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-[#0E7A4B]/10 text-[#0E7A4B] flex items-center justify-center font-bold text-xs shrink-0">
                             {user.name.charAt(0)}
                           </div>
                           <div>
@@ -692,7 +692,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                               setSelectedUserForAction(user);
                               setIsResetPasswordModalOpen(true);
                             }}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-[#2D6A4F] text-[#2D6A4F] hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-2xs"
+                            className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-[#0B6B43] text-[#0E7A4B] hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-2xs"
                           >
                             <Key className="w-3.5 h-3.5" />
                             {language === 'ar' ? 'تعيين كلمة المرور' : 'Reset Password'}
@@ -747,7 +747,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
               <div key={module.id} className="border border-gray-200/70 rounded-xl p-4 bg-gray-50/50 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#2D6A4F]" />
+                    <ShieldCheck className="w-4 h-4 text-[#0E7A4B]" />
                     {language === 'ar' ? module.nameAr : language === 'fr' ? module.nameFr : module.nameEn}
                   </h4>
                   <span className="text-[11px] text-gray-500 font-medium">
@@ -793,7 +793,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
             >
               <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-[#2D6A4F] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-[#0E7A4B] flex items-center justify-center">
                     <UserPlus className="w-5 h-5" />
                   </div>
                   <div>
@@ -827,7 +827,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={newAdminForm.name}
                       onChange={(e) => setNewAdminForm({ ...newAdminForm, name: e.target.value })}
                       placeholder="e.g. Mosa Admin"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                   </div>
 
@@ -840,7 +840,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={newAdminForm.username}
                       onChange={(e) => setNewAdminForm({ ...newAdminForm, username: e.target.value })}
                       placeholder="mosa"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                   </div>
                 </div>
@@ -856,7 +856,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={newAdminForm.email}
                       onChange={(e) => setNewAdminForm({ ...newAdminForm, email: e.target.value })}
                       placeholder="mosa@dawamed.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                   </div>
 
@@ -869,7 +869,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={newAdminForm.phone}
                       onChange={(e) => setNewAdminForm({ ...newAdminForm, phone: e.target.value })}
                       placeholder="+254 700 000 000"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                   </div>
                 </div>
@@ -882,7 +882,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                   <select
                     value={newAdminForm.role}
                     onChange={(e) => setNewAdminForm({ ...newAdminForm, role: e.target.value as UserRole })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm bg-white font-medium focus:border-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm bg-white font-medium focus:border-[#0E7A4B] outline-hidden"
                   >
                     <option value="admin">Administrator (مسؤول عام)</option>
                     <option value="medical_admin">Medical Admin / Director (المدير الطبي)</option>
@@ -904,7 +904,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => setNewAdminForm({ ...newAdminForm, password: generateStrongPassword() })}
-                      className="text-xs font-semibold text-[#2D6A4F] hover:underline flex items-center gap-1"
+                      className="text-xs font-semibold text-[#0E7A4B] hover:underline flex items-center gap-1"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       {language === 'ar' ? 'توليد كلمة سر آمنة' : 'Generate Strong Password'}
@@ -919,7 +919,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={newAdminForm.password}
                       onChange={(e) => setNewAdminForm({ ...newAdminForm, password: e.target.value })}
                       placeholder="••••••••"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                     <button
                       type="button"
@@ -941,7 +941,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                     value={newAdminForm.department}
                     onChange={(e) => setNewAdminForm({ ...newAdminForm, department: e.target.value })}
                     placeholder="DAWA Central Hub"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                   />
                 </div>
 
@@ -956,7 +956,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 py-2.5 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-sm shadow-xs transition-all disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-sm shadow-xs transition-all disabled:opacity-50"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
@@ -1019,7 +1019,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => setResetPasswordForm({ ...resetPasswordForm, newPassword: generateStrongPassword() })}
-                      className="text-xs font-semibold text-[#2D6A4F] hover:underline"
+                      className="text-xs font-semibold text-[#0E7A4B] hover:underline"
                     >
                       {language === 'ar' ? 'توليد كلمة سر' : 'Generate'}
                     </button>
@@ -1033,7 +1033,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       value={resetPasswordForm.newPassword}
                       onChange={(e) => setResetPasswordForm({ ...resetPasswordForm, newPassword: e.target.value })}
                       placeholder="••••••••"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     />
                     <button
                       type="button"
@@ -1051,7 +1051,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       type="checkbox"
                       checked={resetPasswordForm.requireChangeOnLogin}
                       onChange={(e) => setResetPasswordForm({ ...resetPasswordForm, requireChangeOnLogin: e.target.checked })}
-                      className="w-4 h-4 text-[#2D6A4F] rounded-sm focus:ring-[#2D6A4F]"
+                      className="w-4 h-4 text-[#0E7A4B] rounded-sm focus:ring-[#0E7A4B]"
                     />
                     <span className="font-medium text-gray-800">
                       {language === 'ar' ? 'إلزام المستخدم بتغيير كلمة المرور عند أول تسجيل دخول' : 'Require user to change password upon next login'}
@@ -1063,7 +1063,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                       type="checkbox"
                       checked={resetPasswordForm.revokeAllSessions}
                       onChange={(e) => setResetPasswordForm({ ...resetPasswordForm, revokeAllSessions: e.target.checked })}
-                      className="w-4 h-4 text-[#2D6A4F] rounded-sm focus:ring-[#2D6A4F]"
+                      className="w-4 h-4 text-[#0E7A4B] rounded-sm focus:ring-[#0E7A4B]"
                     />
                     <span className="font-medium text-gray-800">
                       {language === 'ar' ? 'إنهاء وحظر كافة الجلسات المفتوحة على الأجهزة الأخرى فوراً' : 'Immediately terminate all active sessions across devices'}
@@ -1082,7 +1082,7 @@ export const RbacUserManager: React.FC<RbacUserManagerProps> = ({
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-5 py-2.5 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50"
+                    className="px-5 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-xs shadow-xs transition-all disabled:opacity-50"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-1.5">

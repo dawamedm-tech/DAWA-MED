@@ -51,7 +51,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
     logoUpdatedAt: settings?.logoUpdatedAt,
     supportEmail: settings?.supportEmail || 'support@dawamed.com',
     supportPhone: settings?.supportPhone || '+254 700 000 000',
-    primaryBrandColor: settings?.primaryBrandColor || '#2D6A4F',
+    primaryBrandColor: settings?.primaryBrandColor || '#0E7A4B',
     enablePatientRegistration: settings?.enablePatientRegistration ?? true,
     enablePharmacyRegistration: settings?.enablePharmacyRegistration ?? true,
     requireMfaForAdmins: settings?.requireMfaForAdmins ?? true,
@@ -236,7 +236,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
   };
 
   const presetColors = [
-    { name: 'Forest Green (Default)', hex: '#2D6A4F' },
+    { name: 'Medical Green (Default)', hex: '#0E7A4B' },
     { name: 'Medical Cyan', hex: '#0284C7' },
     { name: 'Emerald Clinical', hex: '#059669' },
     { name: 'Midnight Slate', hex: '#1E293B' },
@@ -253,7 +253,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-5 ${isRtl ? 'left-5' : 'right-5'} z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl text-white font-medium ${
-              toastMessage.type === 'success' ? 'bg-[#2D6A4F]' : 'bg-red-600'
+              toastMessage.type === 'success' ? 'bg-[#0E7A4B]' : 'bg-red-600'
             }`}
           >
             {toastMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
@@ -263,7 +263,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
       </AnimatePresence>
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#2D6A4F] to-[#1B4332] text-white p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#0E7A4B] text-white p-6 sm:p-8 rounded-3xl shadow-xs border border-[#0B6B43] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
             <Building2 className="w-3.5 h-3.5" />
@@ -299,7 +299,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
           <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-sm space-y-6">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#2D6A4F]/10 flex items-center justify-center text-[#2D6A4F]">
+                <div className="w-9 h-9 rounded-xl bg-[#0E7A4B]/10 flex items-center justify-center text-[#0E7A4B]">
                   <ImageIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -345,7 +345,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="button"
                     onClick={() => setPreviewMode('dark')}
                     className={`px-2 py-0.5 rounded-md font-medium transition-all ${
-                      previewMode === 'dark' ? 'bg-[#1B4332] text-white shadow-xs' : 'text-gray-500 hover:text-gray-700'
+                      previewMode === 'dark' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     Dark UI
@@ -357,7 +357,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                 className={`w-full min-h-[160px] rounded-2xl flex flex-col items-center justify-center p-6 transition-all border ${
                   previewMode === 'light'
                     ? 'bg-gray-50/80 border-gray-200'
-                    : 'bg-[#1B4332] border-[#2D6A4F]'
+                    : 'bg-[#0E7A4B] border-[#0B6B43]'
                 }`}
               >
                 {previewLogo ? (
@@ -376,12 +376,12 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-[#2D6A4F] flex items-center justify-center font-bold text-white text-2xl shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-[#0E7A4B] flex items-center justify-center font-bold text-white text-2xl shadow-sm">
                       D
                     </div>
                     <div>
-                      <div className={`text-2xl font-black ${previewMode === 'light' ? 'text-[#2D6A4F]' : 'text-white'}`}>
-                        DAWA<span className={previewMode === 'light' ? 'text-[#74C69D]' : 'text-[#95D5B2]'}>MED</span>
+                      <div className={`text-2xl font-black ${previewMode === 'light' ? 'text-[#0E7A4B]' : 'text-white'}`}>
+                        DAWA<span className={previewMode === 'light' ? 'text-emerald-300' : 'text-emerald-200'}>MED</span>
                       </div>
                       <p className={`text-[10px] uppercase tracking-wider font-semibold ${previewMode === 'light' ? 'text-gray-500' : 'text-emerald-200'}`}>
                         {language === 'ar' ? 'الشعار الافتراضي للنظام' : 'Default System Logo'}
@@ -419,9 +419,9 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     handleLogoFileSelect(e.dataTransfer.files[0]);
                   }
                 }}
-                className="border-2 border-dashed border-gray-300 hover:border-[#2D6A4F] rounded-2xl p-6 text-center cursor-pointer transition-colors bg-gray-50/50 hover:bg-[#2D6A4F]/5 group"
+                className="border-2 border-dashed border-gray-300 hover:border-[#0E7A4B] rounded-2xl p-6 text-center cursor-pointer transition-colors bg-gray-50/50 hover:bg-[#0B6B43]/5 group"
               >
-                <div className="w-12 h-12 rounded-full bg-emerald-100 group-hover:bg-[#2D6A4F] flex items-center justify-center text-[#2D6A4F] group-hover:text-white mx-auto mb-3 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 group-hover:bg-[#0B6B43] flex items-center justify-center text-[#0E7A4B] group-hover:text-white mx-auto mb-3 transition-colors">
                   <Upload className="w-6 h-6" />
                 </div>
                 <p className="text-sm font-semibold text-gray-800">
@@ -438,7 +438,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                   type="button"
                   onClick={handleSaveLogo}
                   disabled={isUploadingLogo}
-                  className="w-full py-3 px-4 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50"
                 >
                   {isUploadingLogo ? (
                     <>
@@ -457,7 +457,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
 
             {/* Storage & Privacy Note */}
             <div className="bg-emerald-50/70 border border-emerald-200/70 rounded-xl p-3.5 text-xs text-emerald-900 flex items-start gap-2.5">
-              <ShieldAlert className="w-4 h-4 text-[#2D6A4F] shrink-0 mt-0.5" />
+              <ShieldAlert className="w-4 h-4 text-[#0E7A4B] shrink-0 mt-0.5" />
               <div>
                 <span className="font-semibold block">
                   {language === 'ar' ? 'تخزين مركزي محمي وآمن:' : 'Central Protected Storage:'}
@@ -472,7 +472,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
           {/* Color Palette Selector */}
           <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-sm space-y-4">
             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-[#2D6A4F]">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-[#0E7A4B]">
                 <Palette className="w-4 h-4" />
               </div>
               <div>
@@ -490,7 +490,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                   onClick={() => setFormData({ ...formData, primaryBrandColor: color.hex })}
                   className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-medium transition-all ${
                     formData.primaryBrandColor === color.hex
-                      ? 'border-[#2D6A4F] bg-emerald-50 text-[#2D6A4F] font-bold shadow-xs'
+                      ? 'border-[#0E7A4B] bg-[#E8F5EE] text-[#0E7A4B] font-bold shadow-xs'
                       : 'border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -539,7 +539,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="text"
                     value={formData.siteName}
                     onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="DAWA MED"
                     required
                   />
@@ -552,7 +552,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     dir="rtl"
                     value={formData.siteNameAr || ''}
                     onChange={(e) => setFormData({ ...formData, siteNameAr: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden text-right"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden text-right"
                     placeholder="دواء ميد"
                   />
                 </div>
@@ -563,7 +563,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="text"
                     value={formData.siteNameFr || ''}
                     onChange={(e) => setFormData({ ...formData, siteNameFr: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="DAWA MED"
                   />
                 </div>
@@ -583,7 +583,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="text"
                     value={formData.tagline}
                     onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="Pan-African Verified Pharmacy Network & Cold-Chain Logistics"
                   />
                 </div>
@@ -595,7 +595,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     dir="rtl"
                     value={formData.taglineAr || ''}
                     onChange={(e) => setFormData({ ...formData, taglineAr: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden text-right"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden text-right"
                     placeholder="شبكة الصيدليات المعتمدة وسلسلة التبريد الموثوقة في إفريقيا"
                   />
                 </div>
@@ -606,7 +606,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="text"
                     value={formData.taglineFr || ''}
                     onChange={(e) => setFormData({ ...formData, taglineFr: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="Réseau Pharmaceutique Vérifié & Logistique de la Chaîne du Froid"
                   />
                 </div>
@@ -629,7 +629,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="email"
                     value={formData.supportEmail || ''}
                     onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="support@dawamed.com"
                   />
                 </div>
@@ -643,7 +643,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="text"
                     value={formData.supportPhone || ''}
                     onChange={(e) => setFormData({ ...formData, supportPhone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#2D6A4F] focus:ring-1 focus:ring-[#2D6A4F] outline-hidden"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:border-[#0E7A4B] focus:ring-1 focus:ring-[#0E7A4B] outline-hidden"
                     placeholder="+254 700 000 000"
                   />
                 </div>
@@ -664,7 +664,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     onChange={(e) => setFormData({ ...formData, showAnnouncementNotice: e.target.checked })}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2D6A4F]"></div>
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0E7A4B]"></div>
                 </label>
               </div>
 
@@ -704,7 +704,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="checkbox"
                     checked={formData.enablePatientRegistration}
                     onChange={(e) => setFormData({ ...formData, enablePatientRegistration: e.target.checked })}
-                    className="w-4 h-4 text-[#2D6A4F] rounded-sm focus:ring-[#2D6A4F]"
+                    className="w-4 h-4 text-[#0E7A4B] rounded-sm focus:ring-[#0E7A4B]"
                   />
                 </label>
 
@@ -716,7 +716,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="checkbox"
                     checked={formData.enablePharmacyRegistration}
                     onChange={(e) => setFormData({ ...formData, enablePharmacyRegistration: e.target.checked })}
-                    className="w-4 h-4 text-[#2D6A4F] rounded-sm focus:ring-[#2D6A4F]"
+                    className="w-4 h-4 text-[#0E7A4B] rounded-sm focus:ring-[#0E7A4B]"
                   />
                 </label>
 
@@ -728,7 +728,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
                     type="checkbox"
                     checked={formData.requireMfaForAdmins}
                     onChange={(e) => setFormData({ ...formData, requireMfaForAdmins: e.target.checked })}
-                    className="w-4 h-4 text-[#2D6A4F] rounded-sm focus:ring-[#2D6A4F]"
+                    className="w-4 h-4 text-[#0E7A4B] rounded-sm focus:ring-[#0E7A4B]"
                   />
                 </label>
               </div>
@@ -739,7 +739,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
               <button
                 type="submit"
                 disabled={isSavingSettings}
-                className="px-6 py-3 rounded-xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-sm flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
+                className="px-6 py-3 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold text-sm flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
               >
                 {isSavingSettings ? (
                   <>

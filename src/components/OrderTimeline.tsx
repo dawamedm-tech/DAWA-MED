@@ -200,17 +200,17 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-7 border border-[#D8E2DC] shadow-xs" id={`order-timeline-${order.id}`}>
+    <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#E8F5EE] shadow-xs" id={`order-timeline-${order.id}`}>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#D8E2DC]">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#E8F5EE]">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-[#2D6A4F] text-white">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-[#0E7A4B] text-white">
               {order.orderNumber}
             </span>
-            <span className="text-xs text-gray-500 font-semibold">{order.createdAt}</span>
+            <span className="text-xs text-neutral-500 font-semibold">{order.createdAt}</span>
           </div>
-          <h3 className="text-base sm:text-lg font-black text-[#1B4332]">
+          <h3 className="text-base sm:text-lg font-black text-[#111827]">
             {t.orderStatusTitle}
           </h3>
         </div>
@@ -219,10 +219,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
         {onAdvanceStatus && nextStatus && !isCancelled && (
           <button
             onClick={() => onAdvanceStatus(order.id, nextStatus)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#2D6A4F] border border-[#2D6A4F]/30 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F5EE] hover:bg-[#D0EADB] text-[#0E7A4B] border border-[#B7E4C7] rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             id="simulate-next-step-btn"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#52B788]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#0E7A4B]" />
             <span>{translate('simulateNextStep', language)} ({currentIndex + 2}) →</span>
           </button>
         )}
@@ -244,7 +244,7 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
       )}
 
       {/* Interactive 10-Step Timeline */}
-      <div className="relative space-y-4">
+      <div className="relative space-y-3">
         {ORDER_PIPELINE_STEPS.map((step, idx) => {
           const isDone = currentIndex > idx;
           const isCurrent = currentIndex === idx;
@@ -254,10 +254,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
               key={step.status}
               className={`flex items-start gap-3 sm:gap-4 p-3 rounded-2xl transition-all ${
                 isCurrent 
-                  ? 'bg-[#F0F7F4] border border-[#74C69D] shadow-xs' 
+                  ? 'bg-[#E8F5EE]/70 border border-[#0E7A4B] shadow-xs' 
                   : isDone
                   ? 'bg-white/50 opacity-90'
-                  : 'bg-gray-50/60 opacity-50'
+                  : 'bg-neutral-50/60 opacity-50'
               }`}
             >
               {/* Step indicator node */}
@@ -265,10 +265,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors ${
                     isDone
-                      ? 'bg-[#2D6A4F] text-white'
+                      ? 'bg-[#0E7A4B] text-white'
                       : isCurrent
-                      ? 'bg-[#52B788] text-white ring-4 ring-[#74C69D]/30 animate-pulse'
-                      : 'bg-gray-200 text-gray-500'
+                      ? 'bg-[#0E7A4B] text-white ring-4 ring-[#0E7A4B]/20 animate-pulse'
+                      : 'bg-neutral-200 text-neutral-500'
                   }`}
                 >
                   {isDone ? <Check className="w-4 h-4" /> : step.icon}
@@ -279,40 +279,40 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
               <div className="flex-1 min-w-0 pt-0.5">
                 <div className="flex items-center justify-between gap-2">
                   <h4 className={`text-xs sm:text-sm font-black ${
-                    isCurrent ? 'text-[#1B4332]' : isDone ? 'text-[#2D6A4F]' : 'text-gray-500'
+                    isCurrent ? 'text-[#0E7A4B]' : isDone ? 'text-[#111827]' : 'text-neutral-500'
                   }`}>
                     {t[step.key] || step.labelEn}
                   </h4>
                   {isCurrent && (
-                    <span className="px-2 py-0.5 bg-[#2D6A4F] text-white text-[10px] font-black rounded-full uppercase tracking-wider shrink-0">
+                    <span className="px-2 py-0.5 bg-[#0E7A4B] text-white text-[10px] font-black rounded-full uppercase tracking-wider shrink-0">
                       {translate('activeBadge', language)}
                     </span>
                   )}
                   {isDone && (
-                    <span className="text-[10px] font-bold text-[#52B788] shrink-0">
+                    <span className="text-[10px] font-bold text-[#0E7A4B] shrink-0">
                       {translate('completedBadge', language)}
                     </span>
                   )}
                 </div>
 
-                <p className="text-[11px] text-gray-600 mt-0.5 leading-snug">
+                <p className="text-[11px] text-neutral-600 mt-0.5 leading-snug">
                   {getStepDescription(step)}
                 </p>
 
                 {/* Additional context based on active step */}
                 {isCurrent && step.status === 'prescription_under_review' && order.prescription && (
-                  <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#D8E2DC] text-[11px]">
-                    <span className="font-bold text-[#1B4332]">{translate('assignedReviewer', language)}</span>{' '}
-                    <span className="text-gray-700">{order.prescription.verifiedByPharmacist || order.pharmacyName}</span>
+                  <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#E8F5EE] text-[11px]">
+                    <span className="font-bold text-[#111827]">{translate('assignedReviewer', language)}</span>{' '}
+                    <span className="text-neutral-700">{order.prescription.verifiedByPharmacist || order.pharmacyName}</span>
                   </div>
                 )}
 
                 {isCurrent && (step.status === 'out_for_delivery' || step.status === 'picked_up') && order.driverName && (
-                  <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#D8E2DC] text-[11px] flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-bold text-[#1B4332]">
+                  <div className="mt-2 p-2.5 rounded-xl bg-white border border-[#E8F5EE] text-[11px] flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-bold text-[#111827]">
                       {translate('courierInfo', language)} {order.driverName} ({order.driverVehicle})
                     </span>
-                    <span className="text-[#2D6A4F] font-bold">
+                    <span className="text-[#0E7A4B] font-bold">
                       {translate('etaInfo', language)} ~{order.estimatedDeliveryMinutes || 15} min
                     </span>
                   </div>

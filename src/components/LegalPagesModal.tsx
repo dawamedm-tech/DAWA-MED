@@ -98,13 +98,13 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-[#F4F7F5]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-[#F1FAF4]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-[#1B4332] text-white">
+            <div className="p-2 rounded-xl bg-[#0E7A4B] text-white">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[#1B4332]">
+              <h2 className="text-lg font-bold text-[#111827]">
                 {language === 'ar' ? 'المركز القانوني والامتثال والخصوصية' : language === 'fr' ? 'Centre Juridique, Conformité & Confidentialité' : 'Legal, Compliance & Privacy Centre'}
               </h2>
               <p className="text-xs text-neutral-500">
@@ -128,7 +128,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('privacy')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'privacy' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -140,7 +140,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('terms')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'terms' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -152,7 +152,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('disclaimer')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'disclaimer' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -164,7 +164,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('cold_chain')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'cold_chain' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -176,7 +176,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('refund')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'refund' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -188,7 +188,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('pharmacy_terms')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'pharmacy_terms' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -200,7 +200,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
               onClick={() => setActiveTab('driver_terms')}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeTab === 'driver_terms' 
-                  ? 'bg-[#1B4332] text-white shadow-sm' 
+                  ? 'bg-[#0E7A4B] text-white shadow-sm' 
                   : 'text-neutral-600 hover:bg-neutral-200'
               }`}
             >
@@ -213,8 +213,8 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
                 onClick={() => setActiveTab('data_tools')}
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold w-full transition-all ${
                   activeTab === 'data_tools' 
-                    ? 'bg-[#2D6A4F] text-white' 
-                    : 'text-[#2D6A4F] hover:bg-[#E9F5EE]'
+                    ? 'bg-[#0E7A4B] text-white' 
+                    : 'text-[#0E7A4B] hover:bg-[#E8F5EE]'
                 }`}
               >
                 <Download className="w-4 h-4" />
@@ -227,7 +227,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
           <div className="flex-1 p-6 overflow-y-auto space-y-4 text-sm leading-relaxed text-neutral-700">
             {activeTab === 'privacy' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">
                   {t.legalPrivacy} (HIPAA / GDPR / Data Protection Acts)
                 </h3>
                 <p>
@@ -237,8 +237,8 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
                     ? 'Chez DAWA MED, nous protégeons la confidentialité de vos données médicales et personnelles selon les normes de chiffrement les plus strictes (AES-256 et TLS 1.3). Nous ne collectons que les informations indispensables à la délivrance de vos ordonnances par un pharmacien agréé.'
                     : 'At DAWA MED, patient privacy is sacred. We encrypt prescription documents using AES-256 and transmit all telemetry over TLS 1.3. We only gather data required for prescription dispensing by certified pharmacists.'}
                 </p>
-                <div className="p-4 rounded-xl bg-[#F4F7F5] border border-neutral-200 space-y-2">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-[#1B4332]">
+                <div className="p-4 rounded-xl bg-[#F1FAF4] border border-neutral-200 space-y-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-[#111827]">
                     {language === 'ar' ? 'مبادئ الأمان الأساسية' : language === 'fr' ? 'Principes Fondamentaux de Sécurité' : 'Core Security Guarantees'}
                   </h4>
                   <ul className="list-disc list-inside text-xs space-y-1 text-neutral-600">
@@ -252,7 +252,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'terms' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">{t.legalTerms}</h3>
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">{t.legalTerms}</h3>
                 <p>
                   {language === 'ar'
                     ? 'باستخدامك لمنصة DAWA MED، فإنك توافق على الشروط والأحكام الخاصة بالتوصيل الدوائي. تعمل المنصة كحلقة وصل تقنية آمنة بين المريض والصيدليات المرخصة وفريق التوصيل المعتمد.'
@@ -290,7 +290,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'cold_chain' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">{t.legalDelivery}</h3>
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">{t.legalDelivery}</h3>
                 <p>
                   {language === 'ar'
                     ? 'نضمن حفظ الأدوية الحساسة للحرارة (كالأنواع الحيوية والأنسولين) داخل حقائب معزولة مبردة عند درجات حرارة بين 2 إلى 8 درجات مئوية طوال مسار التوصيل مع مراقبة رقمية مستمرة.'
@@ -303,7 +303,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'refund' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">{t.legalRefund}</h3>
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">{t.legalRefund}</h3>
                 <p>
                   {language === 'ar'
                     ? 'نظراً للطبيعة الطبية للأدوية وضوابط السلامة الصيدلانية، لا يمكن استرجاع الأدوية بعد فتح ختم الطرد وتأكيد الاستلام عبر رمز PIN، إلا في حال ثبوت تلف في التغليف المبرد أو خطأ في الصرف قبل الاستلام.'
@@ -316,7 +316,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'pharmacy_terms' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">{t.legalPharmacyTerms}</h3>
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">{t.legalPharmacyTerms}</h3>
                 <p>
                   {language === 'ar'
                     ? 'تلتزم الصيدليات الشريكة بامتلاك ترخيص ساري المفعول من الهيئة الوطنية للأدوية وتعيين صيدلي مسؤول معتمد للتحقق من كافة الوصفات وتسجيل أرقام التشغيلات وتواريخ الصلاحية.'
@@ -329,7 +329,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'driver_terms' && (
               <div className="space-y-4 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">{t.legalDriverTerms}</h3>
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">{t.legalDriverTerms}</h3>
                 <p>
                   {language === 'ar'
                     ? 'يلتزم مناديب التوصيل بالحفاظ على سرية الطرود، وعدم تسليم أي دواء إلا بعد إدخال رمز PIN السري الخاص بالعميل ومسح رمز QR الأمني لضمان سلامة الطرد.'
@@ -342,7 +342,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
 
             {activeTab === 'data_tools' && (
               <div className="space-y-5 animate-fadeIn">
-                <h3 className="text-base font-bold text-[#1B4332] border-b pb-2">
+                <h3 className="text-base font-bold text-[#111827] border-b pb-2">
                   {language === 'ar' ? 'أدوات الخصوصية وتصدير البيانات الصحية' : language === 'fr' ? 'Outils de Confidentialité & Export de Données' : 'Patient Health Data Management Tools'}
                 </h3>
                 
@@ -360,7 +360,7 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
                   <button
                     onClick={handleExportData}
                     disabled={exportLoading}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
                   >
                     {exportLoading ? (
                       <span className="animate-spin">⏳</span>
@@ -399,10 +399,10 @@ export const LegalPagesModal: React.FC<LegalPagesModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-neutral-100 bg-[#F4F7F5] flex justify-end">
+        <div className="px-6 py-3 border-t border-neutral-100 bg-[#F1FAF4] flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition-colors"
+            className="px-5 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl transition-colors"
           >
             {t.close}
           </button>

@@ -89,18 +89,18 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full border border-[#D8E2DC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-3xl max-w-lg w-full border border-[#E8F5EE] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-5 bg-[#1B4332] text-white flex items-center justify-between">
+        <div className="p-5 bg-[#0E7A4B] text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#52B788]/20 border border-[#52B788]/40 flex items-center justify-center text-[#74C69D]">
+            <div className="w-10 h-10 rounded-2xl bg-[#E8F5EE] border border-[#D0EADB]/40 flex items-center justify-center text-emerald-400">
               <Star className="w-6 h-6 fill-current" />
             </div>
             <div>
               <h2 className="text-base font-black">
                 {isAr ? 'تقييم تجربة الاستلام' : 'Rate Your Medicine Delivery'}
               </h2>
-              <p className="text-xs text-[#D8F3DC]">
+              <p className="text-xs text-white/80">
                 {order.orderNumber} • {order.pharmacyName}
               </p>
             </div>
@@ -116,7 +116,7 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
         {submitted ? (
           <div className="p-10 text-center space-y-3">
             <CheckCircle2 className="w-16 h-16 text-emerald-600 mx-auto animate-bounce" />
-            <h3 className="text-lg font-black text-[#1B4332]">
+            <h3 className="text-lg font-black text-[#111827]">
               {isAr ? 'شكراً لتقييمك ومشاركتنا رأيك!' : 'Thank you for your feedback!'}
             </h3>
             <p className="text-xs text-gray-500 max-w-xs mx-auto">
@@ -128,11 +128,11 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
         ) : (
           <div className="p-6 overflow-y-auto space-y-6">
             {/* 1. Pharmacy Rating */}
-            <div className="p-4 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC] space-y-3">
+            <div className="p-4 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-xs font-black text-[#1B4332]">{order.pharmacyName}</span>
+                  <Building2 className="w-4 h-4 text-[#0E7A4B]" />
+                  <span className="text-xs font-black text-[#111827]">{order.pharmacyName}</span>
                 </div>
                 <span className="text-[11px] font-bold text-gray-500">{isAr ? 'تقييم الصيدلية' : 'Pharmacy'}</span>
               </div>
@@ -157,16 +157,16 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
                 placeholder={isAr ? 'ملاحظات حول دقة وتغليف الأدوية...' : 'Comments on medicine packaging, sealed box...'}
                 value={pharmacyComment}
                 onChange={(e) => setPharmacyComment(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#D8E2DC] bg-white focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-[#E8F5EE] bg-white focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
             {/* 2. Driver Rating */}
-            <div className="p-4 bg-[#F8FAF9] rounded-2xl border border-[#D8E2DC] space-y-3">
+            <div className="p-4 bg-[#F1FAF4] rounded-2xl border border-[#E8F5EE] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Bike className="w-4 h-4 text-[#2D6A4F]" />
-                  <span className="text-xs font-black text-[#1B4332]">{order.driverName || 'Courier Driver'}</span>
+                  <Bike className="w-4 h-4 text-[#0E7A4B]" />
+                  <span className="text-xs font-black text-[#111827]">{order.driverName || 'Courier Driver'}</span>
                 </div>
                 <span className="text-[11px] font-bold text-gray-500">{isAr ? 'تقييم التوصيل' : 'Delivery Rider'}</span>
               </div>
@@ -191,7 +191,7 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
                 placeholder={isAr ? 'ملاحظات حول سرعة التوصيل والتعامل...' : 'Comments on delivery speed, rider courtesy...'}
                 value={deliveryComment}
                 onChange={(e) => setDeliveryComment(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#D8E2DC] bg-white focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-[#E8F5EE] bg-white focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -210,8 +210,8 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
                       onClick={() => handleToggleTag(isAr ? tag.labelAr : tag.labelEn)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-[#1B4332] text-white'
-                          : 'bg-[#F4F7F5] text-gray-700 hover:bg-[#E9F5EE] border border-[#D8E2DC]'
+                          ? 'bg-[#0E7A4B] text-white'
+                          : 'bg-[#F1FAF4] text-gray-700 hover:bg-[#E8F5EE] border border-[#E8F5EE]'
                       }`}
                     >
                       {label}
@@ -235,7 +235,7 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
 
         {/* Footer Actions */}
         {!submitted && (
-          <div className="p-4 bg-[#F8FAF9] border-t border-[#D8E2DC] flex items-center justify-between gap-3">
+          <div className="p-4 bg-[#F1FAF4] border-t border-[#E8F5EE] flex items-center justify-between gap-3">
             <button
               onClick={onClose}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -246,7 +246,7 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-black transition-colors cursor-pointer flex items-center gap-2 shadow-xs disabled:opacity-50"
+              className="px-6 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-black transition-colors cursor-pointer flex items-center gap-2 shadow-xs disabled:opacity-50"
             >
               <ThumbsUp className="w-3.5 h-3.5" />
               <span>{isSubmitting ? (isAr ? 'جارِ الإرسال...' : 'Submitting...') : (isAr ? 'إرسال التقييم' : 'Submit Review')}</span>

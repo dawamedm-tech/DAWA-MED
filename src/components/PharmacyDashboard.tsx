@@ -308,9 +308,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
   return (
     <div className="space-y-6" id="pharmacy-dashboard-root">
       {/* Top Pharmacy Switcher & Regulatory Compliance Header */}
-      <div className="bg-[#1B4332] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#2D6A4F]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+      <div className="bg-[#084F30] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#0E7A4B]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-white/10 text-[#74C69D] flex items-center justify-center border border-white/15 shrink-0 shadow-inner">
+          <div className="h-14 w-14 rounded-2xl bg-white/10 text-emerald-300 flex items-center justify-center border border-white/15 shrink-0 shadow-inner">
             <Building2 className="w-7 h-7" />
           </div>
           <div>
@@ -319,8 +319,8 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                 {activePharmacy.name}
               </h1>
               {isPharmacyVerified ? (
-                <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-[#52B788]/20 text-[#D8F3DC] border border-[#52B788]/40">
-                  <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
+                <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-white/15 text-[#E8F5EE] border border-white/20">
+                  <ShieldCheck className="w-4 h-4 text-emerald-300" />
                   <span>Licensed: {activePharmacy.licenseNumber}</span>
                 </span>
               ) : (
@@ -331,12 +331,12 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               )}
             </div>
 
-            <p className="text-xs sm:text-sm text-[#D8F3DC]/90 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p className="text-xs sm:text-sm text-[#E8F5EE]/90 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>Pharmacist: <strong className="text-white">{activePharmacy.pharmacistInCharge}</strong></span>
               <span>•</span>
               <span>{activePharmacy.address}</span>
               <span>•</span>
-              <span className="text-[#74C69D] font-semibold">{activePharmacy.openingHours || '08:00 AM – 10:00 PM'}</span>
+              <span className="text-emerald-300 font-semibold">{activePharmacy.openingHours || '08:00 AM – 10:00 PM'}</span>
             </p>
           </div>
         </div>
@@ -347,7 +347,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
             <select
               value={selectedPharmacyId}
               onChange={(e) => setSelectedPharmacyId(e.target.value)}
-              className="w-full bg-white/10 text-white text-xs font-bold px-4 py-2.5 rounded-2xl border border-white/20 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-[#74C69D] appearance-none pr-8 cursor-pointer"
+              className="w-full bg-white/10 text-white text-xs font-bold px-4 py-2.5 rounded-2xl border border-white/20 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/40 appearance-none pr-8 cursor-pointer"
             >
               {pharmacies.map((p) => (
                 <option key={p.id} value={p.id} className="text-neutral-900 bg-white">
@@ -362,7 +362,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
             onClick={() => setIsRegisterPharmacyOpen(true)}
             className="px-3.5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
-            <Plus className="w-4 h-4 text-[#74C69D]" />
+            <Plus className="w-4 h-4 text-emerald-300" />
             <span>Register Branch</span>
           </button>
         </div>
@@ -384,13 +384,13 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
       )}
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[#D8E2DC] pb-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[#E8F5EE] pb-2">
         <button
           onClick={() => setActiveTab('incoming_orders')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'incoming_orders'
-              ? 'bg-[#1B4332] text-white shadow-sm'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-sm'
+              : 'bg-white text-[#111827] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -406,13 +406,13 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
           onClick={() => setActiveTab('inventory')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'inventory'
-              ? 'bg-[#1B4332] text-white shadow-sm'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-sm'
+              : 'bg-white text-[#111827] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <Package className="w-4 h-4" />
           <span>Pharmacy Inventory Management</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#52B788]/20 text-[#1B4332]">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F5EE] text-[#0E7A4B]">
             {inventory.length}
           </span>
         </button>
@@ -421,11 +421,11 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
           onClick={() => setActiveTab('submissions')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'submissions'
-              ? 'bg-[#1B4332] text-white shadow-sm'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-sm'
+              : 'bg-white text-[#111827] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
-          <ShieldCheck className="w-4 h-4 text-[#52B788]" />
+          <ShieldCheck className="w-4 h-4 text-[#0E7A4B]" />
           <span>Medicine Approvals & Submissions</span>
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
             {mySubmissions.filter((m) => m.approvalStatus === 'pending_approval' || m.approvalStatus === 'under_review').length} Pending
@@ -436,8 +436,8 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
           onClick={() => setActiveTab('profile')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'profile'
-              ? 'bg-[#1B4332] text-white shadow-sm'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-sm'
+              : 'bg-white text-[#111827] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -450,49 +450,49 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
         <div className="space-y-6">
           {/* Incoming Orders Alert Strip */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl p-4 border border-[#D8E2DC] shadow-xs flex items-center gap-3.5">
+            <div className="bg-white rounded-2xl p-4 border border-[#E8F5EE] shadow-xs flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black">
                 {pendingReviewOrders.length}
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Awaiting Verification</h4>
-                <p className="text-xs font-semibold text-[#1B4332] mt-0.5">Pharmacist Review Required</p>
+                <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Awaiting Verification</h4>
+                <p className="text-xs font-semibold text-[#111827] mt-0.5">Pharmacist Review Required</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 border border-[#D8E2DC] shadow-xs flex items-center gap-3.5">
-              <div className="h-10 w-10 rounded-xl bg-[#52B788]/20 text-[#1B4332] flex items-center justify-center font-black">
+            <div className="bg-white rounded-2xl p-4 border border-[#E8F5EE] shadow-xs flex items-center gap-3.5">
+              <div className="h-10 w-10 rounded-xl bg-[#E8F5EE] text-[#0E7A4B] flex items-center justify-center font-black">
                 {inPreparationOrders.length}
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">In Dispensing Prep</h4>
-                <p className="text-xs font-semibold text-[#1B4332] mt-0.5">Packaging & Tamper Seal</p>
+                <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">In Dispensing Prep</h4>
+                <p className="text-xs font-semibold text-[#111827] mt-0.5">Packaging & Tamper Seal</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 border border-[#D8E2DC] shadow-xs flex items-center gap-3.5">
+            <div className="bg-white rounded-2xl p-4 border border-[#E8F5EE] shadow-xs flex items-center gap-3.5">
               <div className="h-10 w-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black">
                 {readyAndDispatchedOrders.length}
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Ready / Dispatched</h4>
-                <p className="text-xs font-semibold text-[#1B4332] mt-0.5">Courier Courier Handshake</p>
+                <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Ready / Dispatched</h4>
+                <p className="text-xs font-semibold text-[#111827] mt-0.5">Courier Handshake</p>
               </div>
             </div>
           </div>
 
           {/* Orders Stream */}
           <div className="space-y-4">
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <Clock className="w-5 h-5 text-[#2D6A4F]" />
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[#0E7A4B]" />
               <span>Incoming Prescriptions & Medicine Orders ({pharmacyOrders.length})</span>
             </h3>
 
             {pharmacyOrders.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#D8E2DC]">
+              <div className="bg-white rounded-3xl p-12 text-center border border-[#E8F5EE]">
                 <Package className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                <h4 className="text-base font-bold text-[#1B4332]">No Active Orders for this Branch</h4>
-                <p className="text-xs text-neutral-500 mt-1">New incoming customer orders will appear in real time.</p>
+                <h4 className="text-base font-bold text-[#111827]">No Active Orders for this Branch</h4>
+                <p className="text-xs text-[#6B7280] mt-1">New incoming customer orders will appear in real time.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
@@ -505,19 +505,19 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     <div 
                       key={order.id} 
                       className={`bg-white rounded-3xl p-5 sm:p-6 border transition-all shadow-xs ${
-                        isPending ? 'border-amber-300 ring-2 ring-amber-100' : 'border-[#D8E2DC]'
+                        isPending ? 'border-amber-300 ring-2 ring-amber-100' : 'border-[#E8F5EE]'
                       }`}
                     >
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-black text-[#1B4332] text-base">{order.orderNumber}</span>
+                            <span className="font-black text-[#111827] text-base">{order.orderNumber}</span>
                             <span className="text-xs text-neutral-400">• {order.createdAt}</span>
                             <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
                               isPending 
                                 ? 'bg-amber-100 text-amber-900 border border-amber-200' 
                                 : isPreparing 
-                                ? 'bg-[#52B788]/20 text-[#1B4332] border border-[#52B788]/30'
+                                ? 'bg-[#E8F5EE] text-[#0E7A4B] border border-[#D0EADB]' 
                                 : 'bg-blue-100 text-blue-900 border border-blue-200'
                             }`}>
                               {order.status.replace(/_/g, ' ')}
@@ -530,21 +530,21 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                             )}
                           </div>
 
-                          <p className="text-xs text-neutral-600 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <span>Patient: <strong className="text-[#1B4332]">{order.customerName}</strong> ({order.customerPhone})</span>
+                          <p className="text-xs text-[#6B7280] mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span>Patient: <strong className="text-[#111827]">{order.customerName}</strong> ({order.customerPhone})</span>
                             <span>•</span>
                             <span className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                              <MapPin className="w-3.5 h-3.5 text-[#0E7A4B]" />
                               <span>{order.deliveryAddress}, {order.city}</span>
                             </span>
                             <span>•</span>
-                            <span className="text-[#2D6A4F] font-bold">{order.distanceKm} km away</span>
+                            <span className="text-[#0E7A4B] font-bold">{order.distanceKm} km away</span>
                           </p>
                         </div>
 
                         {/* Order Amount and Payment */}
                         <div className="text-left lg:text-right">
-                          <p className="text-lg font-black text-[#1B4332]">
+                          <p className="text-lg font-black text-[#111827]">
                             {selectedCountry.currencySymbol} {toLocal(order.totalAmount)}
                             <span className="text-xs font-normal text-neutral-500 ml-1.5">(${order.totalAmount.toFixed(2)})</span>
                           </p>
@@ -559,14 +559,14 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         <h5 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2">Requested Medications:</h5>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-[#F4F7F5] border border-[#E8F0EC] text-xs">
+                            <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs">
                               <div>
-                                <span className="font-bold text-[#1B4332]">{item.medicine.name}</span>
+                                <span className="font-bold text-[#111827]">{item.medicine.name}</span>
                                 <p className="text-[11px] text-neutral-500">{item.medicine.dosage} • {item.medicine.packageSize}</p>
                               </div>
                               <div className="text-right">
-                                <span className="font-black text-[#1B4332]">Qty: {item.quantity}</span>
-                                <p className="text-[11px] text-[#2D6A4F]">{selectedCountry.currencySymbol} {toLocal(item.unitPrice * item.quantity)}</p>
+                                <span className="font-black text-[#111827]">Qty: {item.quantity}</span>
+                                <p className="text-[11px] text-[#0E7A4B]">{selectedCountry.currencySymbol} {toLocal(item.unitPrice * item.quantity)}</p>
                               </div>
                             </div>
                           ))}
@@ -583,9 +583,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                                 setSelectedOrderForReview(order);
                                 setIsRejecting(false);
                               }}
-                              className="px-4 py-2 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              className="px-4 py-2 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                             >
-                              <FileCheck className="w-4 h-4 text-[#74C69D]" />
+                              <FileCheck className="w-4 h-4 text-[#E8F5EE]" />
                               <span>Verify Rx & Accept Order</span>
                             </button>
                           )}
@@ -600,9 +600,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                                   onDispatchOrder(order.id);
                                 }
                               }}
-                              className="px-4 py-2 rounded-2xl bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              className="px-4 py-2 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                             >
-                              <Package className="w-4 h-4 text-[#74C69D]" />
+                              <Package className="w-4 h-4 text-[#E8F5EE]" />
                               <span>Confirm Packed & Ready for Pickup</span>
                             </button>
                           )}
@@ -611,9 +611,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                           {isReady && (
                             <button
                               onClick={() => onDispatchOrder(order.id)}
-                              className="px-4 py-2 rounded-2xl bg-[#52B788] hover:bg-[#40916C] text-[#1B4332] text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              className="px-4 py-2 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                             >
-                              <Truck className="w-4 h-4 text-[#1B4332]" />
+                              <Truck className="w-4 h-4 text-white" />
                               <span>Handover to Rider (PIN: {order.deliveryOtp})</span>
                             </button>
                           )}
@@ -669,23 +669,23 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
       {activeTab === 'inventory' && (
         <div className="space-y-6">
           {/* Inventory Top Controls */}
-          <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg font-black text-[#1B4332] flex items-center gap-2">
-                  <Package className="w-5 h-5 text-[#2D6A4F]" />
+                <h3 className="text-lg font-black text-[#111827] flex items-center gap-2">
+                  <Package className="w-5 h-5 text-[#0E7A4B]" />
                   <span>Licensed Branch Inventory System</span>
                 </h3>
-                <p className="text-xs text-neutral-500 mt-0.5">
+                <p className="text-xs text-[#6B7280] mt-0.5">
                   Track pharmaceutical stock, batch numbers, storage requirements, and expiry control.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsAddInventoryOpen(true)}
-                className="px-4 py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                className="px-4 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
               >
-                <Plus className="w-4 h-4 text-[#74C69D]" />
+                <Plus className="w-4 h-4 text-[#E8F5EE]" />
                 <span>Add Medicine to Stock</span>
               </button>
             </div>
@@ -707,7 +707,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                   placeholder="Search by Medicine, SKU, or Batch..."
                   value={inventorySearch}
                   onChange={(e) => setInventorySearch(e.target.value)}
-                  className="w-full pl-9 pr-3.5 py-2 rounded-2xl bg-[#F4F7F5] text-xs border border-[#D8E2DC] focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]"
+                  className="w-full pl-9 pr-3.5 py-2 rounded-2xl bg-[#F1FAF4] text-xs border border-[#E8F5EE] focus:outline-none focus:ring-2 focus:ring-[#0E7A4B]"
                 />
               </div>
 
@@ -715,7 +715,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                 <select
                   value={inventoryCategory}
                   onChange={(e) => setInventoryCategory(e.target.value as any)}
-                  className="w-full px-3.5 py-2 rounded-2xl bg-[#F4F7F5] text-xs border border-[#D8E2DC] focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]"
+                  className="w-full px-3.5 py-2 rounded-2xl bg-[#F1FAF4] text-xs border border-[#E8F5EE] focus:outline-none focus:ring-2 focus:ring-[#0E7A4B]"
                 >
                   <option value="all">All Categories</option>
                   <option value="chronic">Chronic Care (Diabetes, Cardio)</option>
@@ -731,7 +731,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                 <select
                   value={inventoryStatusFilter}
                   onChange={(e) => setInventoryStatusFilter(e.target.value as any)}
-                  className="w-full px-3.5 py-2 rounded-2xl bg-[#F4F7F5] text-xs border border-[#D8E2DC] focus:outline-none focus:ring-2 focus:ring-[#2D6A4F]"
+                  className="w-full px-3.5 py-2 rounded-2xl bg-[#F1FAF4] text-xs border border-[#E8F5EE] focus:outline-none focus:ring-2 focus:ring-[#0E7A4B]"
                 >
                   <option value="all">All Statuses ({inventory.length})</option>
                   <option value="available">Available in Stock</option>
@@ -743,10 +743,10 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
           </div>
 
           {/* Inventory Table */}
-          <div className="bg-white rounded-3xl border border-[#D8E2DC] shadow-xs overflow-hidden">
+          <div className="bg-white rounded-3xl border border-[#E8F5EE] shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F4F7F5] border-b border-[#D8E2DC] text-[#2D6A4F] uppercase tracking-wider font-bold">
+                <thead className="bg-[#F1FAF4] border-b border-[#E8F5EE] text-[#0E7A4B] uppercase tracking-wider font-bold">
                   <tr>
                     <th className="px-5 py-3.5">Medicine & SKU</th>
                     <th className="px-4 py-3.5">Category</th>
@@ -757,7 +757,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     <th className="px-4 py-3.5 text-right">Stock Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#D8E2DC]">
+                <tbody className="divide-y divide-[#E8F5EE]">
                   {filteredInventory.map((item) => {
                     const isExpired = item.isExpired || isDateExpired(item.expiryDate);
 
@@ -769,8 +769,8 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         }`}
                       >
                         <td className="px-5 py-4">
-                          <div className="font-bold text-[#1B4332] text-sm">{item.medicineName}</div>
-                          <div className="text-[11px] text-neutral-500 font-mono mt-0.5">
+                          <div className="font-bold text-[#111827] text-sm">{item.medicineName}</div>
+                          <div className="text-[11px] text-[#6B7280] font-mono mt-0.5">
                             SKU: {item.sku} • {item.dosage}
                           </div>
                           {item.isColdChain && (
@@ -782,20 +782,20 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         </td>
 
                         <td className="px-4 py-4">
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E8F5E9] text-[#1B4332] capitalize">
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E8F5EE] text-[#0E7A4B] capitalize">
                             {item.category.replace('_', ' ')}
                           </span>
                         </td>
 
                         <td className="px-4 py-4">
                           <div className="font-mono text-neutral-800 font-semibold">{item.batchNumber}</div>
-                          <div className={`text-[11px] font-bold mt-0.5 ${isExpired ? 'text-red-700' : 'text-neutral-500'}`}>
+                          <div className={`text-[11px] font-bold mt-0.5 ${isExpired ? 'text-red-700' : 'text-[#6B7280]'}`}>
                             Exp: {item.expiryDate} {isExpired && '⚠️ (EXPIRED)'}
                           </div>
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="font-bold text-[#1B4332]">
+                          <div className="font-bold text-[#111827]">
                             {selectedCountry.currencySymbol} {toLocal(item.priceUSD)}
                           </div>
                           <div className="text-[10px] text-neutral-400">(${item.priceUSD.toFixed(2)})</div>
@@ -803,7 +803,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
 
                         <td className="px-4 py-4">
                           <span className={`font-black text-sm ${
-                            isExpired ? 'text-red-600 line-through' : item.quantity <= 10 ? 'text-amber-600' : 'text-[#1B4332]'
+                            isExpired ? 'text-red-600 line-through' : item.quantity <= 10 ? 'text-amber-600' : 'text-[#111827]'
                           }`}>
                             {item.quantity} units
                           </span>
@@ -824,7 +824,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                               Low Stock ({item.quantity})
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#52B788]/20 text-[#1B4332] border border-[#52B788]/30">
+                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#0E7A4B] border border-[#D0EADB]">
                               Available
                             </span>
                           )}
@@ -846,7 +846,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                               </button>
                               <button
                                 onClick={() => handleUpdateStock(item.id, 10)}
-                                className="h-7 w-7 rounded-lg bg-[#E8F5E9] hover:bg-[#C7E9D0] text-[#1B4332] font-bold flex items-center justify-center cursor-pointer"
+                                className="h-7 w-7 rounded-lg bg-[#E8F5EE] hover:bg-[#D0EADB] text-[#0E7A4B] font-bold flex items-center justify-center cursor-pointer"
                                 title="Add stock by 10"
                               >
                                 +10
@@ -864,45 +864,158 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 3: PHARMACY PROFILE & COMPLIANCE SPECS */}
+      {/* TAB 3: MEDICINE APPROVALS & SUBMISSIONS */}
+      {activeTab === 'submissions' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-black text-[#111827] flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#0E7A4B]" />
+                  <span>Regulatory Medicine Submissions & Approvals</span>
+                </h3>
+                <p className="text-xs text-[#6B7280] mt-0.5">
+                  Pharmaceutical products submitted by this branch for compliance approval by {selectedCountry.regulatoryBody}.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsAddInventoryOpen(true)}
+                className="px-4 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-4 h-4 text-[#E8F5EE]" />
+                <span>Submit New Product</span>
+              </button>
+            </div>
+
+            {submissionFeedback && (
+              <div className="p-3.5 rounded-2xl bg-[#E8F5EE] border border-[#D0EADB] text-[#0E7A4B] text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{submissionFeedback}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Submissions List */}
+          <div className="bg-white rounded-3xl border border-[#E8F5EE] shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#F1FAF4] border-b border-[#E8F5EE] text-[#0E7A4B] uppercase tracking-wider font-bold">
+                  <tr>
+                    <th className="px-5 py-3.5">Medicine & Generic</th>
+                    <th className="px-4 py-3.5">Category & Dosage</th>
+                    <th className="px-4 py-3.5">Requirements</th>
+                    <th className="px-4 py-3.5">Indicative Price</th>
+                    <th className="px-4 py-3.5">Regulatory Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E8F5EE]">
+                  {mySubmissions.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-8 text-center text-[#6B7280]">
+                        No pending medicine submissions for this branch.
+                      </td>
+                    </tr>
+                  ) : (
+                    mySubmissions.map((med) => {
+                      const status = med.approvalStatus || 'approved';
+                      return (
+                        <tr key={med.id} className="hover:bg-[#F9FAF9] transition-colors">
+                          <td className="px-5 py-4">
+                            <div className="font-bold text-[#111827] text-sm">{med.name}</div>
+                            <div className="text-[11px] text-[#6B7280]">{med.genericName}</div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#E8F5EE] text-[#0E7A4B] capitalize">
+                              {med.category.replace('_', ' ')}
+                            </span>
+                            <div className="text-[11px] text-neutral-500 mt-1">{med.dosage} • {med.form}</div>
+                          </td>
+                          <td className="px-4 py-4 space-y-1">
+                            {med.requiresPrescription && (
+                              <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-800 border border-purple-200">
+                                Rx Required
+                              </span>
+                            )}
+                            {med.requiresColdChain && (
+                              <span className="inline-block ml-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200">
+                                Cold-Chain (2-8°C)
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="font-bold text-[#111827]">
+                              {selectedCountry.currencySymbol} {toLocal(med.priceUSD)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            {status === 'approved' ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#E8F5EE] text-[#0E7A4B] border border-[#D0EADB]">
+                                <ShieldCheck className="w-3 h-3" />
+                                <span>Approved</span>
+                              </span>
+                            ) : status === 'rejected' ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-800 border border-red-200">
+                                <Ban className="w-3 h-3" />
+                                <span>Rejected</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                                <Clock className="w-3 h-3 text-amber-600" />
+                                <span>Pending Approval</span>
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: PHARMACY PROFILE & COMPLIANCE SPECS */}
       {activeTab === 'profile' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#2D6A4F]" />
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#0E7A4B]" />
               <span>Regulatory Licensing & Premises Permit</span>
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">Regulatory Authority:</span>
-                <span className="font-bold text-[#1B4332]">{activePharmacy.regulatoryAuthority || selectedCountry.regulatoryBody}</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">Regulatory Authority:</span>
+                <span className="font-bold text-[#111827]">{activePharmacy.regulatoryAuthority || selectedCountry.regulatoryBody}</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">Annual License No:</span>
-                <span className="font-mono font-bold text-[#1B4332]">{activePharmacy.licenseNumber}</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">Annual License No:</span>
+                <span className="font-mono font-bold text-[#111827]">{activePharmacy.licenseNumber}</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">License Expiry Date:</span>
-                <span className="font-bold text-[#2D6A4F]">{activePharmacy.licenseExpiryDate || '2027-12-31'}</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">License Expiry Date:</span>
+                <span className="font-bold text-[#0E7A4B]">{activePharmacy.licenseExpiryDate || '2027-12-31'}</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">Superintendent Pharmacist:</span>
-                <span className="font-bold text-[#1B4332]">{activePharmacy.pharmacistInCharge}</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">Superintendent Pharmacist:</span>
+                <span className="font-bold text-[#111827]">{activePharmacy.pharmacistInCharge}</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">GPS Location Coordinates:</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">GPS Location Coordinates:</span>
                 <span className="font-mono text-neutral-700">{activePharmacy.coordinates.lat.toFixed(4)}, {activePharmacy.coordinates.lng.toFixed(4)}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 border border-[#D8E2DC] shadow-xs space-y-4">
-            <h3 className="text-base font-black text-[#1B4332] flex items-center gap-2">
+          <div className="bg-white rounded-3xl p-6 border border-[#E8F5EE] shadow-xs space-y-4">
+            <h3 className="text-base font-black text-[#111827] flex items-center gap-2">
               <Thermometer className="w-5 h-5 text-blue-600" />
               <span>Cold-Chain & Dispensing Standards</span>
             </h3>
@@ -918,19 +1031,19 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">e-Prescription Verification:</span>
-                <span className="font-bold text-[#2D6A4F]">Enabled (256-Bit Encrypted)</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">e-Prescription Verification:</span>
+                <span className="font-bold text-[#0E7A4B]">Enabled (256-Bit Encrypted)</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">Total Processed Orders:</span>
-                <span className="font-black text-[#1B4332]">{activePharmacy.totalOrdersHandled || 1240}</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">Total Processed Orders:</span>
+                <span className="font-black text-[#111827]">{activePharmacy.totalOrdersHandled || 1240}</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] flex justify-between">
-                <span className="text-neutral-500 font-medium">Gross Dispensed Value:</span>
-                <span className="font-black text-[#1B4332]">${activePharmacy.revenueUSD?.toLocaleString() || '18,450'} USD</span>
+              <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] flex justify-between">
+                <span className="text-[#6B7280] font-medium">Gross Dispensed Value:</span>
+                <span className="font-black text-[#111827]">${activePharmacy.revenueUSD?.toLocaleString() || '18,450'} USD</span>
               </div>
             </div>
           </div>
@@ -945,12 +1058,12 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#D8E2DC] my-8"
+              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#E8F5EE] my-8"
             >
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3.5 mb-4">
                 <div className="flex items-center gap-2">
-                  <FileCheck className="w-5 h-5 text-[#2D6A4F]" />
-                  <h3 className="text-base font-black text-[#1B4332]">
+                  <FileCheck className="w-5 h-5 text-[#0E7A4B]" />
+                  <h3 className="text-base font-black text-[#111827]">
                     Pharmacist Clinical Verification
                   </h3>
                 </div>
@@ -963,11 +1076,11 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               </div>
 
               <form onSubmit={handleApprove} className="space-y-4 text-xs">
-                <div className="p-3.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]">
-                  <p className="font-bold text-[#1B4332]">Order #{selectedOrderForReview.orderNumber}</p>
-                  <p className="text-neutral-600 mt-0.5">Patient: {selectedOrderForReview.customerName} ({selectedOrderForReview.customerPhone})</p>
+                <div className="p-3.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]">
+                  <p className="font-bold text-[#111827]">Order #{selectedOrderForReview.orderNumber}</p>
+                  <p className="text-[#6B7280] mt-0.5">Patient: {selectedOrderForReview.customerName} ({selectedOrderForReview.customerPhone})</p>
                   {selectedOrderForReview.prescription && (
-                    <div className="mt-2 pt-2 border-t border-[#D8E2DC] text-[11px] text-[#2D6A4F]">
+                    <div className="mt-2 pt-2 border-t border-[#E8F5EE] text-[11px] text-[#0E7A4B]">
                       <span>Doctor: <strong>{selectedOrderForReview.prescription.doctorName || 'Dr. Registered Prescriber'}</strong></span>
                       <p className="text-neutral-600 italic mt-0.5">"{selectedOrderForReview.prescription.notes || 'As clinically directed'}"</p>
                     </div>
@@ -983,7 +1096,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     required
                     value={batchNumber}
                     onChange={(e) => setBatchNumber(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] font-mono text-xs focus:ring-2 focus:ring-[#2D6A4F]"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] font-mono text-xs focus:ring-2 focus:ring-[#0E7A4B]"
                     placeholder="e.g. BATCH-2026-X98"
                   />
                 </div>
@@ -997,7 +1110,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     required
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] text-xs focus:ring-2 focus:ring-[#2D6A4F]"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs focus:ring-2 focus:ring-[#0E7A4B]"
                     placeholder="e.g. 11/2027"
                   />
                 </div>
@@ -1010,12 +1123,12 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     rows={2}
                     value={pharmacistNotes}
                     onChange={(e) => setPharmacistNotes(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] text-xs focus:ring-2 focus:ring-[#2D6A4F]"
+                    className="w-full px-3.5 py-2 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs focus:ring-2 focus:ring-[#0E7A4B]"
                   />
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#52B788]/15 border border-[#52B788]/30 text-[#1B4332] text-[11px] flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#2D6A4F] shrink-0" />
+                <div className="p-3 rounded-xl bg-[#E8F5EE] border border-[#D0EADB] text-[#0E7A4B] text-[11px] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#0E7A4B] shrink-0" />
                   <span>Digitally stamped by licensed pharmacist: {activePharmacy.pharmacistInCharge}</span>
                 </div>
 
@@ -1029,9 +1142,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-[#74C69D]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#E8F5EE]" />
                     <span>Approve & Move to Dispensing</span>
                   </button>
                 </div>
@@ -1066,7 +1179,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                   <select
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs"
                   >
                     <option value="Out of stock in cold-chain buffer">Medicine out of stock at this location</option>
                     <option value="Prescription image illegible or missing doctor signature">Prescription illegible or incomplete</option>
@@ -1113,7 +1226,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-3">
                 <div className="flex items-center gap-2 text-blue-900 font-bold">
                   <MessageSquare className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-base text-[#1B4332]">Send Clarification Query</h3>
+                  <h3 className="text-base text-[#111827]">Send Clarification Query</h3>
                 </div>
                 <button onClick={() => setIsClarificationOpen(false)} className="text-neutral-400 hover:text-neutral-700">
                   <XCircle className="w-5 h-5" />
@@ -1122,9 +1235,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
 
               {clarificationSentSuccess ? (
                 <div className="py-6 text-center text-xs">
-                  <CheckCircle2 className="w-10 h-10 text-[#2D6A4F] mx-auto mb-2" />
-                  <h4 className="text-sm font-bold text-[#1B4332]">Clarification Message Dispatched</h4>
-                  <p className="text-neutral-500 mt-1">SMS & WhatsApp push notification sent to {selectedOrderForReview.customerName}.</p>
+                  <CheckCircle2 className="w-10 h-10 text-[#0E7A4B] mx-auto mb-2" />
+                  <h4 className="text-sm font-bold text-[#111827]">Clarification Message Dispatched</h4>
+                  <p className="text-[#6B7280] mt-1">SMS & WhatsApp push notification sent to {selectedOrderForReview.customerName}.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSendClarification} className="space-y-3 text-xs">
@@ -1140,7 +1253,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       placeholder="e.g. Please confirm if doctor prescribed 625mg or 1g, or upload a clearer photo of the clinic stamp."
                       value={clarificationMessage}
                       onChange={(e) => setClarificationMessage(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] text-xs focus:ring-2 focus:ring-[#2D6A4F]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs focus:ring-2 focus:ring-[#0E7A4B]"
                     />
                   </div>
 
@@ -1154,14 +1267,81 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold flex items-center gap-1.5 shadow-sm"
+                      className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold flex items-center gap-1.5 shadow-sm"
                     >
-                      <Send className="w-4 h-4 text-[#74C69D]" />
+                      <Send className="w-4 h-4 text-[#E8F5EE]" />
                       <span>Send to Patient</span>
                     </button>
                   </div>
                 </form>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL: MEDICINE SUBSTITUTION */}
+      <AnimatePresence>
+        {substitutionModalOrder && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-200"
+            >
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-3">
+                <div className="flex items-center gap-2 text-amber-900 font-bold">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <h3 className="text-base text-[#111827]">Suggest Medicine Substitute</h3>
+                </div>
+                <button onClick={() => setSubstitutionModalOrder(null)} className="text-neutral-400 hover:text-neutral-700">
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3.5 text-xs">
+                <p className="text-neutral-600">
+                  Notify <strong>{substitutionModalOrder.customerName}</strong> that an item in Order #{substitutionModalOrder.orderNumber} is unavailable at this branch, and propose a bioequivalent generic alternative.
+                </p>
+
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">Available Bioequivalent / Generic Alternative</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Augmentin 625mg instead of Clavulin"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs focus:ring-2 focus:ring-[#0E7A4B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">Clinical Note to Patient</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Same active ingredient and strength. Price difference will be adjusted."
+                    className="w-full px-3.5 py-2 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] text-xs focus:ring-2 focus:ring-[#0E7A4B]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-neutral-100">
+                  <button
+                    type="button"
+                    onClick={() => setSubstitutionModalOrder(null)}
+                    className="px-4 py-2.5 rounded-2xl text-neutral-600 hover:bg-neutral-100 font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubstitutionModalOrder(null);
+                    }}
+                    className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold shadow-sm"
+                  >
+                    Send Substitution Proposal
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
@@ -1175,12 +1355,12 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#D8E2DC] my-8"
+              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#E8F5EE] my-8"
             >
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-[#2D6A4F]" />
-                  <h3 className="text-base font-black text-[#1B4332]">Add New Medicine to Stock</h3>
+                  <Plus className="w-5 h-5 text-[#0E7A4B]" />
+                  <h3 className="text-base font-black text-[#111827]">Add New Medicine to Stock</h3>
                 </div>
                 <button onClick={() => setIsAddInventoryOpen(false)} className="text-neutral-400 hover:text-neutral-700">
                   <XCircle className="w-5 h-5" />
@@ -1196,7 +1376,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     placeholder="e.g. Ciprofloxacin 500mg Tablets"
                     value={newMedName}
                     onChange={(e) => setNewMedName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                   />
                 </div>
 
@@ -1206,7 +1386,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value as any)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     >
                       <option value="pain_fever">Pain Relief</option>
                       <option value="antibiotics">Antibiotics</option>
@@ -1224,7 +1404,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       required
                       value={newBatch}
                       onChange={(e) => setNewBatch(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] font-mono"
                     />
                   </div>
                 </div>
@@ -1238,7 +1418,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       min={0}
                       value={newQuantity}
                       onChange={(e) => setNewQuantity(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     />
                   </div>
 
@@ -1251,7 +1431,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       min={0.1}
                       value={newPriceUSD}
                       onChange={(e) => setNewPriceUSD(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     />
                   </div>
 
@@ -1263,7 +1443,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       placeholder="2028-06"
                       value={newExpiry}
                       onChange={(e) => setNewExpiry(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     />
                   </div>
                 </div>
@@ -1274,7 +1454,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       type="checkbox"
                       checked={newIsColdChain}
                       onChange={(e) => setNewIsColdChain(e.target.checked)}
-                      className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                      className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
                     />
                     <span className="font-bold text-neutral-700">Requires Cold-Chain (2-8°C)</span>
                   </label>
@@ -1284,7 +1464,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       type="checkbox"
                       checked={newRequiresRx}
                       onChange={(e) => setNewRequiresRx(e.target.checked)}
-                      className="rounded text-[#2D6A4F] focus:ring-[#2D6A4F]"
+                      className="rounded text-[#0E7A4B] focus:ring-[#0E7A4B]"
                     />
                     <span className="font-bold text-neutral-700">Prescription Required</span>
                   </label>
@@ -1300,7 +1480,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold shadow-sm"
+                    className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold shadow-sm"
                   >
                     Save to Stock
                   </button>
@@ -1319,12 +1499,12 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#D8E2DC] my-8"
+              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#E8F5EE] my-8"
             >
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-[#2D6A4F]" />
-                  <h3 className="text-base font-black text-[#1B4332]">Register New Pharmacy Branch</h3>
+                  <Building2 className="w-5 h-5 text-[#0E7A4B]" />
+                  <h3 className="text-base font-black text-[#111827]">Register New Pharmacy Branch</h3>
                 </div>
                 <button onClick={() => setIsRegisterPharmacyOpen(false)} className="text-neutral-400 hover:text-neutral-700">
                   <XCircle className="w-5 h-5" />
@@ -1333,9 +1513,9 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
 
               {regSuccessMsg ? (
                 <div className="py-6 text-center text-xs">
-                  <CheckCircle2 className="w-10 h-10 text-[#2D6A4F] mx-auto mb-2" />
-                  <h4 className="text-sm font-bold text-[#1B4332]">Branch Registration Submitted</h4>
-                  <p className="text-neutral-500 mt-1">
+                  <CheckCircle2 className="w-10 h-10 text-[#0E7A4B] mx-auto mb-2" />
+                  <h4 className="text-sm font-bold text-[#111827]">Branch Registration Submitted</h4>
+                  <p className="text-[#6B7280] mt-1">
                     Your application is under review by {selectedCountry.regulatoryBody} compliance desk. You will receive an activation SMS once verified.
                   </p>
                 </div>
@@ -1351,7 +1531,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                   }} 
                   className="space-y-3.5 text-xs"
                 >
-                  <p className="text-neutral-500">
+                  <p className="text-[#6B7280]">
                     New branches remain inactive for public customers until administration verifies physical license and superintendent pharmacist certificate.
                   </p>
 
@@ -1363,7 +1543,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       placeholder="e.g. CityCare Pharmacy — Kilimani"
                       value={regName}
                       onChange={(e) => setRegName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     />
                   </div>
 
@@ -1376,7 +1556,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         placeholder="PPB/RET/2026/..."
                         value={regLicense}
                         onChange={(e) => setRegLicense(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC] font-mono"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE] font-mono"
                       />
                     </div>
                     <div>
@@ -1387,7 +1567,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         placeholder="Dr. Full Name (PharmD/B.Pharm)"
                         value={regPharmacist}
                         onChange={(e) => setRegPharmacist(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                       />
                     </div>
                   </div>
@@ -1401,7 +1581,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         placeholder="+254 700 ..."
                         value={regPhone}
                         onChange={(e) => setRegPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                       />
                     </div>
                     <div>
@@ -1412,7 +1592,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                         placeholder="pharmacy@domain.com"
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                       />
                     </div>
                   </div>
@@ -1425,7 +1605,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                       placeholder="e.g. Ground Floor, Plaza 4, Ngong Road, Nairobi"
                       value={regAddress}
                       onChange={(e) => setRegAddress(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F7F5] border border-[#D8E2DC]"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F1FAF4] border border-[#E8F5EE]"
                     />
                   </div>
 
@@ -1439,7 +1619,7 @@ export const PharmacyDashboard: React.FC<PharmacyDashboardProps> = ({
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold shadow-sm"
+                      className="px-5 py-2.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold shadow-sm"
                     >
                       Submit for Admin Verification
                     </button>

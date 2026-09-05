@@ -79,16 +79,16 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const driverY = u * u * u * p0.y + 3 * u * u * tNorm * c1.y + 3 * u * tNorm * tNorm * c2.y + tNorm * tNorm * tNorm * p1.y;
 
   return (
-    <div className="bg-white rounded-3xl border border-[#D8E2DC] shadow-xs overflow-hidden" id="interactive-gps-map">
+    <div className="bg-white rounded-3xl border border-[#E8F5EE] shadow-xs overflow-hidden" id="interactive-gps-map">
       {/* Map Header & Controls */}
-      <div className="p-4 bg-[#F8FAF9] border-b border-[#D8E2DC] flex flex-wrap items-center justify-between gap-3">
+      <div className="p-4 bg-[#F1FAF4] border-b border-[#E8F5EE] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#D8F3DC] text-[#2D6A4F] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-[#E8F5EE] text-[#0E7A4B] flex items-center justify-center">
             <Navigation className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-black text-[#1B4332]">
+              <h3 className="text-sm font-black text-[#111827]">
                 {isAr ? 'تتبع مسار التوصيل المباشر GPS' : 'Live GPS Delivery Tracking & Route'}
               </h3>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 animate-pulse">
@@ -108,8 +108,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             onClick={() => setActiveZoneLayer(!activeZoneLayer)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeZoneLayer 
-                ? 'bg-[#1B4332] text-white' 
-                : 'bg-white text-[#2D6A4F] border border-[#D8E2DC] hover:bg-[#E9F5EE]'
+                ? 'bg-[#0E7A4B] text-white' 
+                : 'bg-white text-[#0E7A4B] border border-[#E8F5EE] hover:bg-[#E8F5EE]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -119,9 +119,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           {onOpenQrVerification && (
             <button
               onClick={() => onOpenQrVerification(order)}
-              className="px-3 py-1.5 rounded-xl bg-[#E8F5E9] hover:bg-[#D8F3DC] text-[#1B4332] border border-[#52B788] text-xs font-black flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-[#E8F5EE] hover:bg-[#E8F5EE] text-[#111827] border border-[#D0EADB] text-xs font-black flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#2D6A4F]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0E7A4B]" />
               <span>{isAr ? 'رمز QR الآمن' : 'Safe QR Code'}</span>
             </button>
           )}
@@ -144,8 +144,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
             {/* Zone Fill Gradients */}
             <radialGradient id="zoneA" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#52B788" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#52B788" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#0E7A4B" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#0E7A4B" stopOpacity="0.02" />
             </radialGradient>
             <radialGradient id="zoneB" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#F4A261" stopOpacity="0.15" />
@@ -166,8 +166,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           {/* Delivery Zones Overlay */}
           {activeZoneLayer && (
             <g className="transition-opacity duration-300">
-              <circle cx="120" cy="280" r="180" fill="url(#zoneA)" stroke="#52B788" strokeWidth="1.5" strokeDasharray="4 4" />
-              <text x="70" y="380" fill="#2D6A4F" fontSize="10" fontWeight="bold">Zone A (Express &lt; 45m)</text>
+              <circle cx="120" cy="280" r="180" fill="url(#zoneA)" stroke="#0E7A4B" strokeWidth="1.5" strokeDasharray="4 4" />
+              <text x="70" y="380" fill="#0E7A4B" fontSize="10" fontWeight="bold">Zone A (Express &lt; 45m)</text>
 
               <circle cx="120" cy="280" r="320" fill="url(#zoneB)" stroke="#F4A261" strokeWidth="1.5" strokeDasharray="6 6" />
               <text x="350" y="385" fill="#B26A28" fontSize="10" fontWeight="bold">Zone B (Metro Wide &lt; 90m)</text>
@@ -178,7 +178,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <path
             d="M 120 280 C 340 290, 460 120, 680 110"
             fill="none"
-            stroke="#1B4332"
+            stroke="#0E7A4B"
             strokeWidth="5"
             strokeLinecap="round"
             strokeDasharray="6 4"
@@ -189,18 +189,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <path
             d={`M 120 280 Q ${c1.x} ${c1.y} ${driverX} ${driverY}`}
             fill="none"
-            stroke="#2D6A4F"
+            stroke="#0E7A4B"
             strokeWidth="6"
             strokeLinecap="round"
           />
 
           {/* 1. Origin: Licensed Pharmacy Marker */}
           <g transform="translate(120, 280)">
-            <circle r="22" fill="#1B4332" opacity="0.15" />
-            <circle r="14" fill="#1B4332" />
+            <circle r="22" fill="#0E7A4B" opacity="0.15" />
+            <circle r="14" fill="#0E7A4B" />
             <path d="M -5 -5 L 5 -5 L 5 5 L -5 5 Z" fill="#FFFFFF" />
-            <path d="M 0 -7 L 0 7 M -7 0 L 7 0" stroke="#1B4332" strokeWidth="2.5" />
-            <text x="20" y="5" fill="#1B4332" fontSize="11" fontWeight="bold">
+            <path d="M 0 -7 L 0 7 M -7 0 L 7 0" stroke="#0E7A4B" strokeWidth="2.5" />
+            <text x="20" y="5" fill="#0E7A4B" fontSize="11" fontWeight="bold">
               {order.pharmacyName}
             </text>
           </g>
@@ -210,37 +210,37 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             <circle r="24" fill="#E63946" opacity="0.18" />
             <circle r="15" fill="#E63946" />
             <circle r="5" fill="#FFFFFF" />
-            <text x="-120" y="-12" fill="#1B4332" fontSize="11" fontWeight="bold">
+            <text x="-120" y="-12" fill="#0E7A4B" fontSize="11" fontWeight="bold">
               {order.deliveryAddress}
             </text>
           </g>
 
           {/* 3. Live Driver Position Icon */}
           <g transform={`translate(${driverX}, ${driverY})`}>
-            <circle r="20" fill="#52B788" opacity="0.25" className="animate-ping" />
-            <circle r="16" fill="#1B4332" stroke="#FFFFFF" strokeWidth="3" />
-            <circle r="5" fill="#74C69D" />
+            <circle r="20" fill="#0E7A4B" opacity="0.25" className="animate-ping" />
+            <circle r="16" fill="#0E7A4B" stroke="#FFFFFF" strokeWidth="3" />
+            <circle r="5" fill="#10B981" />
           </g>
         </svg>
 
         {/* Live Driver Telemetry Card Floating Overlay */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-[#D8E2DC] shadow-md max-w-[260px] sm:max-w-xs space-y-2">
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-[#E8F5EE] shadow-md max-w-[260px] sm:max-w-xs space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#1B4332] text-white flex items-center justify-center font-bold text-xs">
+              <div className="w-7 h-7 rounded-lg bg-[#0E7A4B] text-white flex items-center justify-center font-bold text-xs">
                 🏍️
               </div>
               <div>
-                <p className="text-xs font-black text-[#1B4332]">{order.driverName || 'Musa Kato'}</p>
+                <p className="text-xs font-black text-[#111827]">{order.driverName || 'Musa Kato'}</p>
                 <p className="text-[10px] text-gray-500">{order.driverVehicle || 'Yamaha YBR125'}</p>
               </div>
             </div>
-            <span className="text-xs font-black text-[#2D6A4F] font-mono">{driverSpeed} km/h</span>
+            <span className="text-xs font-black text-[#0E7A4B] font-mono">{driverSpeed} km/h</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#E9F5EE] text-[11px]">
+          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#E8F5EE] text-[11px]">
             <div className="flex items-center gap-1.5 text-gray-600">
-              <Clock className="w-3.5 h-3.5 text-[#2D6A4F]" />
+              <Clock className="w-3.5 h-3.5 text-[#0E7A4B]" />
               <span>ETA: <strong>{etaMinutes} mins</strong></span>
             </div>
             <div className="flex items-center gap-1.5 text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
@@ -251,13 +251,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </div>
 
         {/* PIN Security Code Card Floating Overlay */}
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-[#D8E2DC] shadow-md flex items-center gap-3">
+        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-[#E8F5EE] shadow-md flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black">
             <Key className="w-4 h-4" />
           </div>
           <div>
             <p className="text-[10px] text-gray-500 font-bold uppercase">{isAr ? 'رمز تسليم الطلب' : 'Delivery PIN'}</p>
-            <p className="text-base font-black text-[#1B4332] tracking-widest font-mono">
+            <p className="text-base font-black text-[#111827] tracking-widest font-mono">
               {order.deliveryOtp || '4921'}
             </p>
           </div>
@@ -265,10 +265,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       </div>
 
       {/* Driver Contact & Delivery Status Bar */}
-      <div className="p-4 bg-white border-t border-[#D8E2DC] flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="p-4 bg-white border-t border-[#E8F5EE] flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-gray-600">
-            <ShieldCheck className="w-4 h-4 text-[#2D6A4F]" />
+            <ShieldCheck className="w-4 h-4 text-[#0E7A4B]" />
             <span>
               {isAr 
                 ? 'الحقيبة المعزولة مختومة ومراقبة حرارياً (2°C - 8°C)' 
@@ -281,7 +281,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           {onCallDriver && order.driverPhone && (
             <button
               onClick={() => onCallDriver(order.driverPhone!)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>{isAr ? 'اتصال بالسائق' : 'Call Courier'}</span>
@@ -292,7 +292,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             href={`https://wa.me/${(selectedCountry.whatsappSupportNumber || '+256700000000').replace(/\D/g, '')}?text=Help%20with%20Order%20${order.orderNumber}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#1B4332] border border-[#52B788] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#111827] border border-[#D0EADB] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
             <span>{isAr ? 'دعم واتساب' : 'WhatsApp Support'}</span>

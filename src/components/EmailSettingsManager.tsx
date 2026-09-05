@@ -388,19 +388,19 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-6 right-6 z-50 bg-[#1B4332] text-white px-5 py-3 rounded-2xl shadow-xl border border-[#74C69D]/40 flex items-center gap-3 text-sm font-bold"
+            className="fixed top-6 right-6 z-50 bg-[#0E7A4B] text-white px-5 py-3 rounded-2xl shadow-xl border border-[#D0EADB]/40 flex items-center gap-3 text-sm font-bold"
           >
-            <CheckCircle2 className="w-5 h-5 text-[#74C69D]" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-300" />
             <span>{saveToast}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-br from-[#1B4332] via-[#2D6A4F] to-[#1B4332] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#2D6A4F]/40 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-[#0E7A4B] text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#0B6B43] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#74C69D] text-xs font-bold border border-white/15 mb-2">
-            <Mail className="w-4 h-4 text-[#74C69D]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-bold border border-white/15 mb-2">
+            <Mail className="w-4 h-4 text-emerald-300" />
             <span>
               {isRtl ? 'نظام البريد الإلكتروني الحقيقي و SMTP' : 'Production Email & SMTP Delivery Network'}
             </span>
@@ -408,7 +408,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           <h2 className="text-xl sm:text-2xl font-black text-white">
             {isRtl ? 'إعدادات البريد الإلكتروني وخوادم الإرسال' : 'Real Email & SMTP Server Configuration'}
           </h2>
-          <p className="text-xs text-[#D8F3DC]/80 mt-1 max-w-2xl">
+          <p className="text-xs text-white/80/80 mt-1 max-w-2xl">
             {isRtl 
               ? 'إدارة خوادم الإرسال الحقيقية عبر Resend API و Custom SMTP، مع التحكم في 30 قالب إلكتروني بثلاث لغات وسجلات التسليم.' 
               : 'Configure real-world email delivery through Resend API and Custom SMTP, manage 30 multilingual clinical templates, and monitor deliverability.'}
@@ -428,7 +428,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
 
           <button
             onClick={() => setActiveSubTab('test')}
-            className="px-4 py-2 rounded-2xl bg-[#74C69D] hover:bg-[#52B788] text-[#1B4332] text-xs font-black shadow-sm flex items-center gap-2 transition cursor-pointer"
+            className="px-4 py-2 rounded-2xl bg-white text-[#0E7A4B] hover:bg-[#E8F5EE] text-xs font-black shadow-sm flex items-center gap-2 transition cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isRtl ? 'إرسال بريد اختباري' : 'Send Test Email'}</span>
@@ -443,12 +443,12 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className={`p-4 rounded-2xl border flex items-start gap-3 text-xs sm:text-sm font-semibold ${
             connectionTestResult.success 
-              ? 'bg-[#E8F5E9] text-[#1B4332] border-[#74C69D]' 
+              ? 'bg-[#E8F5EE] text-[#111827] border-[#D0EADB]' 
               : 'bg-red-50 text-red-900 border-red-200'
           }`}
         >
           {connectionTestResult.success ? (
-            <CheckCircle2 className="w-5 h-5 text-[#2D6A4F] shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-[#0E7A4B] shrink-0 mt-0.5" />
           ) : (
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           )}
@@ -470,13 +470,13 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
       {/* System Status Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Active Gateway Card */}
-        <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs">
+        <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between text-xs text-neutral-500 font-bold mb-1.5">
             <span>{isRtl ? 'المزود النشط' : 'Active Provider'}</span>
-            <Server className="w-4 h-4 text-[#2D6A4F]" />
+            <Server className="w-4 h-4 text-[#0E7A4B]" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-black text-[#1B4332] uppercase">
+            <span className="text-lg font-black text-[#111827] uppercase">
               {settings.activeProvider}
             </span>
             <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
@@ -489,7 +489,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
         </div>
 
         {/* Sent Today */}
-        <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs">
+        <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between text-xs text-neutral-500 font-bold mb-1.5">
             <span>{isRtl ? 'المرسل اليوم' : 'Sent Today'}</span>
             <Send className="w-4 h-4 text-emerald-600" />
@@ -506,10 +506,10 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
         </div>
 
         {/* Templates Loaded */}
-        <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs">
+        <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between text-xs text-neutral-500 font-bold mb-1.5">
             <span>{isRtl ? 'قوالب النظام' : 'System Templates'}</span>
-            <Layers className="w-4 h-4 text-[#52B788]" />
+            <Layers className="w-4 h-4 text-[#0E7A4B]" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-black text-neutral-900">
@@ -525,16 +525,16 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
         </div>
 
         {/* Security & Encryption */}
-        <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs">
+        <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs">
           <div className="flex items-center justify-between text-xs text-neutral-500 font-bold mb-1.5">
             <span>{isRtl ? 'التشفير والأمان' : 'Security & TLS'}</span>
-            <ShieldCheck className="w-4 h-4 text-[#1B4332]" />
+            <ShieldCheck className="w-4 h-4 text-[#111827]" />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-black text-neutral-900">
               {settings.smtpEncryption || 'TLS'}
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-[#D8F3DC] text-[#1B4332] text-[10px] font-black">
+            <span className="px-2 py-0.5 rounded-full bg-[#E8F5EE] text-[#111827] text-[10px] font-black">
               AES-256
             </span>
           </div>
@@ -545,13 +545,13 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#D8E2DC] pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-[#E8F5EE] pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveSubTab('config')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'config'
-              ? 'bg-[#1B4332] text-white shadow-xs'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
+              : 'bg-white text-[#0E7A4B] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <Sliders className="w-4 h-4" />
@@ -562,8 +562,8 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           onClick={() => setActiveSubTab('templates')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'templates'
-              ? 'bg-[#1B4332] text-white shadow-xs'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
+              : 'bg-white text-[#0E7A4B] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -574,8 +574,8 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           onClick={() => setActiveSubTab('logs')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'logs'
-              ? 'bg-[#1B4332] text-white shadow-xs'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
+              : 'bg-white text-[#0E7A4B] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
           <Clock className="w-4 h-4" />
@@ -586,11 +586,11 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           onClick={() => setActiveSubTab('test')}
           className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 ${
             activeSubTab === 'test'
-              ? 'bg-[#1B4332] text-white shadow-xs'
-              : 'bg-white text-[#2D6A4F] hover:bg-[#E8F5E9] border border-[#D8E2DC]'
+              ? 'bg-[#0E7A4B] text-white shadow-xs'
+              : 'bg-white text-[#0E7A4B] hover:bg-[#E8F5EE] border border-[#E8F5EE]'
           }`}
         >
-          <Send className="w-4 h-4 text-[#74C69D]" />
+          <Send className="w-4 h-4 text-emerald-300" />
           <span>{isRtl ? 'أداة الإرسال المباشر' : 'Live Test Dispatcher'}</span>
         </button>
       </div>
@@ -602,10 +602,10 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
         <form onSubmit={handleSaveSettings} className="space-y-6">
           
           {/* Sender Identity Section */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#D8E2DC] shadow-xs space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8F5EE] shadow-xs space-y-6">
             <div>
-              <h3 className="text-base sm:text-lg font-black text-[#1B4332] flex items-center gap-2">
-                <Globe className="w-5 h-5 text-[#2D6A4F]" />
+              <h3 className="text-base sm:text-lg font-black text-[#111827] flex items-center gap-2">
+                <Globe className="w-5 h-5 text-[#0E7A4B]" />
                 <span>{isRtl ? 'هوية المرسل الرسمية (Sender Identity)' : 'Official Sender Identity'}</span>
               </h3>
               <p className="text-xs text-neutral-500 mt-1">
@@ -625,7 +625,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.senderName}
                   onChange={(e) => setSettings({ ...settings, senderName: e.target.value })}
                   placeholder="DAWA MED"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   required
                 />
               </div>
@@ -639,7 +639,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.senderEmail}
                   onChange={(e) => setSettings({ ...settings, senderEmail: e.target.value })}
                   placeholder="no-reply@dawamed.com"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   required
                 />
               </div>
@@ -653,7 +653,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.replyToEmail}
                   onChange={(e) => setSettings({ ...settings, replyToEmail: e.target.value })}
                   placeholder="support@dawamed.com"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   required
                 />
               </div>
@@ -661,10 +661,10 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           </div>
 
           {/* Active Provider Selector */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#D8E2DC] shadow-xs space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8F5EE] shadow-xs space-y-6">
             <div>
-              <h3 className="text-base sm:text-lg font-black text-[#1B4332] flex items-center gap-2">
-                <Server className="w-5 h-5 text-[#2D6A4F]" />
+              <h3 className="text-base sm:text-lg font-black text-[#111827] flex items-center gap-2">
+                <Server className="w-5 h-5 text-[#0E7A4B]" />
                 <span>{isRtl ? 'اختيار مزود الخدمة وطريقة الإرسال' : 'Active Provider & Delivery Method'}</span>
               </h3>
               <p className="text-xs text-neutral-500 mt-1">
@@ -680,18 +680,18 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 onClick={() => setSettings({ ...settings, activeProvider: 'resend' })}
                 className={`p-5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-4 ${
                   settings.activeProvider === 'resend'
-                    ? 'border-[#2D6A4F] bg-[#E8F5E9]/40'
-                    : 'border-[#D8E2DC] hover:border-neutral-400 bg-white'
+                    ? 'border-[#0E7A4B] bg-[#E8F5EE]/40'
+                    : 'border-[#E8F5EE] hover:border-neutral-400 bg-white'
                 }`}
               >
-                <div className={`p-2 rounded-xl ${settings.activeProvider === 'resend' ? 'bg-[#2D6A4F] text-white' : 'bg-neutral-100 text-neutral-600'}`}>
+                <div className={`p-2 rounded-xl ${settings.activeProvider === 'resend' ? 'bg-[#0E7A4B] text-white' : 'bg-neutral-100 text-neutral-600'}`}>
                   <Zap className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-black text-neutral-900">Resend Cloud API</h4>
                     {settings.activeProvider === 'resend' && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#2D6A4F] text-white text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-[#0E7A4B] text-white text-[10px] font-bold">
                         {isRtl ? 'نشط حالياً' : 'Selected'}
                       </span>
                     )}
@@ -709,18 +709,18 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 onClick={() => setSettings({ ...settings, activeProvider: 'smtp' })}
                 className={`p-5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-4 ${
                   settings.activeProvider === 'smtp'
-                    ? 'border-[#2D6A4F] bg-[#E8F5E9]/40'
-                    : 'border-[#D8E2DC] hover:border-neutral-400 bg-white'
+                    ? 'border-[#0E7A4B] bg-[#E8F5EE]/40'
+                    : 'border-[#E8F5EE] hover:border-neutral-400 bg-white'
                 }`}
               >
-                <div className={`p-2 rounded-xl ${settings.activeProvider === 'smtp' ? 'bg-[#2D6A4F] text-white' : 'bg-neutral-100 text-neutral-600'}`}>
+                <div className={`p-2 rounded-xl ${settings.activeProvider === 'smtp' ? 'bg-[#0E7A4B] text-white' : 'bg-neutral-100 text-neutral-600'}`}>
                   <Server className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-black text-neutral-900">Custom SMTP Server</h4>
                     {settings.activeProvider === 'smtp' && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#2D6A4F] text-white text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-[#0E7A4B] text-white text-[10px] font-bold">
                         {isRtl ? 'نشط حالياً' : 'Selected'}
                       </span>
                     )}
@@ -741,7 +741,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 id="fallback-toggle"
                 checked={settings.fallbackEnabled}
                 onChange={(e) => setSettings({ ...settings, fallbackEnabled: e.target.checked })}
-                className="w-4 h-4 text-[#2D6A4F] rounded cursor-pointer accent-[#2D6A4F]"
+                className="w-4 h-4 text-[#0E7A4B] rounded cursor-pointer accent-[#0E7A4B]"
               />
               <label htmlFor="fallback-toggle" className="text-xs font-bold text-neutral-700 cursor-pointer">
                 {isRtl 
@@ -752,11 +752,11 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           </div>
 
           {/* Resend API Key Configuration */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#D8E2DC] shadow-xs space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8F5EE] shadow-xs space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base sm:text-lg font-black text-[#1B4332] flex items-center gap-2">
-                  <Key className="w-5 h-5 text-[#2D6A4F]" />
+                <h3 className="text-base sm:text-lg font-black text-[#111827] flex items-center gap-2">
+                  <Key className="w-5 h-5 text-[#0E7A4B]" />
                   <span>{isRtl ? 'إعدادات Resend API' : 'Resend API Credentials'}</span>
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
@@ -779,7 +779,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     value={settings.resendApiKey || ''}
                     onChange={(e) => setSettings({ ...settings, resendApiKey: e.target.value })}
                     placeholder="re_prod_xxxxxxxxxxxxxx"
-                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 pr-10 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 pr-10 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   />
                   <button
                     type="button"
@@ -800,18 +800,18 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.resendDomain || 'dawamed.com'}
                   onChange={(e) => setSettings({ ...settings, resendDomain: e.target.value })}
                   placeholder="dawamed.com"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
             </div>
           </div>
 
           {/* SMTP Credentials Configuration */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#D8E2DC] shadow-xs space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8F5EE] shadow-xs space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base sm:text-lg font-black text-[#1B4332] flex items-center gap-2">
-                  <Server className="w-5 h-5 text-[#2D6A4F]" />
+                <h3 className="text-base sm:text-lg font-black text-[#111827] flex items-center gap-2">
+                  <Server className="w-5 h-5 text-[#0E7A4B]" />
                   <span>{isRtl ? 'إعدادات خادم SMTP (Custom SMTP Relay)' : 'Custom SMTP Relay Settings'}</span>
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
@@ -833,7 +833,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.smtpHost || ''}
                   onChange={(e) => setSettings({ ...settings, smtpHost: e.target.value })}
                   placeholder="smtp.resend.com or smtp.sendgrid.net"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
 
@@ -844,7 +844,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 <select
                   value={settings.smtpPort || 587}
                   onChange={(e) => setSettings({ ...settings, smtpPort: parseInt(e.target.value, 10) })}
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F] bg-white cursor-pointer"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B] bg-white cursor-pointer"
                 >
                   <option value={587}>587 (TLS / STARTTLS - Recommended)</option>
                   <option value={465}>465 (SSL / Secure)</option>
@@ -862,7 +862,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 <select
                   value={settings.smtpEncryption || 'TLS'}
                   onChange={(e) => setSettings({ ...settings, smtpEncryption: e.target.value as any })}
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F] bg-white cursor-pointer"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B] bg-white cursor-pointer"
                 >
                   <option value="TLS">TLS</option>
                   <option value="SSL">SSL</option>
@@ -880,7 +880,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   value={settings.smtpUsername || ''}
                   onChange={(e) => setSettings({ ...settings, smtpUsername: e.target.value })}
                   placeholder="resend or apikey"
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                 />
               </div>
 
@@ -894,7 +894,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     value={settings.smtpPassword || ''}
                     onChange={(e) => setSettings({ ...settings, smtpPassword: e.target.value })}
                     placeholder="••••••••••••"
-                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 pr-10 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 pr-10 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   />
                   <button
                     type="button"
@@ -914,7 +914,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
               type="button"
               onClick={() => handleTestConnection()}
               disabled={isTestingConnection}
-              className="px-6 py-3 rounded-2xl bg-white hover:bg-neutral-50 text-[#1B4332] text-xs sm:text-sm font-bold border border-[#D8E2DC] flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+              className="px-6 py-3 rounded-2xl bg-white hover:bg-neutral-50 text-[#111827] text-xs sm:text-sm font-bold border border-[#E8F5EE] flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isTestingConnection ? 'animate-spin' : ''}`} />
               <span>{isRtl ? 'اختبار صحة الإعدادات' : 'Verify Connection'}</span>
@@ -923,7 +923,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
             <button
               type="submit"
               disabled={isSavingSettings}
-              className="px-8 py-3 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs sm:text-sm font-black shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-8 py-3 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs sm:text-sm font-black shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Check className="w-4 h-4" />
               <span>{isSavingSettings ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? 'حفظ إعدادات البريد' : 'Save Email Settings')}</span>
@@ -938,7 +938,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
       {activeSubTab === 'templates' && (
         <div className="space-y-6">
           {/* Controls Bar */}
-          <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex-1 w-full sm:w-auto relative">
               <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
               <input
@@ -946,7 +946,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 value={templateSearch}
                 onChange={(e) => setTemplateSearch(e.target.value)}
                 placeholder={isRtl ? 'البحث في 30 قالب بريد...' : 'Search 30 production email templates...'}
-                className="w-full text-xs font-semibold pl-9 pr-4 py-2.5 rounded-2xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full text-xs font-semibold pl-9 pr-4 py-2.5 rounded-2xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
@@ -955,7 +955,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
               <select
                 value={templateCategoryFilter}
                 onChange={(e) => setTemplateCategoryFilter(e.target.value)}
-                className="text-xs font-bold px-3 py-2 rounded-2xl border border-[#D8E2DC] bg-white cursor-pointer focus:outline-none"
+                className="text-xs font-bold px-3 py-2 rounded-2xl border border-[#E8F5EE] bg-white cursor-pointer focus:outline-none"
               >
                 <option value="all">{isRtl ? 'جميع الفئات (All Categories)' : 'All Categories'}</option>
                 <option value="auth">{isRtl ? 'الحسابات والدخول (Auth & Accounts)' : 'Auth & Accounts'}</option>
@@ -977,11 +977,11 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
             {filteredTemplates.map((tpl) => (
               <div
                 key={tpl.id}
-                className="bg-white rounded-3xl p-5 border border-[#D8E2DC] shadow-xs hover:border-[#2D6A4F] transition flex flex-col justify-between"
+                className="bg-white rounded-3xl p-5 border border-[#E8F5EE] shadow-xs hover:border-[#0E7A4B] transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#E8F5E9] text-[#1B4332] text-[10px] font-black uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#E8F5EE] text-[#111827] text-[10px] font-black uppercase">
                       {tpl.category}
                     </span>
                     <span className="text-[10px] font-mono text-neutral-400">
@@ -1019,7 +1019,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
                   <button
                     onClick={() => handleOpenTemplateModal(tpl)}
-                    className="px-3 py-1.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     <span>{isRtl ? 'معاينة وتعديل' : 'Preview & Edit'}</span>
@@ -1030,7 +1030,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                       setTestTemplateId(tpl.id);
                       setActiveSubTab('test');
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-[#2D6A4F] text-xs font-bold border border-[#D8E2DC] flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-[#0E7A4B] text-xs font-bold border border-[#E8F5EE] flex items-center gap-1.5 cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isRtl ? 'إرسال اختباري' : 'Send Test'}</span>
@@ -1048,7 +1048,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
       {activeSubTab === 'logs' && (
         <div className="space-y-6">
           {/* Filter Bar */}
-          <div className="bg-white p-5 rounded-3xl border border-[#D8E2DC] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8F5EE] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex-1 w-full sm:w-auto relative">
               <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
               <input
@@ -1056,14 +1056,14 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 value={logSearch}
                 onChange={(e) => setLogSearch(e.target.value)}
                 placeholder={isRtl ? 'البحث بالبريد الإلكتروني أو العنوان...' : 'Search logs by recipient or subject...'}
-                className="w-full text-xs font-semibold pl-9 pr-4 py-2.5 rounded-2xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full text-xs font-semibold pl-9 pr-4 py-2.5 rounded-2xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={fetchLogs}
-                className="p-2.5 rounded-2xl border border-[#D8E2DC] hover:bg-neutral-50 text-neutral-600 cursor-pointer"
+                className="p-2.5 rounded-2xl border border-[#E8F5EE] hover:bg-neutral-50 text-neutral-600 cursor-pointer"
                 title="Refresh logs"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -1072,7 +1072,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
               <select
                 value={logFilterStatus}
                 onChange={(e) => setLogFilterStatus(e.target.value)}
-                className="text-xs font-bold px-3.5 py-2.5 rounded-2xl border border-[#D8E2DC] bg-white cursor-pointer focus:outline-none"
+                className="text-xs font-bold px-3.5 py-2.5 rounded-2xl border border-[#E8F5EE] bg-white cursor-pointer focus:outline-none"
               >
                 <option value="all">{isRtl ? 'جميع الحالات' : 'All Statuses'}</option>
                 <option value="sent">{isRtl ? 'تم التسليم (Sent)' : 'Sent'}</option>
@@ -1083,11 +1083,11 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
           </div>
 
           {/* Logs Table */}
-          <div className="bg-white rounded-3xl border border-[#D8E2DC] overflow-hidden shadow-xs">
+          <div className="bg-white rounded-3xl border border-[#E8F5EE] overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-neutral-50 border-b border-[#D8E2DC] text-[11px] font-black text-neutral-600 uppercase tracking-wider">
+                  <tr className="bg-neutral-50 border-b border-[#E8F5EE] text-[11px] font-black text-neutral-600 uppercase tracking-wider">
                     <th className="py-3.5 px-4">{isRtl ? 'معرف الرسالة' : 'Message ID'}</th>
                     <th className="py-3.5 px-4">{isRtl ? 'المستلم' : 'Recipient'}</th>
                     <th className="py-3.5 px-4">{isRtl ? 'القالب / الموضوع' : 'Template / Subject'}</th>
@@ -1117,7 +1117,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                           )}
                         </td>
                         <td className="py-3 px-4 max-w-xs">
-                          <p className="font-bold text-[#1B4332] truncate">{log.templateName}</p>
+                          <p className="font-bold text-[#111827] truncate">{log.templateName}</p>
                           <p className="text-[11px] text-neutral-500 truncate">{log.subject}</p>
                         </td>
                         <td className="py-3 px-4 uppercase font-bold text-neutral-600 text-[11px]">
@@ -1150,7 +1150,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                           {log.status === 'failed' && (
                             <button
                               onClick={() => handleRetryLog(log.id)}
-                              className="px-2.5 py-1 rounded-lg bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-[11px] font-bold cursor-pointer"
+                              className="px-2.5 py-1 rounded-lg bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-[11px] font-bold cursor-pointer"
                             >
                               {isRtl ? 'إعادة الإرسال' : 'Retry'}
                             </button>
@@ -1170,10 +1170,10 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
       {/* 4. LIVE TEST DISPATCHER SUB-TAB */}
       {/* ========================================================================= */}
       {activeSubTab === 'test' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#D8E2DC] shadow-xs space-y-6 max-w-3xl mx-auto">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8F5EE] shadow-xs space-y-6 max-w-3xl mx-auto">
           <div>
-            <h3 className="text-base sm:text-lg font-black text-[#1B4332] flex items-center gap-2">
-              <Send className="w-5 h-5 text-[#2D6A4F]" />
+            <h3 className="text-base sm:text-lg font-black text-[#111827] flex items-center gap-2">
+              <Send className="w-5 h-5 text-[#0E7A4B]" />
               <span>{isRtl ? 'أداة الإرسال المباشر للبريد الإلكتروني' : 'Live Email Dispatch Tester'}</span>
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
@@ -1193,7 +1193,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 value={testRecipient}
                 onChange={(e) => setTestRecipient(e.target.value)}
                 placeholder="doctor@example.com"
-                className="w-full text-xs font-semibold px-4 py-3 rounded-2xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                className="w-full text-xs font-semibold px-4 py-3 rounded-2xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                 required
               />
             </div>
@@ -1206,7 +1206,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                 <select
                   value={testTemplateId}
                   onChange={(e) => setTestTemplateId(e.target.value)}
-                  className="w-full text-xs font-semibold px-4 py-3 rounded-2xl border border-[#D8E2DC] bg-white cursor-pointer focus:outline-none"
+                  className="w-full text-xs font-semibold px-4 py-3 rounded-2xl border border-[#E8F5EE] bg-white cursor-pointer focus:outline-none"
                 >
                   {templates.map(t => (
                     <option key={t.id} value={t.id}>
@@ -1225,7 +1225,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     type="button"
                     onClick={() => setTestLanguage('ar')}
                     className={`py-2.5 text-xs font-bold rounded-xl border cursor-pointer ${
-                      testLanguage === 'ar' ? 'bg-[#1B4332] text-white border-[#1B4332]' : 'bg-white text-neutral-700 border-[#D8E2DC]'
+                      testLanguage === 'ar' ? 'bg-[#0E7A4B] text-white border-[#0B6B43]' : 'bg-white text-neutral-700 border-[#E8F5EE]'
                     }`}
                   >
                     العربية (RTL)
@@ -1234,7 +1234,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     type="button"
                     onClick={() => setTestLanguage('en')}
                     className={`py-2.5 text-xs font-bold rounded-xl border cursor-pointer ${
-                      testLanguage === 'en' ? 'bg-[#1B4332] text-white border-[#1B4332]' : 'bg-white text-neutral-700 border-[#D8E2DC]'
+                      testLanguage === 'en' ? 'bg-[#0E7A4B] text-white border-[#0B6B43]' : 'bg-white text-neutral-700 border-[#E8F5EE]'
                     }`}
                   >
                     English (LTR)
@@ -1243,7 +1243,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     type="button"
                     onClick={() => setTestLanguage('fr')}
                     className={`py-2.5 text-xs font-bold rounded-xl border cursor-pointer ${
-                      testLanguage === 'fr' ? 'bg-[#1B4332] text-white border-[#1B4332]' : 'bg-white text-neutral-700 border-[#D8E2DC]'
+                      testLanguage === 'fr' ? 'bg-[#0E7A4B] text-white border-[#0B6B43]' : 'bg-white text-neutral-700 border-[#E8F5EE]'
                     }`}
                   >
                     Français (LTR)
@@ -1268,7 +1268,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
               <button
                 type="submit"
                 disabled={isSendingTest}
-                className="w-full py-3.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-sm font-black shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition"
+                className="w-full py-3.5 rounded-2xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-sm font-black shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition"
               >
                 <Send className={`w-4 h-4 ${isSendingTest ? 'animate-bounce' : ''}`} />
                 <span>{isSendingTest ? (isRtl ? 'جاري الإرسال...' : 'Dispatching Email...') : (isRtl ? 'إرسال الرسالة الاختبارية الآن' : 'Dispatch Test Email Now')}</span>
@@ -1288,18 +1288,18 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-[#D8E2DC] overflow-hidden my-8"
+              className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-[#E8F5EE] overflow-hidden my-8"
             >
               {/* Modal Header */}
-              <div className="bg-[#1B4332] text-white p-6 flex items-center justify-between">
+              <div className="bg-[#0E7A4B] text-white p-6 flex items-center justify-between">
                 <div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-[#74C69D] text-[10px] font-black uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-emerald-300 text-[10px] font-black uppercase">
                     {selectedTemplate.category}
                   </span>
                   <h3 className="text-lg font-black text-white mt-1">
                     {selectedTemplate.name}
                   </h3>
-                  <p className="text-xs text-[#D8F3DC]/80">{selectedTemplate.description}</p>
+                  <p className="text-xs text-white/80/80">{selectedTemplate.description}</p>
                 </div>
 
                 <button
@@ -1320,7 +1320,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   <button
                     onClick={() => handleSwitchTemplateLanguage('ar')}
                     className={`px-3 py-1 rounded-xl text-xs font-bold cursor-pointer ${
-                      templateLanguage === 'ar' ? 'bg-[#1B4332] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
+                      templateLanguage === 'ar' ? 'bg-[#0E7A4B] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
                     }`}
                   >
                     العربية (RTL)
@@ -1328,7 +1328,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   <button
                     onClick={() => handleSwitchTemplateLanguage('en')}
                     className={`px-3 py-1 rounded-xl text-xs font-bold cursor-pointer ${
-                      templateLanguage === 'en' ? 'bg-[#1B4332] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
+                      templateLanguage === 'en' ? 'bg-[#0E7A4B] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
                     }`}
                   >
                     English (LTR)
@@ -1336,7 +1336,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                   <button
                     onClick={() => handleSwitchTemplateLanguage('fr')}
                     className={`px-3 py-1 rounded-xl text-xs font-bold cursor-pointer ${
-                      templateLanguage === 'fr' ? 'bg-[#1B4332] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
+                      templateLanguage === 'fr' ? 'bg-[#0E7A4B] text-white' : 'bg-white text-neutral-600 border border-neutral-200'
                     }`}
                   >
                     Français (LTR)
@@ -1356,7 +1356,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     value={editingSubject}
                     onChange={(e) => setEditingSubject(e.target.value)}
                     dir={templateLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    className="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-[#D8E2DC] focus:outline-none focus:border-[#2D6A4F]"
+                    className="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-[#E8F5EE] focus:outline-none focus:border-[#0E7A4B]"
                   />
                 </div>
 
@@ -1409,7 +1409,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
                     type="button"
                     onClick={handleSaveTemplateEdit}
                     disabled={isSavingTemplate}
-                    className="px-6 py-2.5 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-xs"
+                    className="px-6 py-2.5 rounded-xl bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-xs"
                   >
                     <Check className="w-4 h-4" />
                     <span>{isSavingTemplate ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? 'حفظ التعديلات' : 'Save Changes')}</span>

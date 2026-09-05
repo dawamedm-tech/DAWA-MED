@@ -64,30 +64,30 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
   };
 
   return (
-    <div className="w-full space-y-6" id="orders-hub-container">
+    <div className="w-full space-y-4" id="orders-hub-container">
       {/* Header & Tabs */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#D8E2DC] shadow-xs">
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8F5EE] shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base sm:text-lg font-black text-[#1B4332]">
+            <h2 className="text-base sm:text-lg font-black text-[#111827]">
               {t.myOrdersTitle}
             </h2>
-            <p className="text-xs text-gray-500">{translate('myOrdersSubtitle', language)}</p>
+            <p className="text-xs text-[#6B7280]">{translate('myOrdersSubtitle', language)}</p>
           </div>
 
-          <div className="flex items-center gap-1 p-1 bg-[#F0F7F4] rounded-2xl border border-[#D8E2DC] overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1 p-1 bg-[#F1FAF4] rounded-2xl border border-[#D0EADB] overflow-x-auto max-w-full">
             <button
               onClick={() => setActiveSubTab('active')}
               className={`shrink-0 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'active'
-                  ? 'bg-[#2D6A4F] text-white shadow-xs'
-                  : 'text-[#1B4332] hover:bg-white/60'
+                  ? 'bg-[#0E7A4B] text-white shadow-xs'
+                  : 'text-[#111827] hover:bg-white/60'
               }`}
               id="orders-tab-active"
             >
               <span>{t.tabActiveOrders}</span>
               {activeOrders.length > 0 && (
-                <span className="ms-1.5 px-1.5 py-0.2 bg-[#D8F3DC] text-[#1B4332] text-[10px] font-black rounded-full">
+                <span className="ms-1.5 px-1.5 py-0.2 bg-[#E8F5EE] text-[#0E7A4B] text-[10px] font-black rounded-full">
                   {activeOrders.length}
                 </span>
               )}
@@ -97,14 +97,14 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
               onClick={() => setActiveSubTab('previous')}
               className={`shrink-0 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'previous'
-                  ? 'bg-[#2D6A4F] text-white shadow-xs'
-                  : 'text-[#1B4332] hover:bg-white/60'
+                  ? 'bg-[#0E7A4B] text-white shadow-xs'
+                  : 'text-[#111827] hover:bg-white/60'
               }`}
               id="orders-tab-previous"
             >
               <span>{t.tabPreviousOrders}</span>
               {previousOrders.length > 0 && (
-                <span className="ms-1.5 px-1.5 py-0.2 bg-gray-200 text-gray-700 text-[10px] font-black rounded-full">
+                <span className="ms-1.5 px-1.5 py-0.2 bg-neutral-200 text-neutral-700 text-[10px] font-black rounded-full">
                   {previousOrders.length}
                 </span>
               )}
@@ -114,8 +114,8 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
               onClick={() => setActiveSubTab('cancelled')}
               className={`shrink-0 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'cancelled'
-                  ? 'bg-[#2D6A4F] text-white shadow-xs'
-                  : 'text-[#1B4332] hover:bg-white/60'
+                  ? 'bg-[#0E7A4B] text-white shadow-xs'
+                  : 'text-[#111827] hover:bg-white/60'
               }`}
               id="orders-tab-cancelled"
             >
@@ -126,21 +126,21 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
 
         {/* Order List */}
         {currentList.length === 0 ? (
-          <div className="py-12 sm:py-16 text-center text-gray-400">
-            <Package className="w-10 h-10 mx-auto mb-2 opacity-40 text-[#2D6A4F]" />
+          <div className="py-12 sm:py-16 text-center text-neutral-400">
+            <Package className="w-10 h-10 mx-auto mb-2 opacity-40 text-[#0E7A4B]" />
             <p className="text-xs font-semibold">
               {activeSubTab === 'active' ? t.noActiveOrders : t.noPreviousOrders}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {currentList.map((order) => {
               const isExpanded = expandedOrderId === order.id;
 
               return (
                 <div
                   key={order.id}
-                  className="border border-[#D8E2DC] rounded-3xl overflow-hidden bg-[#F8FAF9] transition-all hover:border-[#74C69D]"
+                  className="border border-[#E8F5EE] rounded-3xl overflow-hidden bg-[#F1FAF4] transition-all hover:border-[#0E7A4B]/40"
                   id={`order-hub-item-${order.id}`}
                 >
                   {/* Summary Header */}
@@ -149,20 +149,20 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
                     className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 cursor-pointer bg-white"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-2xl bg-[#D8F3DC] text-[#2D6A4F] flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-[#E8F5EE] text-[#0E7A4B] flex items-center justify-center shrink-0">
                         <Package className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xs sm:text-sm font-black text-[#1B4332] truncate">
+                          <h3 className="text-xs sm:text-sm font-black text-[#111827] truncate">
                             {order.orderNumber}
                           </h3>
-                          <span className="text-[11px] text-gray-500 font-medium">
+                          <span className="text-[11px] text-[#6B7280] font-medium">
                             • {order.createdAt}
                           </span>
                         </div>
-                        <p className="text-[11px] text-gray-600 flex items-center gap-1.5 mt-0.5 truncate">
-                          <Building2 className="w-3 h-3 text-[#2D6A4F] shrink-0" />
+                        <p className="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-0.5 truncate">
+                          <Building2 className="w-3 h-3 text-[#0E7A4B] shrink-0" />
                           <span className="truncate">{order.pharmacyName}</span>
                           <span>•</span>
                           <span>{order.items.length} {translate('medicationsSelected', language)}</span>
@@ -172,17 +172,17 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
 
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="text-end">
-                        <span className="text-xs sm:text-sm font-black text-[#1B4332]">
+                        <span className="text-xs sm:text-sm font-black text-[#111827]">
                           {formatCurrency(order.totalAmount, selectedCountry, language)}
                         </span>
-                        <span className="block text-[10px] font-bold text-[#2D6A4F] capitalize">
+                        <span className="block text-[10px] font-bold text-[#0E7A4B] capitalize">
                           {order.paymentMethod} • {order.paymentStatus}
                         </span>
                       </div>
 
                       <button
                         type="button"
-                        className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 cursor-pointer"
+                        className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-400 cursor-pointer"
                         aria-label="Toggle details"
                       >
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -192,13 +192,13 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
 
                   {/* Actions & Expanded Detailed Section */}
                   {isExpanded && (
-                    <div className="p-4 sm:p-6 border-t border-[#D8E2DC] bg-[#F8FAF9] space-y-6">
+                    <div className="p-4 sm:p-5 border-t border-[#E8F5EE] bg-[#F1FAF4] space-y-4">
                       {/* Action Bar */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => onReorder(order)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
                             id={`reorder-btn-${order.id}`}
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
@@ -207,20 +207,20 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
 
                           <button
                             onClick={() => onViewReceipt(order)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 text-[#1B4332] border border-[#D8E2DC] text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-[#E8F5EE] text-[#111827] border border-[#D0EADB] text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
                             id={`view-receipt-btn-${order.id}`}
                           >
-                            <FileText className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                            <FileText className="w-3.5 h-3.5 text-[#0E7A4B]" />
                             <span>{translate('viewReceiptBtn', language)}</span>
                           </button>
 
                           {onOpenQrVerification && (
                             <button
                               onClick={() => onOpenQrVerification(order)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E9F5EE] hover:bg-[#D8F3DC] text-[#1B4332] border border-[#52B788] text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F5EE] hover:bg-[#D0EADB] text-[#0E7A4B] border border-[#B7E4C7] text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
                               id={`verify-qr-btn-${order.id}`}
                             >
-                              <QrCode className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                              <QrCode className="w-3.5 h-3.5 text-[#0E7A4B]" />
                               <span>{translate('verifyQrBtn', language)}</span>
                             </button>
                           )}
@@ -237,7 +237,7 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
                           )}
                         </div>
 
-                        <span className="text-[11px] font-bold text-[#2D6A4F] bg-[#D8F3DC] px-2.5 py-1 rounded-xl">
+                        <span className="text-[11px] font-bold text-[#0E7A4B] bg-[#E8F5EE] px-2.5 py-1 rounded-xl border border-[#D0EADB]">
                           {translate('securityPinLabel', language)} <strong>{order.deliveryOtp || '7492'}</strong>
                         </span>
                       </div>
@@ -256,18 +256,18 @@ export const OrdersHub: React.FC<OrdersHubProps> = ({
                       )}
 
                       {/* Items Summary */}
-                      <div className="bg-white p-4 rounded-2xl border border-[#D8E2DC]">
-                        <h4 className="text-xs font-bold text-[#1B4332] uppercase tracking-wider mb-2">
+                      <div className="bg-white p-4 rounded-2xl border border-[#E8F5EE]">
+                        <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
                           {translate('orderedMedicines', language)}
                         </h4>
                         <div className="divide-y divide-gray-100">
                           {order.items.map((item, i) => (
                             <div key={i} className="py-2 flex items-center justify-between text-xs gap-2">
                               <div className="min-w-0">
-                                <span className="font-bold text-[#1B4332] block truncate">{item.medicine.name}</span>
-                                <span className="text-[11px] text-gray-500 block truncate">{item.medicine.packageSize}</span>
+                                <span className="font-bold text-[#111827] block truncate">{item.medicine.name}</span>
+                                <span className="text-[11px] text-[#6B7280] block truncate">{item.medicine.packageSize}</span>
                               </div>
-                              <span className="font-semibold text-gray-700 shrink-0">
+                              <span className="font-semibold text-neutral-700 shrink-0">
                                 {translate('qtyPrefix', language)} {item.quantity} × {formatCurrency(item.unitPrice, selectedCountry, language)}
                               </span>
                             </div>

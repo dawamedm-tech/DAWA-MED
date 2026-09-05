@@ -48,13 +48,13 @@ export const SystemHealthTestsModal: React.FC<SystemHealthTestsModalProps> = ({
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-[#F4F7F5]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-[#F1FAF4]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-[#1B4332] text-white">
+            <div className="p-2 rounded-xl bg-[#0E7A4B] text-white">
               <Activity className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#1B4332]">
+              <h2 className="text-base font-bold text-[#111827]">
                 {t.systemHealthTests}
               </h2>
               <p className="text-xs text-neutral-500">
@@ -73,14 +73,14 @@ export const SystemHealthTestsModal: React.FC<SystemHealthTestsModalProps> = ({
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto space-y-4">
           {/* Summary Box */}
-          <div className="p-4 rounded-xl bg-[#E9F5EE] border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4 rounded-xl bg-[#E8F5EE] border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="w-8 h-8 text-[#2D6A4F] shrink-0" />
+              <ShieldCheck className="w-8 h-8 text-[#0E7A4B] shrink-0" />
               <div>
-                <h3 className="font-bold text-sm text-[#1B4332]">
+                <h3 className="font-bold text-sm text-[#111827]">
                   {suiteSummary?.failed === 0 ? t.testRunSuccess : t.testRunFailure}
                 </h3>
-                <p className="text-xs text-[#2D6A4F] mt-0.5">
+                <p className="text-xs text-[#0E7A4B] mt-0.5">
                   {suiteSummary ? `${suiteSummary.passed} / ${suiteSummary.total} tests passed • All critical checks green` : 'Executing verification suite...'}
                 </p>
               </div>
@@ -88,7 +88,7 @@ export const SystemHealthTestsModal: React.FC<SystemHealthTestsModalProps> = ({
             <button
               onClick={executeTests}
               disabled={loading}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>{language === 'ar' ? 'إعادة الفحص' : language === 'fr' ? 'Réexécuter' : 'Rerun Audit'}</span>
@@ -99,7 +99,7 @@ export const SystemHealthTestsModal: React.FC<SystemHealthTestsModalProps> = ({
           <div className="space-y-2.5">
             {loading ? (
               <div className="p-8 text-center text-neutral-500 text-xs">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#2D6A4F]" />
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#0E7A4B]" />
                 <span>Running diagnostic assertions...</span>
               </div>
             ) : (
@@ -134,10 +134,10 @@ export const SystemHealthTestsModal: React.FC<SystemHealthTestsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-neutral-100 bg-[#F4F7F5] flex justify-end">
+        <div className="px-6 py-3 border-t border-neutral-100 bg-[#F1FAF4] flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition-colors"
+            className="px-5 py-2 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white text-xs font-bold rounded-xl transition-colors"
           >
             {t.close}
           </button>

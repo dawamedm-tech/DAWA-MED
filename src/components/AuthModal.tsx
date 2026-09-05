@@ -536,12 +536,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
-        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#D8E2DC] my-auto"
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#E8F5EE] my-auto"
         id="auth-modal-container"
       >
         {/* Modal Top Header */}
         <div className={`p-5 sm:p-6 relative text-white ${
-          mode === 'admin' ? 'bg-[#081C15]' : 'bg-[#1B4332]'
+          mode === 'admin' ? 'bg-[#062818]' : 'bg-[#0E7A4B]'
         }`}>
           <button
             onClick={onClose}
@@ -552,20 +552,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <X className="w-5 h-5" />
           </button>
           
-          <div className="flex items-center gap-2 text-[#74C69D] text-xs font-bold uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">
             {mode === 'admin' ? (
               <>
-                <KeyRound className="w-4 h-4 text-[#D8F3DC]" />
-                <span className="text-[#D8F3DC] font-black">{t.twoFactorSecurityPortal || translate('twoFactorSecurityPortal', language)}</span>
+                <KeyRound className="w-4 h-4 text-white/80" />
+                <span className="text-white/80 font-black">{t.twoFactorSecurityPortal || translate('twoFactorSecurityPortal', language)}</span>
               </>
             ) : mode === 'pharmacy_register' ? (
               <>
-                <Building2 className="w-4 h-4 text-[#74C69D]" />
+                <Building2 className="w-4 h-4 text-emerald-400" />
                 <span>{t.mohLicensedPharmacyGate || translate('mohLicensedPharmacyGate', language)}</span>
               </>
             ) : (
               <>
-                <ShieldCheck className="w-4 h-4 text-[#74C69D]" />
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>{t.dawaUnifiedHealthAccess || translate('dawaUnifiedHealthAccess', language)}</span>
               </>
             )}
@@ -579,7 +579,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'forgot_password' && (translate('forgotPassword', language) || 'Reset Password')}
           </h2>
 
-          <p className="text-xs text-[#D8F3DC]/90 mt-1">
+          <p className="text-xs text-white/80/90 mt-1">
             {mode === 'admin' 
               ? (translate('adminLoginDesc', language) || 'Restricted administrative access with 2FA encryption.')
               : mode === 'pharmacy_register'
@@ -592,7 +592,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               onClick={() => { setMode('login'); setIs2FAStage(false); setErrorMsg(''); }}
               className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer text-center ${
-                mode === 'login' ? 'bg-white text-[#1B4332] shadow-xs' : 'text-[#D8F3DC] hover:bg-white/10'
+                mode === 'login' ? 'bg-white text-[#111827] shadow-xs' : 'text-white/80 hover:bg-white/10'
               }`}
               id="auth-tab-login"
             >
@@ -601,7 +601,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               onClick={() => { setMode('register'); setIs2FAStage(false); setErrorMsg(''); }}
               className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer text-center ${
-                mode === 'register' ? 'bg-white text-[#1B4332] shadow-xs' : 'text-[#D8F3DC] hover:bg-white/10'
+                mode === 'register' ? 'bg-white text-[#111827] shadow-xs' : 'text-white/80 hover:bg-white/10'
               }`}
               id="auth-tab-register"
             >
@@ -610,7 +610,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               onClick={() => { setMode('pharmacy_register'); setIs2FAStage(false); setErrorMsg(''); }}
               className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer text-center truncate ${
-                mode === 'pharmacy_register' ? 'bg-white text-[#1B4332] shadow-xs' : 'text-[#D8F3DC] hover:bg-white/10'
+                mode === 'pharmacy_register' ? 'bg-white text-[#111827] shadow-xs' : 'text-white/80 hover:bg-white/10'
               }`}
               id="auth-tab-pharmacy"
             >
@@ -619,7 +619,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               onClick={() => { setMode('admin'); setIs2FAStage(false); setErrorMsg(''); }}
               className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer text-center ${
-                mode === 'admin' ? 'bg-[#52B788] text-white shadow-xs' : 'text-[#D8F3DC] hover:bg-white/10'
+                mode === 'admin' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'text-white/80 hover:bg-white/10'
               }`}
               id="auth-tab-admin"
             >
@@ -639,8 +639,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
 
           {successMsg && (
-            <div className="mb-4 p-3 bg-[#D8F3DC] border border-[#74C69D] rounded-2xl flex items-start gap-2.5 text-xs text-[#1B4332] font-semibold" id="auth-success-banner">
-              <CheckCircle2 className="w-4 h-4 text-[#2D6A4F] shrink-0 mt-0.5" />
+            <div className="mb-4 p-3 bg-[#E8F5EE] border border-[#D0EADB] rounded-2xl flex items-start gap-2.5 text-xs text-[#111827] font-semibold" id="auth-success-banner">
+              <CheckCircle2 className="w-4 h-4 text-[#0E7A4B] shrink-0 mt-0.5" />
               <div>{successMsg}</div>
             </div>
           )}
@@ -665,12 +665,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {mode === 'login' && !is2FAStage && (
             <form onSubmit={handleLogin} className="space-y-4" id="form-login">
               {/* Method Toggle: Password vs OTP */}
-              <div className="flex items-center justify-center gap-2 p-1 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold">
+              <div className="flex items-center justify-center gap-2 p-1 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold">
                 <button
                   type="button"
                   onClick={() => setAuthMethod('password')}
                   className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    authMethod === 'password' ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-[#1B4332] hover:bg-[#E8F5E9]'
+                    authMethod === 'password' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'text-[#111827] hover:bg-[#E8F5EE]'
                   }`}
                 >
                   {t.passwordLogin || translate('passwordLogin', language)}
@@ -679,7 +679,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="button"
                   onClick={() => setAuthMethod('otp')}
                   className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-                    authMethod === 'otp' ? 'bg-[#2D6A4F] text-white shadow-xs' : 'text-[#1B4332] hover:bg-[#E8F5E9]'
+                    authMethod === 'otp' ? 'bg-[#0E7A4B] text-white shadow-xs' : 'text-[#111827] hover:bg-[#E8F5EE]'
                   }`}
                 >
                   {t.sendOtpSms || translate('sendOtpSms', language)}
@@ -687,13 +687,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5">
                   {authMethod === 'password' 
                     ? (isRtl ? 'اسم المستخدم / البريد الإلكتروني / رقم الهاتف' : 'Username / Email / Phone Number') 
                     : (isRtl ? 'رقم الهاتف' : 'Phone Number')}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     {authMethod === 'password' ? <User className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
                   </div>
                   <input
@@ -701,7 +701,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder={authMethod === 'password' ? 'mosa or grace@example.com or +254 700 000 000' : '+254 712 345 678'}
-                    className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="login-identifier-input"
                   />
@@ -711,20 +711,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {authMethod === 'password' && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-[#1B4332]">
+                    <label className="block text-xs font-bold text-[#111827]">
                       {translate('password', language) || 'Password'}
                     </label>
                     <button
                       type="button"
                       onClick={() => setMode('forgot_password')}
-                      className="text-xs text-[#2D6A4F] hover:underline font-semibold cursor-pointer"
+                      className="text-xs text-[#0E7A4B] hover:underline font-semibold cursor-pointer"
                       id="login-forgot-pwd-btn"
                     >
                       {translate('forgotPassword', language) || 'Forgot Password?'}
                     </button>
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
@@ -732,7 +732,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full ps-10 pe-10 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                      className="w-full ps-10 pe-10 py-2.5 sm:py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                       required
                       id="login-password-input"
                     />
@@ -750,7 +750,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-[#2D6A4F] hover:bg-[#1B4332] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-[#2D6A4F]/20 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 bg-[#0E7A4B] hover:bg-[#0B6B43] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-[#0E7A4B]/20 flex items-center justify-center gap-2 cursor-pointer"
                 id="login-submit-btn"
               >
                 {isLoading ? (
@@ -768,7 +768,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setMode('register')}
-                  className="font-bold text-[#2D6A4F] hover:underline cursor-pointer"
+                  className="font-bold text-[#0E7A4B] hover:underline cursor-pointer"
                 >
                   {translate('register', language) || 'Register Now'}
                 </button>
@@ -781,13 +781,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* ========================================================================= */}
           {mode === 'login' && is2FAStage && (
             <form onSubmit={handleVerifyOtpLogin} className="space-y-4" id="form-verify-otp">
-              <div className="bg-[#F0F7F4] p-3.5 rounded-2xl border border-[#D8E2DC] text-xs text-[#1B4332]">
-                <p className="font-semibold">Verification code sent to <strong className="text-[#2D6A4F]">{identifier}</strong></p>
-                <p className="text-[11px] text-gray-500 mt-1">Enter the 6-digit code or test code <span className="font-bold font-mono text-[#1B4332]">123456</span></p>
+              <div className="bg-[#F1FAF4] p-3.5 rounded-2xl border border-[#E8F5EE] text-xs text-[#111827]">
+                <p className="font-semibold">Verification code sent to <strong className="text-[#0E7A4B]">{identifier}</strong></p>
+                <p className="text-[11px] text-gray-500 mt-1">Enter the 6-digit code or test code <span className="font-bold font-mono text-[#111827]">123456</span></p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5 text-center">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5 text-center">
                   6-Digit Verification Code
                 </label>
                 <input
@@ -796,7 +796,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
                   placeholder="123456"
-                  className="w-full text-center tracking-[0.4em] text-2xl font-black py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                  className="w-full text-center tracking-[0.4em] text-2xl font-black py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                   required
                   id="login-otp-code-input"
                 />
@@ -806,14 +806,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIs2FAStage(false)}
-                  className="px-4 py-3 bg-[#F8FAF9] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
+                  className="px-4 py-3 bg-[#F1FAF4] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
                 >
                   {translate('back', language) || 'Back'}
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>{translate('verifyAndProceed', language) || 'Verify & Sign In'}</span>}
                 </button>
@@ -827,11 +827,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {mode === 'register' && (
             <form onSubmit={handleRegister} className="space-y-3.5" id="form-register">
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   {translate('fullName', language) || 'Full Name'}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -839,7 +839,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Grace Muthoni"
-                    className="w-full ps-10 pe-4 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs sm:text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full ps-10 pe-4 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs sm:text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="reg-name-input"
                   />
@@ -848,11 +848,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('emailAddress', language) || 'Email Address'}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-[#2D6A4F]">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-[#0E7A4B]">
                       <Mail className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -860,7 +860,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="grace@example.com"
-                      className="w-full ps-9 pe-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                      className="w-full ps-9 pe-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                       required
                       id="reg-email-input"
                     />
@@ -868,11 +868,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('phoneNumber', language) || 'Phone Number'}
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-[#2D6A4F]">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-[#0E7A4B]">
                       <Smartphone className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -880,7 +880,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+254 712 345 678"
-                      className="w-full ps-9 pe-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                      className="w-full ps-9 pe-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                       required
                       id="reg-phone-input"
                     />
@@ -890,7 +890,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('password', language) || 'Password'}
                   </label>
                   <input
@@ -898,14 +898,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min. 8 characters"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="reg-password-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('confirmPassword', language) || 'Confirm Password'}
                   </label>
                   <input
@@ -913,7 +913,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="reg-confirm-password-input"
                   />
@@ -922,21 +922,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-[#1B4332]">
+                  <label className="block text-xs font-bold text-[#111827]">
                     {translate('deliveryLocation', language) || 'Delivery Address'}
                   </label>
                   <button
                     type="button"
                     onClick={handleDetectLocation}
                     disabled={isLocating}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2D6A4F] hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0E7A4B] hover:underline cursor-pointer"
                   >
                     <LocateFixed className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
                     <span>Auto GPS Detect</span>
                   </button>
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <input
@@ -944,22 +944,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={streetAddress}
                     onChange={(e) => setStreetAddress(e.target.value)}
                     placeholder="House 14B, Ole Odume Road, Kilimani"
-                    className="w-full ps-10 pe-4 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs sm:text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full ps-10 pe-4 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs sm:text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="reg-address-input"
                   />
                 </div>
               </div>
 
-              <div className="p-2.5 bg-[#F0F7F4] rounded-xl text-[11px] text-[#1B4332] flex items-start gap-2 border border-[#D8E2DC]">
-                <Shield className="w-3.5 h-3.5 text-[#2D6A4F] shrink-0 mt-0.5" />
+              <div className="p-2.5 bg-[#F1FAF4] rounded-xl text-[11px] text-[#111827] flex items-start gap-2 border border-[#E8F5EE]">
+                <Shield className="w-3.5 h-3.5 text-[#0E7A4B] shrink-0 mt-0.5" />
                 <span>{translate('termsAgreementNotice', language)}</span>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-[#2D6A4F] hover:bg-[#1B4332] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-[#2D6A4F]/20 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 bg-[#0E7A4B] hover:bg-[#0B6B43] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-[#0E7A4B]/20 flex items-center justify-center gap-2 cursor-pointer"
                 id="reg-submit-btn"
               >
                 {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>{translate('register', language) || 'Create Account'}</span>}
@@ -970,7 +970,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setMode('login')}
-                  className="font-bold text-[#2D6A4F] hover:underline cursor-pointer"
+                  className="font-bold text-[#0E7A4B] hover:underline cursor-pointer"
                 >
                   {translate('login', language) || 'Sign In'}
                 </button>
@@ -983,18 +983,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* ========================================================================= */}
           {mode === 'pharmacy_register' && (
             <form onSubmit={handlePharmacyRegister} className="space-y-3.5" id="form-pharmacy-register">
-              <div className="p-3 bg-[#D8F3DC]/40 border border-[#74C69D] rounded-2xl text-xs text-[#1B4332]">
+              <div className="p-3 bg-[#E8F5EE]/40 border border-[#D0EADB] rounded-2xl text-xs text-[#111827]">
                 <div className="flex items-center gap-1.5 font-bold mb-1">
-                  <ShieldCheck className="w-4 h-4 text-[#2D6A4F]" />
+                  <ShieldCheck className="w-4 h-4 text-[#0E7A4B]" />
                   <span>Licensed Pharmacy Partner Application</span>
                 </div>
-                <p className="text-[11px] text-[#1B4332]/80">
+                <p className="text-[11px] text-[#111827]/80">
                   {translate('pharmacyPendingNotice', language)}
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                <label className="block text-xs font-bold text-[#111827] mb-1">
                   Pharmacy Business Name
                 </label>
                 <input
@@ -1002,7 +1002,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={pharmacyName}
                   onChange={(e) => setPharmacyName(e.target.value)}
                   placeholder="Apex Care Pharmaceuticals Ltd"
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs sm:text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                  className="w-full px-3.5 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs sm:text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                   required
                   id="pharm-name-input"
                 />
@@ -1010,7 +1010,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('superintendentPharmacist', language) || 'Superintendent Pharmacist'}
                   </label>
                   <input
@@ -1018,14 +1018,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={pharmacistName}
                     onChange={(e) => setPharmacistName(e.target.value)}
                     placeholder="Pharm. Dr. David Ochieng"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="pharm-pharmacist-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('pharmacyLicenseNumber', language) || 'License Number'}
                   </label>
                   <input
@@ -1033,7 +1033,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={licenseNumber}
                     onChange={(e) => setLicenseNumber(e.target.value)}
                     placeholder="PPB/RET/2026/0491"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none font-mono"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none font-mono"
                     required
                     id="pharm-license-input"
                   />
@@ -1042,7 +1042,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('emailAddress', language) || 'Business Email'}
                   </label>
                   <input
@@ -1050,14 +1050,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="dispensing@apexcare.com"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="pharm-email-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('phoneNumber', language) || 'Phone / WhatsApp'}
                   </label>
                   <input
@@ -1065,7 +1065,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+254 700 111 222"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="pharm-phone-input"
                   />
@@ -1074,7 +1074,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('password', language) || 'Account Password'}
                   </label>
                   <input
@@ -1082,14 +1082,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min. 8 characters"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="pharm-password-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1B4332] mb-1">
+                  <label className="block text-xs font-bold text-[#111827] mb-1">
                     {translate('confirmPassword', language) || 'Confirm Password'}
                   </label>
                   <input
@@ -1097,7 +1097,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
-                    className="w-full px-3 py-2.5 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-xs font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full px-3 py-2.5 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-xs font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="pharm-confirm-password-input"
                   />
@@ -1107,7 +1107,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-[#1B4332] hover:bg-[#081C15] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 bg-[#0E7A4B] hover:bg-[#062818] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 id="pharm-submit-btn"
               >
                 {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Submit Application for Audit</span>}
@@ -1129,11 +1129,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5">
                   {isRtl ? 'اسم المستخدم أو البريد الإلكتروني الإداري' : 'Administrative Username or Email'}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -1141,7 +1141,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder={isRtl ? 'mosa أو admin@dawamed.com' : 'mosa or admin@dawamed.com'}
-                    className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#1B4332] focus:outline-none"
+                    className="w-full ps-10 pe-4 py-2.5 sm:py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="admin-email-input"
                   />
@@ -1149,11 +1149,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5">
                   Administrative Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -1161,7 +1161,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full ps-10 pe-10 py-2.5 sm:py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#1B4332] focus:outline-none"
+                    className="w-full ps-10 pe-10 py-2.5 sm:py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="admin-password-input"
                   />
@@ -1178,14 +1178,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-[#081C15] hover:bg-[#1B4332] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 bg-[#062818] hover:bg-[#0B6B43] disabled:opacity-50 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 id="admin-login-submit-btn"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <KeyRound className="w-4 h-4 text-[#74C69D]" />
+                    <KeyRound className="w-4 h-4 text-emerald-400" />
                     <span>Authenticate & Request 2FA</span>
                   </>
                 )}
@@ -1198,19 +1198,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* ========================================================================= */}
           {mode === 'admin' && is2FAStage && (
             <form onSubmit={handleVerifyAdmin2FA} className="space-y-4" id="form-verify-admin-2fa">
-              <div className="bg-[#D8F3DC]/50 p-3.5 rounded-2xl border border-[#74C69D] text-xs text-[#1B4332]">
+              <div className="bg-[#E8F5EE]/50 p-3.5 rounded-2xl border border-[#D0EADB] text-xs text-[#111827]">
                 <div className="flex items-center gap-1.5 font-bold mb-1">
-                  <KeyRound className="w-4 h-4 text-[#2D6A4F]" />
+                  <KeyRound className="w-4 h-4 text-[#0E7A4B]" />
                   <span>Two-Factor Authentication Challenge</span>
                 </div>
-                <p className="text-[11px] text-[#1B4332]/80">
+                <p className="text-[11px] text-[#111827]/80">
                   {translate('twoFactorPrompt', language)}
                 </p>
-                <p className="text-[11px] text-[#2D6A4F] font-bold mt-1">Recipient: {maskedEmail}</p>
+                <p className="text-[11px] text-[#0E7A4B] font-bold mt-1">Recipient: {maskedEmail}</p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5 text-center">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5 text-center">
                   6-Digit Admin Security Code
                 </label>
                 <input
@@ -1219,7 +1219,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
                   placeholder="123456"
-                  className="w-full text-center tracking-[0.4em] text-2xl font-black py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-[#1B4332] focus:ring-2 focus:ring-[#1B4332] focus:outline-none"
+                  className="w-full text-center tracking-[0.4em] text-2xl font-black py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                   required
                   id="admin-2fa-code-input"
                 />
@@ -1229,14 +1229,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIs2FAStage(false)}
-                  className="px-4 py-3 bg-[#F8FAF9] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
+                  className="px-4 py-3 bg-[#F1FAF4] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
                 >
                   {translate('back', language) || 'Back'}
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-[#081C15] hover:bg-[#1B4332] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3 bg-[#062818] hover:bg-[#0B6B43] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   id="admin-2fa-submit-btn"
                 >
                   {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>{translate('verifyAndProceed', language) || 'Verify & Open Portal'}</span>}
@@ -1250,7 +1250,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* ========================================================================= */}
           {mode === 'forgot_password' && (
             <form onSubmit={handleForgotPassword} className="space-y-4" id="form-forgot-password">
-              <div className="bg-[#F0F7F4] p-3.5 rounded-2xl border border-[#D8E2DC] text-xs text-[#1B4332]">
+              <div className="bg-[#F1FAF4] p-3.5 rounded-2xl border border-[#E8F5EE] text-xs text-[#111827]">
                 <p className="font-semibold">Cryptographic Password Reset</p>
                 <p className="text-[11px] text-gray-600 mt-1">
                   Enter your registered account email. A secure, single-use, 30-minute expiring reset link will be dispatched.
@@ -1258,11 +1258,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#1B4332] mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] mb-1.5">
                   {translate('emailAddress', language) || 'Registered Email'}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#2D6A4F]">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none text-[#0E7A4B]">
                     <Mail className="w-4 h-4" />
                   </div>
                   <input
@@ -1270,7 +1270,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your-name@dawamed.com"
-                    className="w-full ps-10 pe-4 py-3 bg-[#F8FAF9] border border-[#D8E2DC] rounded-xl text-sm font-semibold text-[#1B4332] focus:ring-2 focus:ring-[#2D6A4F] focus:outline-none"
+                    className="w-full ps-10 pe-4 py-3 bg-[#F1FAF4] border border-[#E8F5EE] rounded-xl text-sm font-semibold text-[#111827] focus:ring-2 focus:ring-[#0E7A4B] focus:outline-none"
                     required
                     id="forgot-email-input"
                   />
@@ -1281,14 +1281,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setMode('login')}
-                  className="px-4 py-3 bg-[#F8FAF9] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
+                  className="px-4 py-3 bg-[#F1FAF4] hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs cursor-pointer"
                 >
                   {translate('back', language) || 'Back'}
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3 bg-[#0E7A4B] hover:bg-[#0B6B43] text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Dispatch Reset Link</span>}
                 </button>
@@ -1299,10 +1299,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* ========================================================================= */}
           {/* QUICK ROLE SWITCHER FOR DEMO / RBAC TESTING */}
           {/* ========================================================================= */}
-          <div className="mt-6 pt-4 border-t border-[#D8E2DC]">
+          <div className="mt-6 pt-4 border-t border-[#E8F5EE]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#52B788]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#0E7A4B]" />
                 <span>{translate('switchRolePrompt', language) || 'Quick Demo Switch'}</span>
               </span>
               {profile?.isRegistered && onLogout && (
@@ -1328,7 +1328,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('customer')}
-                className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#F1FAF4] hover:bg-[#E8F5EE] text-[#111827] rounded-xl text-center border border-[#E8F5EE] transition-colors cursor-pointer"
                 id="demo-btn-customer"
               >
                 👤 {t.roleCustomer || 'Customer'}
@@ -1336,7 +1336,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('pharmacy')}
-                className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#F1FAF4] hover:bg-[#E8F5EE] text-[#111827] rounded-xl text-center border border-[#E8F5EE] transition-colors cursor-pointer"
                 id="demo-btn-pharmacy"
               >
                 🏥 {t.rolePharmacy || 'Pharmacy'}
@@ -1344,7 +1344,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('driver')}
-                className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#F1FAF4] hover:bg-[#E8F5EE] text-[#111827] rounded-xl text-center border border-[#E8F5EE] transition-colors cursor-pointer"
                 id="demo-btn-driver"
               >
                 🛵 {t.roleDriver || 'Driver'}
@@ -1352,7 +1352,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('support')}
-                className="py-1.5 px-2 bg-[#F0F7F4] hover:bg-[#D8F3DC] text-[#1B4332] rounded-xl text-center border border-[#D8E2DC] transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#F1FAF4] hover:bg-[#E8F5EE] text-[#111827] rounded-xl text-center border border-[#E8F5EE] transition-colors cursor-pointer"
                 id="demo-btn-support"
               >
                 🎧 {t.roleSupport || 'Support'}
@@ -1360,7 +1360,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('admin')}
-                className="py-1.5 px-2 bg-[#1B4332] hover:bg-[#081C15] text-white rounded-xl text-center transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#0E7A4B] hover:bg-[#062818] text-white rounded-xl text-center transition-colors cursor-pointer"
                 id="demo-btn-admin"
               >
                 🛡️ {t.roleAdmin || 'Admin'}
@@ -1368,7 +1368,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('super_admin')}
-                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-amber-300 rounded-xl text-center border border-amber-500/30 transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#062818] hover:bg-black text-amber-300 rounded-xl text-center border border-amber-500/30 transition-colors cursor-pointer"
                 id="demo-btn-superadmin"
               >
                 👑 {t.roleSuperAdmin || 'Super Admin'}
@@ -1376,7 +1376,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('medical_admin')}
-                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-blue-300 rounded-xl text-center border border-blue-500/30 transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#062818] hover:bg-black text-blue-300 rounded-xl text-center border border-blue-500/30 transition-colors cursor-pointer"
                 id="demo-btn-medicaladmin"
               >
                 🩺 {t.roleMedicalAdmin || 'Medical Admin'}
@@ -1384,7 +1384,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDemoSwitch('operations_admin')}
-                className="py-1.5 px-2 bg-[#081C15] hover:bg-black text-emerald-300 rounded-xl text-center border border-emerald-500/30 transition-colors cursor-pointer"
+                className="py-1.5 px-2 bg-[#062818] hover:bg-black text-emerald-300 rounded-xl text-center border border-emerald-500/30 transition-colors cursor-pointer"
                 id="demo-btn-opsadmin"
               >
                 ⚙️ {t.roleOperationsAdmin || 'Operations Admin'}
