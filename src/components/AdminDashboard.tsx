@@ -38,6 +38,7 @@ import { DEFAULT_USERS } from '../utils/rbac';
 import { MedicineApprovalManager } from './MedicineApprovalManager';
 import { PharmacyApprovalManager } from './PharmacyApprovalManager';
 import { RbacUserManager } from './RbacUserManager';
+import { ForcePasswordChangeModal } from './ForcePasswordChangeModal';
 import { EmailSettingsManager } from './EmailSettingsManager';
 import { SiteSettingsManager } from './SiteSettingsManager';
 import { RevenueMonetizationDashboard } from './RevenueMonetizationDashboard';
@@ -127,6 +128,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
   const [subscribers, setSubscribers] = useState<DawaMonthlySubscription[]>(SAMPLE_ADMIN_SUBSCRIBERS);
   const [referralConfig, setReferralConfig] = useState<ReferralSystemConfig>(INITIAL_REFERRAL_CONFIG);
+
+  // Force Password Change state (Mandatory on initial super admin login)
+  const [mustChangePassword, setMustChangePassword] = useState<boolean>(() => {
+    return Boolean(currentUser?.mustChangePassword);
+  });
+
+  // Sync state if currentUser changes
+  React.useEffect(() => {
+    if (currentUser?.mustChangePassword !== undefined) {
+      setMustChangePassword(Boolean(currentUser.mustChangePassword));
+    }
+  }, [currentUser?.mustChangePassword]);
+
+  const handlePasswordChanged = (updatedUser: AuthUser) => {
+    setMustChangePassword(false);
+    if (onSwitchUser) {
+      onSwitchUser({
+        ...updatedUser,
+        mustChangePassword: false
+      });
+    }
+  };
 
   // Medicine Status Callback
   const handleInternalUpdateMedicineStatus = (
@@ -1789,6 +1812,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Mandatory Password Change Blocking Modal for Initial Login */}
+      <ForcePasswordChangeModal
+        isOpen={mustChangePassword}
+        currentUser={currentUser}
+        language={language}
+        onSuccess={handlePasswordChanged}
+      />
     </div>
   );
 };

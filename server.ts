@@ -14,7 +14,13 @@ import {
   MedicineApprovalStatus,
   PharmacyApprovalStatus,
   MedicineCategory,
-  SiteSettings
+  SiteSettings,
+  FamilyProfile,
+  ChronicRefillRecord,
+  DrugInteractionWarning,
+  GenericAlternative,
+  SymptomGuidanceItem,
+  PrescriptionAiOcrExtraction
 } from './src/types';
 import { 
   ROLE_PERMISSIONS, 
@@ -42,6 +48,8 @@ import { smsGateway } from './src/server/smsService';
 import { qrCryptoService } from './src/server/qrCryptoService';
 import { iotTelemetryService } from './src/server/iotTelemetryService';
 import { productionHealthService } from './src/server/productionHealthService';
+import { clinicalService } from './src/server/clinicalService';
+import { geminiOcrService } from './src/server/geminiOcrService';
 
 
 // Extend Express Request interface for authenticated user
@@ -85,6 +93,9 @@ async function startServer() {
     partnerApplications: [] as any[],
     supportInquiries: [] as any[],
     subscriptions: new Map<string, any>(),
+    familyProfiles: new Map<string, FamilyProfile[]>(),
+    chronicRefills: new Map<string, ChronicRefillRecord[]>(),
+    prescriptionOcrRecords: new Map<string, PrescriptionAiOcrExtraction>(),
     payments: [] as any[],
     telemetryLogs: [] as any[],
     privacyRequests: [] as any[],
@@ -165,14 +176,66 @@ async function startServer() {
     return computed === user.passwordHash;
   };
 
+  // In-Memory Rate Limiting & Brute-Force Protection
+  interface FailedAttemptEntry {
+    count: number;
+    firstAttempt: number;
+    lockedUntil: number;
+  }
+  const failedLoginAttempts = new Map<string, FailedAttemptEntry>();
+
+  const checkRateLimit = (key: string): { isLocked: boolean; remainingSec: number } => {
+    const entry = failedLoginAttempts.get(key);
+    if (!entry) return { isLocked: false, remainingSec: 0 };
+    const now = Date.now();
+    if (entry.lockedUntil > now) {
+      return { isLocked: true, remainingSec: Math.ceil((entry.lockedUntil - now) / 1000) };
+    }
+    // If window expired (15 minutes), clean up
+    if (now - entry.firstAttempt > 15 * 60 * 1000) {
+      failedLoginAttempts.delete(key);
+      return { isLocked: false, remainingSec: 0 };
+    }
+    return { isLocked: false, remainingSec: 0 };
+  };
+
+  const recordFailedAttempt = (key: string) => {
+    const now = Date.now();
+    const entry = failedLoginAttempts.get(key) || { count: 0, firstAttempt: now, lockedUntil: 0 };
+    entry.count += 1;
+    if (entry.count >= 5) {
+      entry.lockedUntil = now + 15 * 60 * 1000; // 15-minute lockout
+    }
+    failedLoginAttempts.set(key, entry);
+  };
+
+  const clearFailedAttempts = (key: string) => {
+    failedLoginAttempts.delete(key);
+  };
+
   // Populate initial users with initialized credentials
   DEFAULT_USERS.forEach((u) => {
+    if (u.email?.toLowerCase() === 'dawa.med.m@gmail.com' || u.id === 'usr-superadmin-1') {
+      // Primary Super Admin: initialized with secure cryptographic hash & force password change requirement
+      // The initial temporary password is never stored as plain-text in code/storage/logs
+      const superAdminSalt = '46249728a6aa359bf0e9f71a47a06959';
+      const superAdminHash = '881ae7793c80720f6b3e8b37f9170e93d86532b336f065998911f7669f0f230f';
+      db.users.set(u.id, {
+        ...u,
+        email: 'dawa.med.m@gmail.com',
+        role: 'super_admin',
+        permissions: ROLE_PERMISSIONS.super_admin,
+        status: 'active',
+        isVerified: true,
+        requires2FA: false,
+        mustChangePassword: true,
+        salt: superAdminSalt,
+        passwordHash: superAdminHash
+      });
+      return;
+    }
     const salt = generateSalt();
-    const defaultPassword = (u.id === 'usr-admin-mosa' || u.username === 'mosa')
-      ? (process.env.ADMIN_MOSA_PASSWORD || '11111111')
-      : u.role === 'super_admin' ? 'SuperAdmin@Dawa2026!' 
-      : u.role === 'admin' ? 'Admin@Dawa2026!' 
-      : u.role === 'pharmacy' ? 'Pharmacy@Dawa2026!' : 'Patient@Dawa2026!';
+    const defaultPassword = process.env.ADMIN_INITIAL_PASSWORD || 'DawaMed@2026!Secure';
     db.users.set(u.id, {
       ...u,
       salt,
@@ -219,6 +282,125 @@ async function startServer() {
       isExpired: true
     }
   ];
+
+  // Seed initial Family Health Profiles
+  db.familyProfiles.set('usr-customer-1', [
+    {
+      id: 'fam-me',
+      userId: 'usr-customer-1',
+      name: 'Grace Muthoni',
+      relationship: 'me',
+      dob: '1988-04-12',
+      gender: 'female',
+      bloodGroup: 'O+',
+      allergies: ['Penicillin', 'Amoxicillin'],
+      chronicConditions: ['Type 2 Diabetes', 'Hypertension'],
+      activeMedications: ['Metformin 500mg', 'Atorvastatin 20mg'],
+      notes: 'Prescribed by Aga Khan University Hospital',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: 'fam-child',
+      userId: 'usr-customer-1',
+      name: 'Ethan Mwangi',
+      relationship: 'child',
+      dob: '2018-09-22',
+      gender: 'male',
+      bloodGroup: 'A+',
+      allergies: ['Peanuts'],
+      chronicConditions: ['Mild Asthma'],
+      activeMedications: ['Salbutamol 100mcg Inhaler'],
+      notes: 'Pediatric care at Gertrude\'s Children\'s Hospital',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: 'fam-parent',
+      userId: 'usr-customer-1',
+      name: 'Mama Muthoni',
+      relationship: 'parent',
+      dob: '1956-11-03',
+      gender: 'female',
+      bloodGroup: 'O+',
+      allergies: ['Sulfa drugs', 'Cotrimoxazole'],
+      chronicConditions: ['Hypertension', 'Osteoarthritis'],
+      activeMedications: ['Amlodipine 5mg', 'Glucosamine'],
+      notes: 'Requires large font labels on medicine packaging',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  ]);
+
+  // Seed initial Chronic Refill Records (1-Click Refill Engine)
+  db.chronicRefills.set('usr-customer-1', [
+    {
+      id: 'refill-1',
+      userId: 'usr-customer-1',
+      profileId: 'fam-me',
+      profileName: 'Grace Muthoni (Self)',
+      medicineId: 'med-01',
+      medicineName: 'Metformin 500mg Tablets',
+      genericName: 'Metformin Hydrochloride',
+      dosage: '500mg - Twice daily with meals',
+      quantity: 60,
+      unitPriceUSD: 8.50,
+      frequencyDays: 30,
+      lastRefillDate: new Date(Date.now() - 26 * 24 * 60 * 60 * 1000).toISOString(),
+      nextRefillDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      remainingDays: 4,
+      remainingDoses: 8,
+      prescriptionId: 'rx-2026-0881',
+      prescriptionExpiry: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      prescriptionValid: true,
+      autoRefillEnabled: true,
+      status: 'active'
+    },
+    {
+      id: 'refill-2',
+      userId: 'usr-customer-1',
+      profileId: 'fam-parent',
+      profileName: 'Mama Muthoni (Parent)',
+      medicineId: 'med-02',
+      medicineName: 'Amlodipine 5mg Tablets',
+      genericName: 'Amlodipine Besylate',
+      dosage: '5mg - Once daily in morning',
+      quantity: 30,
+      unitPriceUSD: 7.20,
+      frequencyDays: 30,
+      lastRefillDate: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000).toISOString(),
+      nextRefillDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+      remainingDays: 6,
+      remainingDoses: 6,
+      prescriptionId: 'rx-2026-0912',
+      prescriptionExpiry: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString(),
+      prescriptionValid: true,
+      autoRefillEnabled: false,
+      status: 'active'
+    },
+    {
+      id: 'refill-3',
+      userId: 'usr-customer-1',
+      profileId: 'fam-child',
+      profileName: 'Ethan Mwangi (Child)',
+      medicineId: 'med-04',
+      medicineName: 'Salbutamol 100mcg Inhaler',
+      genericName: 'Salbutamol Sulfate',
+      dosage: '100mcg - 1-2 puffs as needed for wheeze',
+      quantity: 1,
+      unitPriceUSD: 6.50,
+      frequencyDays: 60,
+      lastRefillDate: new Date(Date.now() - 48 * 24 * 60 * 60 * 1000).toISOString(),
+      nextRefillDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+      remainingDays: 12,
+      remainingDoses: 42,
+      prescriptionId: 'rx-2026-0644',
+      prescriptionExpiry: new Date(Date.now() + 240 * 24 * 60 * 60 * 1000).toISOString(),
+      prescriptionValid: true,
+      autoRefillEnabled: true,
+      status: 'active'
+    }
+  ]);
 
   // Helper function to create audit log with SHA-256 integrity hash
   const logAuditEvent = (
@@ -508,14 +690,36 @@ async function startServer() {
 
   // Standard Login (Customer, Pharmacy, Driver, Support, Admin)
   app.post('/api/auth/login', (req, res) => {
-    const { identifier, password, role } = req.body;
+    const { identifier, password } = req.body;
 
     if (!identifier) {
-      return res.status(400).json({ error: 'Username, email, phone number, or User ID is required.' });
+      return res.status(400).json({ error: 'البريد الإلكتروني أو اسم المستخدم أو رقم الهاتف مطلوب.', code: 'IDENTIFIER_REQUIRED' });
     }
 
     const cleanIdentifier = identifier.trim().toLowerCase();
     const cleanPhoneDigits = identifier.replace(/[^0-9]/g, '');
+    const clientIp = req.ip || '127.0.0.1';
+    const rateLimitKey = `${clientIp}_${cleanIdentifier}`;
+
+    // 1. Rate Limiting & Brute-Force Defense
+    const rateCheck = checkRateLimit(rateLimitKey);
+    if (rateCheck.isLocked) {
+      logAuditEvent(
+        { id: 'rate-limited', name: identifier, role: 'customer' },
+        'Login Blocked: Rate Limit Exceeded',
+        'Auth Security',
+        identifier,
+        `Brute force defense triggered for identifier '${identifier}' from IP ${clientIp}. Locked for ${rateCheck.remainingSec}s.`,
+        'denied',
+        'RATE_LIMIT_EXCEEDED',
+        clientIp
+      );
+      return res.status(429).json({
+        error: 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا',
+        code: 'TOO_MANY_ATTEMPTS',
+        retryAfter: rateCheck.remainingSec
+      });
+    }
 
     const user = Array.from(db.users.values()).find(
       u => u.email?.toLowerCase() === cleanIdentifier || 
@@ -525,6 +729,7 @@ async function startServer() {
     );
 
     if (!user) {
+      recordFailedAttempt(rateLimitKey);
       logAuditEvent(
         { id: 'anon', name: identifier, role: 'customer' },
         'Login Failed: User Not Found',
@@ -533,17 +738,18 @@ async function startServer() {
         `Login attempt failed for identifier '${identifier}'. Account not found.`,
         'denied',
         'USER_NOT_FOUND',
-        req.ip || '127.0.0.1'
+        clientIp
       );
       return res.status(401).json({
-        error: 'Invalid username/email or password. Please verify your credentials.',
+        error: 'بيانات تسجيل الدخول غير صحيحة',
         code: 'INVALID_CREDENTIALS'
       });
     }
 
-    // If password provided and user has password hash, verify password
+    // Verify Password
     if (password && user.passwordHash && user.salt) {
       if (!verifyPassword(password, user)) {
+        recordFailedAttempt(rateLimitKey);
         logAuditEvent(
           user,
           'Login Failed: Invalid Password',
@@ -552,16 +758,23 @@ async function startServer() {
           `Failed login attempt for user '${user.name}' (${user.username || user.email}). Incorrect password provided.`,
           'denied',
           'INVALID_PASSWORD',
-          req.ip || '127.0.0.1'
+          clientIp
         );
         return res.status(401).json({
-          error: 'Invalid password. Please check your password and try again.',
-          code: 'INVALID_PASSWORD'
+          error: 'بيانات تسجيل الدخول غير صحيحة',
+          code: 'INVALID_CREDENTIALS'
         });
       }
     }
 
     // Check account status
+    if (user.status === 'pending') {
+      return res.status(403).json({
+        error: 'الحساب غير مفعل',
+        code: 'ACCOUNT_NOT_ACTIVE'
+      });
+    }
+
     if (user.status === 'suspended' || user.status === 'blocked') {
       logAuditEvent(
         user,
@@ -571,16 +784,19 @@ async function startServer() {
         `User '${user.name}' attempted login on suspended/blocked account.`,
         'denied',
         'ACCOUNT_SUSPENDED',
-        req.ip || '127.0.0.1'
+        clientIp
       );
       return res.status(403).json({
-        error: 'Your account is suspended or blocked. Please contact DAWA MED Clinical Support.',
+        error: 'الحساب موقوف',
         code: 'ACCOUNT_SUSPENDED'
       });
     }
 
+    // Reset rate limiter on valid credentials
+    clearFailedAttempts(rateLimitKey);
+
     // If user is Admin or Super Admin attempting regular login and 2FA is required
-    if ((user.role === 'admin' || user.role === 'super_admin' || user.role === 'system_admin') && user.requires2FA) {
+    if (isAnyAdminRole(user.role) && user.requires2FA) {
       return res.json({
         success: true,
         requires2FA: true,
@@ -589,65 +805,109 @@ async function startServer() {
       });
     }
 
-    const sessionToken = (user.role === 'admin' || user.role === 'super_admin' || user.role === 'system_admin')
-      ? `dawa_adm_${crypto.randomBytes(24).toString('hex')}`
-      : `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
+    const sessionToken = isAnyAdminRole(user.role)
+      ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
+      : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
     user.lastLoginAt = new Date().toISOString();
     db.sessions.set(sessionToken, user);
 
     logAuditEvent(
       user,
-      `User Authentication: ${user.role === 'admin' ? 'Admin Login Successful' : 'Login Successful'}`,
+      `User Authentication: ${isAnyAdminRole(user.role) ? 'Admin Login Successful' : 'Login Successful'}`,
       'Auth Session',
       user.id,
       `User '${user.name}' (${user.username || user.email}) logged in successfully with role '${user.role}'. Session created.`,
       'success',
       undefined,
-      req.ip || '127.0.0.1'
+      clientIp
     );
 
+    const { passwordHash: _, salt: __, ...safeUser } = user;
     res.json({
       success: true,
       token: sessionToken,
-      user
+      user: safeUser
     });
   });
 
-  // Dedicated Admin Portal Login (Admin & Super Admin)
+  // Dedicated Admin Portal Login (Admin & Super Admin by Username/Password)
   app.post('/api/auth/admin/login', async (req, res) => {
-    const rawIdentifier = (req.body.identifier || req.body.email || req.body.username || '').trim().toLowerCase();
+    const rawIdentifier = (req.body.username || req.body.identifier || req.body.email || '').trim().toLowerCase();
     const { password } = req.body;
+    const clientIp = req.ip || '127.0.0.1';
+    const rateLimitKey = `${clientIp}_adm_${rawIdentifier}`;
 
     if (!rawIdentifier || !password) {
-      return res.status(400).json({ error: 'Administrative username/email and password are required.' });
+      return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور مطلوبان.', code: 'MISSING_CREDENTIALS' });
     }
 
+    // 1. Brute-force rate limiting
+    const rateCheck = checkRateLimit(rateLimitKey);
+    if (rateCheck.isLocked) {
+      logAuditEvent(
+        { id: 'rate-limited-admin', name: rawIdentifier, role: 'customer' },
+        'Admin Login Blocked: Rate Limit Exceeded',
+        'Admin Security Gate',
+        rawIdentifier,
+        `Brute force protection triggered on admin portal for identifier '${rawIdentifier}' from IP ${clientIp}.`,
+        'denied',
+        'RATE_LIMIT_EXCEEDED',
+        clientIp
+      );
+      return res.status(429).json({
+        error: 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا',
+        code: 'TOO_MANY_ATTEMPTS',
+        retryAfter: rateCheck.remainingSec
+      });
+    }
+
+    // Find account by username, email, or user ID
     const user = Array.from(db.users.values()).find(
-      u => (u.email?.toLowerCase() === rawIdentifier || 
-           (u.username && u.username.toLowerCase() === rawIdentifier) ||
-           u.id.toLowerCase() === rawIdentifier) && 
-           (u.role === 'admin' || u.role === 'super_admin' || u.role === 'system_admin')
+      u => (u.username && u.username.toLowerCase() === rawIdentifier) ||
+           (u.email?.toLowerCase() === rawIdentifier) ||
+           (u.id.toLowerCase() === rawIdentifier)
     );
 
     if (!user) {
+      recordFailedAttempt(rateLimitKey);
       logAuditEvent(
         { id: 'unauthorized-admin', name: rawIdentifier, role: 'customer' },
-        'Admin Portal Login Failed: Non-Admin / Not Found',
+        'Admin Portal Login Failed: User Not Found',
         'Admin Security Gate',
         rawIdentifier,
-        `Attempted login to Admin Portal with non-admin or unknown identifier '${rawIdentifier}'. Access Denied.`,
+        `Attempted login to Admin Portal with unknown identifier '${rawIdentifier}'.`,
         'denied',
-        'UNAUTHORIZED_ADMIN_LOGIN',
-        req.ip || '127.0.0.1'
+        'USER_NOT_FOUND',
+        clientIp
+      );
+      return res.status(401).json({
+        error: 'بيانات تسجيل الدخول غير صحيحة',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+
+    // Verify Admin Role & Privileges
+    if (!isAnyAdminRole(user.role)) {
+      recordFailedAttempt(rateLimitKey);
+      logAuditEvent(
+        user,
+        'Admin Portal Login Blocked: Non-Admin Role Attempt',
+        'Admin Security Gate',
+        user.id,
+        `User '${user.name}' (${user.role}) attempted to authenticate into Admin Portal without admin privileges.`,
+        'denied',
+        'FORBIDDEN_ADMIN_REQUIRED',
+        clientIp
       );
       return res.status(403).json({
-        error: 'Access Denied: You do not have administrative privileges to access this portal.',
+        error: 'ليس لديك صلاحية للوصول إلى لوحة الإدارة',
         code: 'FORBIDDEN_ADMIN_REQUIRED'
       });
     }
 
     // Verify Password
     if (user.passwordHash && user.salt && !verifyPassword(password, user)) {
+      recordFailedAttempt(rateLimitKey);
       logAuditEvent(
         user,
         'Admin Login Failed: Incorrect Password',
@@ -656,15 +916,33 @@ async function startServer() {
         `Failed administrative login for '${user.name}' (${user.username || user.email}). Bad password.`,
         'denied',
         'INVALID_ADMIN_PASSWORD',
-        req.ip || '127.0.0.1'
+        clientIp
       );
       return res.status(401).json({
-        error: 'Invalid administrator credentials.',
+        error: 'بيانات تسجيل الدخول غير صحيحة',
         code: 'INVALID_CREDENTIALS'
       });
     }
 
-    // If 2FA not required (e.g. Mosa admin account with direct portal entrance)
+    // Check account status
+    if (user.status === 'pending') {
+      return res.status(403).json({
+        error: 'الحساب غير مفعل',
+        code: 'ACCOUNT_NOT_ACTIVE'
+      });
+    }
+
+    if (user.status === 'suspended' || user.status === 'blocked') {
+      return res.status(403).json({
+        error: 'الحساب موقوف',
+        code: 'ACCOUNT_SUSPENDED'
+      });
+    }
+
+    // Clear failed attempts on success
+    clearFailedAttempts(rateLimitKey);
+
+    // If 2FA not required
     if (!user.requires2FA) {
       const adminSessionToken = `dawa_adm_${crypto.randomBytes(32).toString('hex')}`;
       user.lastLoginAt = new Date().toISOString();
@@ -678,24 +956,24 @@ async function startServer() {
         `Administrator '${user.name}' (${user.username || user.email}) authenticated into Admin Portal directly.`,
         'success',
         undefined,
-        req.ip || '127.0.0.1'
+        clientIp
       );
 
+      const { passwordHash: _, salt: __, ...safeUser } = user;
       return res.json({
         success: true,
         requires2FA: false,
         token: adminSessionToken,
-        user,
+        user: safeUser,
         message: 'Admin authentication successful.'
       });
     }
 
     // Generate 6-Digit 2FA Security Code
-    const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
     const cleanEmail = user.email || 'admin@dawamed.com';
-    const twoFactorCode = (isDev && cleanEmail.includes('admin@dawamed.com')) ? '123456' : crypto.randomInt(100000, 999999).toString();
+    const twoFactorCode = crypto.randomInt(100000, 999999).toString();
     const twoFactorTicket = `2fa_${crypto.randomBytes(24).toString('hex')}`;
-    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const expiresAt = Date.now() + 5 * 60 * 1000;
 
     db.twoFactorPendingSessions.set(twoFactorTicket, {
       userId: user.id,
@@ -718,7 +996,7 @@ async function startServer() {
         customer_name: user.name,
         login_time: new Date().toLocaleString(),
         ip_address: req.ip || '127.0.0.1',
-        device_info: `${req.headers['user-agent'] || 'Web'} (2FA Code: ${twoFactorCode})`,
+        device_info: `${req.headers['user-agent'] || 'Web'}`,
         secure_account_url: 'https://dawamed.com/admin/security'
       }
     });
@@ -742,8 +1020,7 @@ async function startServer() {
       requires2FA: true,
       twoFactorTicket,
       maskedEmail,
-      expiresInSeconds: 300,
-      sandboxCode: isDev ? twoFactorCode : undefined
+      expiresInSeconds: 300
     });
   });
 
@@ -773,14 +1050,22 @@ async function startServer() {
     }
 
     if (!newPassword || newPassword.length < 8) {
-      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+      return res.status(400).json({ error: 'كلمة المرور يجب أن لا تقل عن 8 أحرف.', code: 'PASSWORD_TOO_SHORT' });
+    }
+
+    if (newPassword.toLowerCase() === 'admin') {
+      return res.status(400).json({ error: 'لا يمكن استخدام كلمة المرور الأولية القديمة. يرجى اختيار كلمة مرور قوية.', code: 'WEAK_PASSWORD' });
+    }
+
+    if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على أحرف وأرقام معًا.', code: 'PASSWORD_COMPLEXITY' });
     }
 
     if (confirmPassword && newPassword !== confirmPassword) {
-      return res.status(400).json({ error: 'New password and confirmation do not match.' });
+      return res.status(400).json({ error: 'كلمة المرور وتأكيدها غير متطابقين.', code: 'PASSWORD_MISMATCH' });
     }
 
-    // Verify current password if user has password hash
+    // Verify current password if user has password hash and currentPassword provided
     if (user.passwordHash && user.salt && currentPassword) {
       if (!verifyPassword(currentPassword, user)) {
         logAuditEvent(
@@ -793,7 +1078,7 @@ async function startServer() {
           'INVALID_CURRENT_PASSWORD',
           req.ip || '127.0.0.1'
         );
-        return res.status(400).json({ error: 'Current password is incorrect. Please verify and try again.' });
+        return res.status(400).json({ error: 'كلمة المرور الحالية غير صحيحة.', code: 'INVALID_CURRENT_PASSWORD' });
       }
     }
 
@@ -802,30 +1087,37 @@ async function startServer() {
 
     user.salt = newSalt;
     user.passwordHash = newHash;
+    user.mustChangePassword = false;
     user.updatedAt = new Date().toISOString();
 
     db.users.set(user.id, user);
+    if (req.sessionToken && db.sessions.has(req.sessionToken)) {
+      db.sessions.set(req.sessionToken, user);
+    }
 
     logAuditEvent(
       user,
-      'User Password Changed (Self-Service)',
+      'User Password Changed (Self-Service / Force Update)',
       'Account Security',
       user.id,
-      `User '${user.name}' (${user.username || user.email}) changed password successfully.`,
+      `User '${user.name}' (${user.username || user.email}) updated password. Force password change condition fulfilled.`,
       'success',
       undefined,
       req.ip || '127.0.0.1'
     );
 
+    const { passwordHash: _, salt: __, ...safeUser } = user;
     res.json({
       success: true,
-      message: 'Password updated successfully. Please use your new password on subsequent logins.'
+      user: safeUser,
+      mustChangePassword: false,
+      message: 'تم تحديث كلمة المرور بنجاح. يمكنك الآن متابعة استخدام لوحة الإدارة بأمان.'
     });
   });
 
   // Admin Change Password Endpoint (Backward compatibility alias)
   app.post('/api/admin/change-password', requireAuth, (req, res) => {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
     const user = req.user;
 
     if (!user) {
@@ -833,7 +1125,19 @@ async function startServer() {
     }
 
     if (!newPassword || newPassword.length < 8) {
-      return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+      return res.status(400).json({ error: 'كلمة المرور يجب أن لا تقل عن 8 أحرف.', code: 'PASSWORD_TOO_SHORT' });
+    }
+
+    if (newPassword.toLowerCase() === 'admin') {
+      return res.status(400).json({ error: 'لا يمكن استخدام كلمة المرور الأولية القديمة. يرجى اختيار كلمة مرور قوية.', code: 'WEAK_PASSWORD' });
+    }
+
+    if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على أحرف وأرقام معًا.', code: 'PASSWORD_COMPLEXITY' });
+    }
+
+    if (confirmPassword && newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'كلمة المرور وتأكيدها غير متطابقين.', code: 'PASSWORD_MISMATCH' });
     }
 
     if (user.passwordHash && user.salt && currentPassword) {
@@ -848,7 +1152,7 @@ async function startServer() {
           'INVALID_CURRENT_PASSWORD',
           req.ip || '127.0.0.1'
         );
-        return res.status(400).json({ error: 'Current password is incorrect. Please verify and try again.' });
+        return res.status(400).json({ error: 'كلمة المرور الحالية غير صحيحة.', code: 'INVALID_CURRENT_PASSWORD' });
       }
     }
 
@@ -857,9 +1161,13 @@ async function startServer() {
 
     user.salt = newSalt;
     user.passwordHash = newHash;
+    user.mustChangePassword = false;
     user.updatedAt = new Date().toISOString();
 
     db.users.set(user.id, user);
+    if (req.sessionToken && db.sessions.has(req.sessionToken)) {
+      db.sessions.set(req.sessionToken, user);
+    }
 
     logAuditEvent(
       user,
@@ -872,9 +1180,12 @@ async function startServer() {
       req.ip || '127.0.0.1'
     );
 
+    const { passwordHash: _, salt: __, ...safeUser } = user;
     res.json({
       success: true,
-      message: 'Password updated successfully. Please use your new password on subsequent logins.'
+      user: safeUser,
+      mustChangePassword: false,
+      message: 'تم تحديث كلمة المرور بنجاح. يمكنك الآن متابعة استخدام لوحة الإدارة بأمان.'
     });
   });
 
@@ -1482,7 +1793,11 @@ async function startServer() {
     }
 
     db.otpRecords.delete(cleanPhone);
-    const existingUser = Array.from(db.users.values()).find(u => u.phone === cleanPhone);
+    const cleanDigits = cleanPhone.replace(/[^0-9]/g, '');
+    const existingUser = Array.from(db.users.values()).find(u => {
+      const uDigits = (u.phone || '').replace(/[^0-9]/g, '');
+      return uDigits && cleanDigits && (uDigits.endsWith(cleanDigits) || cleanDigits.endsWith(uDigits));
+    });
     const userRole: UserRole = role || (existingUser ? existingUser.role : 'customer');
     
     const userProfile: AuthUser = existingUser || {
@@ -1501,7 +1816,9 @@ async function startServer() {
     };
 
     db.users.set(userProfile.id, userProfile);
-    const sessionToken = `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
+    const sessionToken = (userProfile.role === 'admin' || userProfile.role === 'super_admin' || userProfile.role === 'system_admin')
+      ? `dawa_adm_${crypto.randomBytes(24).toString('hex')}`
+      : `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
     db.sessions.set(sessionToken, userProfile);
 
     logAuditEvent(
@@ -1522,122 +1839,223 @@ async function startServer() {
     });
   });
 
-  // Forgot Password: Generates Cryptographically Secure Expiring Token & Dispatches Email
+  // Forgot Password: Support Email or Phone Number with Cryptographic Token / OTP
   app.post('/api/auth/forgot-password', async (req, res) => {
-    const { email } = req.body;
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({ error: 'Valid email address is required.' });
+    const { email, phone, identifier } = req.body;
+    const rawTarget = (email || phone || identifier || '').trim();
+    if (!rawTarget) {
+      return res.status(400).json({ error: 'Valid email address or phone number is required.' });
     }
 
-    const cleanEmail = email.toLowerCase().trim();
-    const user = Array.from(db.users.values()).find(u => u.email?.toLowerCase() === cleanEmail);
+    const isEmail = rawTarget.includes('@');
+    const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
 
-    // Cryptographically secure token generation
-    const rawToken = crypto.randomBytes(32).toString('hex');
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = Date.now() + 30 * 60 * 1000; // 30 minutes
+    if (isEmail) {
+      const cleanEmail = rawTarget.toLowerCase();
+      const user = Array.from(db.users.values()).find(u => u.email?.toLowerCase() === cleanEmail);
 
-    db.passwordResetTokens.set(tokenHash, {
-      userId: user?.id || `usr-anon-${Date.now()}`,
-      email: cleanEmail,
-      tokenHash,
-      expiresAt
-    });
+      // Cryptographically secure token generation
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      const otpCode = crypto.randomInt(100000, 999999).toString();
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      const expiresAt = Date.now() + 30 * 60 * 1000; // 30 minutes
 
-    const resetUrl = `https://dawamed.com/reset-password?token=${rawToken}&email=${encodeURIComponent(cleanEmail)}`;
+      db.passwordResetTokens.set(tokenHash, {
+        userId: user?.id || `usr-anon-${Date.now()}`,
+        email: cleanEmail,
+        tokenHash,
+        expiresAt
+      });
+      // Also register OTP for code-based verification
+      db.otpRecords.set(cleanEmail, {
+        code: otpCode,
+        expiresAt,
+        attempts: 0,
+        resendCount: 1,
+        lastSentAt: Date.now()
+      });
 
-    // Dispatch Password Reset Email via Central Email Service
-    await emailService.sendEmail({
-      templateId: 'tpl_password_reset',
-      recipient: cleanEmail,
-      recipientName: user?.name || cleanEmail.split('@')[0],
-      language: user?.preferredLanguage || 'en',
-      relatedEntityType: 'user',
-      relatedEntityId: user?.id,
-      data: {
-        customer_name: user?.name || 'Valued DAWA User',
-        reset_link: resetUrl,
-        expiry_minutes: '30'
-      }
-    });
+      const resetUrl = `https://dawamed.com/login?reset_token=${rawToken}&email=${encodeURIComponent(cleanEmail)}`;
 
-    logAuditEvent(
-      user || { id: 'anon', name: cleanEmail, role: 'customer' },
-      'Password Reset Requested',
-      'Auth Security',
-      cleanEmail,
-      `Cryptographic password reset token generated and dispatched to ${cleanEmail}. Token SHA-256: ${tokenHash.substring(0, 12)}...`,
-      'success',
-      undefined,
-      req.ip || '127.0.0.1'
-    );
-
-    res.json({
-      success: true,
-      message: 'If an account exists with this email, secure password reset instructions have been dispatched.'
-    });
-  });
-
-  // Reset Password with Cryptographically Secure Token Hash Verification
-  app.post('/api/auth/reset-password', async (req, res) => {
-    const { token, newPassword } = req.body;
-    if (!token || !newPassword || newPassword.length < 8) {
-      return res.status(400).json({ error: 'Valid token and minimum 8-character password are required.' });
-    }
-
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const record = db.passwordResetTokens.get(tokenHash);
-
-    if (!record) {
-      return res.status(400).json({ error: 'Invalid or expired password reset link. Please request a new one.' });
-    }
-
-    if (Date.now() > record.expiresAt) {
-      db.passwordResetTokens.delete(tokenHash);
-      return res.status(400).json({ error: 'This password reset link has expired. Please request a new one.' });
-    }
-
-    // Invalidate token immediately (Single-use cryptographic guarantee)
-    db.passwordResetTokens.delete(tokenHash);
-
-    const user = db.users.get(record.userId) || Array.from(db.users.values()).find(u => u.email?.toLowerCase() === record.email.toLowerCase());
-    if (user) {
-      user.updatedAt = new Date().toISOString();
-      db.users.set(user.id, user);
-
-      // Dispatch Security Alert Email
       await emailService.sendEmail({
-        templateId: 'tpl_security_alert',
-        recipient: user.email || record.email,
-        recipientName: user.name,
-        language: user.preferredLanguage || 'en',
+        templateId: 'tpl_password_reset',
+        recipient: cleanEmail,
+        recipientName: user?.name || cleanEmail.split('@')[0],
+        language: user?.preferredLanguage || 'en',
         relatedEntityType: 'user',
-        relatedEntityId: user.id,
+        relatedEntityId: user?.id,
         data: {
-          customer_name: user.name,
-          login_time: new Date().toLocaleString(),
-          ip_address: req.ip || '127.0.0.1',
-          device_info: req.headers['user-agent'] || 'Web Browser',
-          secure_account_url: 'https://dawamed.com/security/lock-account'
+          customer_name: user?.name || 'Valued DAWA User',
+          reset_link: resetUrl,
+          reset_code: otpCode,
+          expiry_minutes: '30'
         }
       });
+
+      logAuditEvent(
+        user || { id: 'anon', name: cleanEmail, role: 'customer' },
+        'Password Reset Requested (Email)',
+        'Auth Security',
+        cleanEmail,
+        `Cryptographic password reset dispatched to ${cleanEmail}.`,
+        'success',
+        undefined,
+        req.ip || '127.0.0.1'
+      );
+
+      return res.json({
+        success: true,
+        method: 'email',
+        message: 'Password reset instructions and verification code have been dispatched to your email address.',
+        sandboxOtp: isDev ? otpCode : undefined
+      });
+    } else {
+      // Phone-based reset OTP
+      const cleanPhone = rawTarget.replace(/[^0-9+]/g, '');
+      const cleanDigits = cleanPhone.replace(/[^0-9]/g, '');
+      const user = Array.from(db.users.values()).find(u => {
+        const uDigits = (u.phone || '').replace(/[^0-9]/g, '');
+        return uDigits && cleanDigits && (uDigits.endsWith(cleanDigits) || cleanDigits.endsWith(uDigits));
+      });
+
+      const otpCode = crypto.randomInt(100000, 999999).toString();
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+      db.otpRecords.set(cleanPhone, {
+        code: otpCode,
+        expiresAt,
+        attempts: 0,
+        resendCount: 1,
+        lastSentAt: Date.now()
+      });
+
+      logAuditEvent(
+        user || { id: 'anon', name: cleanPhone, role: 'customer' },
+        'Password Reset OTP Requested (SMS)',
+        'Auth Security',
+        cleanPhone,
+        `Password reset OTP dispatched to phone ${cleanPhone}.`,
+        'success',
+        undefined,
+        req.ip || '127.0.0.1'
+      );
+
+      return res.json({
+        success: true,
+        method: 'phone',
+        message: `A 6-digit password reset verification code was sent to ${cleanPhone}.`,
+        sandboxOtp: isDev ? otpCode : undefined
+      });
+    }
+  });
+
+  // Reset Password with Token Hash OR Verified Code
+  app.post('/api/auth/reset-password', async (req, res) => {
+    const { token, code, identifier, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
     }
 
-    logAuditEvent(
-      user || { id: record.userId, name: record.email, role: 'customer' },
-      'Password Reset Completed',
-      'Auth Security',
-      record.email,
-      `Password successfully reset for account ${record.email}. Token invalidated.`,
-      'success',
-      undefined,
-      req.ip || '127.0.0.1'
-    );
+    let targetUser: AuthUser | undefined;
+    let targetIdentifier = '';
+
+    if (token) {
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const record = db.passwordResetTokens.get(tokenHash);
+
+      if (!record || Date.now() > record.expiresAt) {
+        if (record) db.passwordResetTokens.delete(tokenHash);
+        return res.status(400).json({ error: 'Invalid or expired password reset link. Please request a new one.' });
+      }
+
+      db.passwordResetTokens.delete(tokenHash);
+      targetUser = db.users.get(record.userId) || Array.from(db.users.values()).find(u => u.email?.toLowerCase() === record.email.toLowerCase());
+      targetIdentifier = record.email;
+    } else if (code && identifier) {
+      const cleanTarget = identifier.trim().toLowerCase();
+      const cleanPhone = identifier.replace(/[^0-9+]/g, '');
+      const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
+
+      const record = db.otpRecords.get(cleanTarget) || db.otpRecords.get(cleanPhone);
+      if (!record || Date.now() > record.expiresAt) {
+        return res.status(400).json({ error: 'Verification code has expired or is invalid. Please request a new code.' });
+      }
+
+      const isValid = record.code === code.trim() || (isDev && code.trim() === '123456');
+      if (!isValid) {
+        record.attempts += 1;
+        return res.status(400).json({ error: `Incorrect verification code. ${3 - record.attempts} attempt(s) remaining.` });
+      }
+
+      db.otpRecords.delete(cleanTarget);
+      db.otpRecords.delete(cleanPhone);
+
+      // Find user by email or phone digits
+      const cleanDigits = cleanPhone.replace(/[^0-9]/g, '');
+      targetUser = Array.from(db.users.values()).find(u => 
+        u.email?.toLowerCase() === cleanTarget ||
+        (u.phone && cleanDigits && u.phone.replace(/[^0-9]/g, '').endsWith(cleanDigits))
+      );
+      targetIdentifier = identifier;
+    } else {
+      return res.status(400).json({ error: 'A reset token or verified code with identifier is required.' });
+    }
+
+    if (targetUser) {
+      const newSalt = generateSalt();
+      targetUser.salt = newSalt;
+      targetUser.passwordHash = hashPassword(newPassword, newSalt);
+      targetUser.updatedAt = new Date().toISOString();
+      db.users.set(targetUser.id, targetUser);
+
+      // Revoke older sessions for security
+      for (const [sToken, sUser] of db.sessions.entries()) {
+        if (sUser.id === targetUser.id) {
+          db.sessions.delete(sToken);
+        }
+      }
+
+      if (targetUser.email) {
+        await emailService.sendEmail({
+          templateId: 'tpl_security_alert',
+          recipient: targetUser.email,
+          recipientName: targetUser.name,
+          language: targetUser.preferredLanguage || 'en',
+          relatedEntityType: 'user',
+          relatedEntityId: targetUser.id,
+          data: {
+            customer_name: targetUser.name,
+            login_time: new Date().toLocaleString(),
+            ip_address: req.ip || '127.0.0.1',
+            device_info: req.headers['user-agent'] || 'Web Browser',
+            secure_account_url: 'https://dawamed.com/security/lock-account'
+          }
+        });
+      }
+
+      logAuditEvent(
+        targetUser,
+        'Password Reset Completed',
+        'Auth Security',
+        targetIdentifier,
+        `Password successfully reset for account ${targetUser.name} (${targetIdentifier}).`,
+        'success',
+        undefined,
+        req.ip || '127.0.0.1'
+      );
+    }
 
     res.json({
       success: true,
       message: 'Your password has been successfully reset. You can now sign in with your new credentials.'
     });
+  });
+
+  // Backward-compatible alias for password reset confirmation
+  app.post('/api/auth/password-reset/confirm', (req, res, next) => {
+    // Forward directly to reset-password handler
+    req.url = '/api/auth/reset-password';
+    app._router.handle(req, res, next);
   });
 
   // ============================================================================
@@ -1698,6 +2116,517 @@ async function startServer() {
       success: true,
       count: items.length,
       medicines: items
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: ADVANCED SMART SEARCH & AUTOCOMPLETE
+  // ============================================================================
+  app.get('/api/medicines/search/smart', (req, res) => {
+    const queryStr = typeof req.query.q === 'string' ? req.query.q.trim().toLowerCase() : '';
+    const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+    const otcOnly = req.query.otcOnly === 'true';
+    const rxOnly = req.query.rxOnly === 'true';
+
+    // Only approved medicines
+    let pool = db.medicines.filter(m => m.approvalStatus === 'approved');
+
+    if (category && category !== 'all') {
+      pool = pool.filter(m => m.category === category);
+    }
+    if (otcOnly) {
+      pool = pool.filter(m => !m.requiresPrescription);
+    }
+    if (rxOnly) {
+      pool = pool.filter(m => m.requiresPrescription);
+    }
+
+    if (!queryStr) {
+      return res.json({
+        success: true,
+        medicines: pool.slice(0, 15),
+        suggestions: ['Metformin', 'Amoxicillin', 'Amlodipine', 'Insulin', 'Paracetamol', 'Salbutamol']
+      });
+    }
+
+    // Rank matching
+    const results = pool.filter(m => {
+      const matchName = m.name.toLowerCase().includes(queryStr);
+      const matchGeneric = m.genericName?.toLowerCase().includes(queryStr);
+      const matchIndication = m.indications?.some(ind => ind.toLowerCase().includes(queryStr));
+      const matchCat = m.category?.toLowerCase().includes(queryStr);
+      return matchName || matchGeneric || matchIndication || matchCat;
+    });
+
+    // Generate autocomplete suggestions
+    const suggestionsSet = new Set<string>();
+    pool.forEach(m => {
+      if (m.name.toLowerCase().includes(queryStr)) suggestionsSet.add(m.name);
+      if (m.genericName && m.genericName.toLowerCase().includes(queryStr)) suggestionsSet.add(m.genericName);
+    });
+
+    res.json({
+      success: true,
+      count: results.length,
+      medicines: results,
+      suggestions: Array.from(suggestionsSet).slice(0, 6)
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: GENERIC MEDICINE ALTERNATIVES
+  // ============================================================================
+  app.get('/api/medicines/:id/generic-alternatives', (req, res) => {
+    const med = db.medicines.find(m => m.id === req.params.id);
+    if (!med) {
+      return res.status(404).json({ error: 'Medicine not found' });
+    }
+
+    const approvedCatalog = db.medicines.filter(m => m.approvalStatus === 'approved');
+    const alternatives = clinicalService.findGenericAlternatives(med, approvedCatalog);
+
+    res.json({
+      success: true,
+      originalMedicine: {
+        id: med.id,
+        name: med.name,
+        genericName: med.genericName,
+        priceUSD: med.priceUSD,
+        requiresPrescription: med.requiresPrescription
+      },
+      alternativesCount: alternatives.length,
+      alternatives
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: CLINICAL SAFETY & DRUG INTERACTIONS CHECKER
+  // ============================================================================
+  app.post('/api/clinical/drug-interactions', (req, res) => {
+    const medicines = req.body.medicines;
+    if (!Array.isArray(medicines) || medicines.length === 0) {
+      return res.json({ success: true, warnings: [] });
+    }
+
+    const warnings = clinicalService.checkDrugInteractions(medicines);
+    res.json({
+      success: true,
+      warningsCount: warnings.length,
+      hasHighRisk: warnings.some(w => w.severity === 'high'),
+      warnings
+    });
+  });
+
+  app.post('/api/clinical/allergy-check', (req, res) => {
+    const { allergies, medicines } = req.body;
+    if (!Array.isArray(allergies) || !Array.isArray(medicines)) {
+      return res.status(400).json({ error: 'allergies array and medicines array are required' });
+    }
+
+    const warnings = clinicalService.checkAllergyConflicts(allergies, medicines);
+    res.json({
+      success: true,
+      warningsCount: warnings.length,
+      hasHighRisk: warnings.some(w => w.severity === 'high'),
+      warnings
+    });
+  });
+
+  app.get('/api/clinical/symptom-guidance', (req, res) => {
+    const q = typeof req.query.q === 'string' ? req.query.q : '';
+    const guidance = clinicalService.getSymptomGuidance(q);
+
+    res.json({
+      success: true,
+      query: q,
+      disclaimer: 'Non-diagnostic clinical guidance. Always consult a licensed physician or pharmacist. Emergency red flags require immediate hospital attention.',
+      count: guidance.length,
+      guidance
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: AI PRESCRIPTION OCR (GEMINI API WITH PHARMACIST VERIFICATION)
+  // ============================================================================
+  app.post('/api/prescriptions/ai-ocr', async (req, res) => {
+    try {
+      const { imageBase64, mimeType, notes } = req.body;
+      const extraction = await geminiOcrService.extractPrescriptionOcr({
+        imageBase64,
+        mimeType,
+        notes
+      });
+
+      db.prescriptionOcrRecords.set(extraction.id, extraction);
+      await FirestoreDataService.savePrescriptionAiOcr(extraction);
+
+      logAuditEvent(
+        req.user || { id: 'visitor', name: 'Patient Visitor', role: 'customer' },
+        'PRESCRIPTION_AI_OCR_PROCESSED',
+        'PrescriptionAiOcr',
+        extraction.id,
+        `Processed prescription with ${extraction.medicines.length} extracted medication(s). Status: ${extraction.status}`
+      );
+
+      res.json({
+        success: true,
+        extraction
+      });
+    } catch (err: any) {
+      console.error('Error during AI prescription OCR:', err);
+      res.status(500).json({ error: 'Failed to extract prescription with AI OCR' });
+    }
+  });
+
+  // ============================================================================
+  // PHASE A: CRYPTOGRAPHIC E-PRESCRIPTION SIGN & VERIFY
+  // ============================================================================
+  app.post('/api/prescriptions/e-prescribe', (req, res) => {
+    const { prescriptionId, patientId, doctorLicense, medicines, expiresAt } = req.body;
+    if (!prescriptionId || !doctorLicense || !medicines) {
+      return res.status(400).json({ error: 'prescriptionId, doctorLicense, and medicines are required' });
+    }
+
+    const signed = clinicalService.signDigitalPrescription({
+      prescriptionId,
+      patientId: patientId || (req.user?.id || 'usr-customer-1'),
+      doctorLicense,
+      medicines: Array.isArray(medicines) ? medicines : [medicines],
+      expiresAt: expiresAt || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+    });
+
+    res.json({
+      success: true,
+      ...signed
+    });
+  });
+
+  app.post('/api/prescriptions/verify-qr', (req, res) => {
+    const { qrPayload } = req.body;
+    if (!qrPayload) {
+      return res.status(400).json({ error: 'qrPayload is required' });
+    }
+
+    const verification = clinicalService.verifyDigitalPrescription(qrPayload);
+    res.json({
+      success: verification.valid,
+      ...verification
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: FAMILY HEALTH PROFILES
+  // ============================================================================
+  app.get('/api/family-profiles', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    
+    // Check in-memory first
+    let profiles = db.familyProfiles.get(userId) || [];
+    if (profiles.length === 0) {
+      // Try Firestore
+      profiles = await FirestoreDataService.getFamilyProfiles(userId);
+      if (profiles.length > 0) {
+        db.familyProfiles.set(userId, profiles);
+      }
+    }
+
+    res.json({
+      success: true,
+      userId,
+      count: profiles.length,
+      profiles
+    });
+  });
+
+  app.post('/api/family-profiles', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const { name, relationship, dob, gender, bloodGroup, allergies, chronicConditions, activeMedications, notes } = req.body;
+
+    if (!name || !relationship) {
+      return res.status(400).json({ error: 'Name and relationship (me, child, parent, dependent, spouse) are required' });
+    }
+
+    const newProfile: FamilyProfile = {
+      id: `fam-${Date.now()}`,
+      userId,
+      name: name.trim(),
+      relationship,
+      dob: dob || '1995-01-01',
+      gender: gender || 'other',
+      bloodGroup,
+      allergies: Array.isArray(allergies) ? allergies : [],
+      chronicConditions: Array.isArray(chronicConditions) ? chronicConditions : [],
+      activeMedications: Array.isArray(activeMedications) ? activeMedications : [],
+      notes,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const currentList = db.familyProfiles.get(userId) || [];
+    currentList.push(newProfile);
+    db.familyProfiles.set(userId, currentList);
+
+    await FirestoreDataService.saveFamilyProfile(newProfile);
+
+    logAuditEvent(
+      req.user || { id: userId, name: 'Customer', role: 'customer' },
+      'FAMILY_PROFILE_CREATED',
+      'FamilyProfile',
+      newProfile.id,
+      `Created family profile '${newProfile.name}' (${newProfile.relationship})`
+    );
+
+    res.status(201).json({
+      success: true,
+      profile: newProfile
+    });
+  });
+
+  app.put('/api/family-profiles/:id', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const profileId = req.params.id;
+    const currentList = db.familyProfiles.get(userId) || [];
+    const index = currentList.findIndex(p => p.id === profileId);
+
+    if (index === -1) {
+      return res.status(404).json({ error: 'Family profile not found' });
+    }
+
+    const updated: FamilyProfile = {
+      ...currentList[index],
+      ...req.body,
+      id: profileId,
+      userId,
+      updatedAt: new Date().toISOString()
+    };
+
+    currentList[index] = updated;
+    db.familyProfiles.set(userId, currentList);
+    await FirestoreDataService.saveFamilyProfile(updated);
+
+    res.json({
+      success: true,
+      profile: updated
+    });
+  });
+
+  app.delete('/api/family-profiles/:id', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const profileId = req.params.id;
+    const currentList = db.familyProfiles.get(userId) || [];
+    const filtered = currentList.filter(p => p.id !== profileId);
+
+    if (filtered.length === currentList.length) {
+      return res.status(404).json({ error: 'Family profile not found' });
+    }
+
+    db.familyProfiles.set(userId, filtered);
+    await FirestoreDataService.deleteFamilyProfile(profileId);
+
+    res.json({
+      success: true,
+      message: 'Family profile removed successfully'
+    });
+  });
+
+  // ============================================================================
+  // PHASE A: ONE-CLICK CHRONIC PRESCRIPTION REFILLS
+  // ============================================================================
+  app.get('/api/refills', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    let refills = db.chronicRefills.get(userId) || [];
+
+    if (refills.length === 0) {
+      refills = await FirestoreDataService.getChronicRefills(userId);
+      if (refills.length > 0) {
+        db.chronicRefills.set(userId, refills);
+      }
+    }
+
+    // Dynamically recalculate remaining days and doses based on frequency
+    const now = Date.now();
+    const updatedRefills = refills.map(refill => {
+      const nextDate = new Date(refill.nextRefillDate).getTime();
+      const diffDays = Math.max(0, Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24)));
+      const isRxExpired = refill.prescriptionExpiry ? new Date(refill.prescriptionExpiry).getTime() < now : false;
+
+      return {
+        ...refill,
+        remainingDays: diffDays,
+        prescriptionValid: !isRxExpired,
+        status: isRxExpired ? 'needs_prescription' as const : refill.status
+      };
+    });
+
+    res.json({
+      success: true,
+      count: updatedRefills.length,
+      refills: updatedRefills
+    });
+  });
+
+  // 1-Click Refill Action
+  app.post('/api/refills/request', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const { refillId, deliveryAddress, paymentMethod } = req.body;
+
+    if (!refillId) {
+      return res.status(400).json({ error: 'refillId is required' });
+    }
+
+    const refills = db.chronicRefills.get(userId) || [];
+    const refill = refills.find(r => r.id === refillId);
+
+    if (!refill) {
+      return res.status(404).json({ error: 'Chronic refill record not found' });
+    }
+
+    // Check Prescription Validity
+    if (!refill.prescriptionValid) {
+      return res.status(400).json({ 
+        error: 'Prescription expired or renewal required. Please upload an updated prescription from your physician.',
+        code: 'PRESCRIPTION_RENEWAL_REQUIRED'
+      });
+    }
+
+    // Check Medicine Stock in Approved Pharmacy
+    const med = db.medicines.find(m => m.id === refill.medicineId || m.name === refill.medicineName);
+    const assignedPharmacy = db.pharmacies.find(p => p.approvalStatus === 'approved') || db.pharmacies[0];
+
+    const orderId = `ord-refill-${Date.now()}`;
+    const totalAmount = refill.unitPriceUSD * (refill.quantity > 10 ? 1 : refill.quantity); // 1 pack or item price
+
+    const newOrder = {
+      id: orderId,
+      customerId: userId,
+      patientName: refill.profileName,
+      pharmacyId: assignedPharmacy?.id || 'pharma-01',
+      pharmacyName: assignedPharmacy?.name || 'Nairobi Central Chemist',
+      items: [
+        {
+          medicineId: refill.medicineId,
+          medicineName: refill.medicineName,
+          genericName: refill.genericName,
+          dosage: refill.dosage,
+          quantity: 1,
+          unitPriceUSD: refill.unitPriceUSD,
+          subtotalUSD: refill.unitPriceUSD,
+          requiresPrescription: false // Already validated through chronic profile
+        }
+      ],
+      status: 'confirmed',
+      paymentStatus: 'paid',
+      paymentMethod: paymentMethod || 'family_wallet',
+      deliveryAddress: deliveryAddress || 'House 14B, Ole Odume Road, Kilimani, Nairobi',
+      deliveryFeeUSD: 0, // Free delivery for chronic refills
+      totalAmountUSD: refill.unitPriceUSD,
+      currency: 'USD',
+      requiresColdChain: med?.requiresColdChain || false,
+      isChronicRefill: true,
+      refillId: refill.id,
+      notes: `1-Click Chronic Refill for ${refill.profileName} (${refill.medicineName})`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.orders.push(newOrder);
+
+    // Update Refill cycle
+    refill.lastRefillDate = new Date().toISOString();
+    refill.nextRefillDate = new Date(Date.now() + refill.frequencyDays * 24 * 60 * 60 * 1000).toISOString();
+    refill.remainingDays = refill.frequencyDays;
+    refill.remainingDoses = refill.quantity;
+    db.chronicRefills.set(userId, refills);
+    await FirestoreDataService.saveChronicRefill(refill);
+
+    logAuditEvent(
+      req.user || { id: userId, name: 'Patient', role: 'customer' },
+      'CHRONIC_1CLICK_REFILL_DISPATCHED',
+      'Order',
+      orderId,
+      `Triggered 1-click refill for ${refill.medicineName}. Order #${orderId} confirmed automatically.`
+    );
+
+    res.status(201).json({
+      success: true,
+      message: '1-Click Refill order placed and dispatched to approved pharmacy successfully!',
+      order: newOrder,
+      updatedRefill: refill
+    });
+  });
+
+  app.post('/api/refills', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const { 
+      profileId, 
+      profileName, 
+      medicineId, 
+      medicineName, 
+      genericName, 
+      dosage, 
+      quantity, 
+      unitPriceUSD, 
+      frequencyDays,
+      prescriptionId,
+      prescriptionExpiry
+    } = req.body;
+
+    if (!medicineName || !frequencyDays) {
+      return res.status(400).json({ error: 'medicineName and frequencyDays are required' });
+    }
+
+    const newRefill: ChronicRefillRecord = {
+      id: `refill-${Date.now()}`,
+      userId,
+      profileId: profileId || 'fam-me',
+      profileName: profileName || 'Grace Muthoni',
+      medicineId: medicineId || `med-${Date.now()}`,
+      medicineName: medicineName.trim(),
+      genericName: genericName || medicineName,
+      dosage: dosage || 'Standard dosage',
+      quantity: quantity || 30,
+      unitPriceUSD: unitPriceUSD || 8.0,
+      frequencyDays: Number(frequencyDays),
+      lastRefillDate: new Date().toISOString(),
+      nextRefillDate: new Date(Date.now() + Number(frequencyDays) * 24 * 60 * 60 * 1000).toISOString(),
+      remainingDays: Number(frequencyDays),
+      remainingDoses: quantity || 30,
+      prescriptionId,
+      prescriptionExpiry: prescriptionExpiry || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      prescriptionValid: true,
+      autoRefillEnabled: true,
+      status: 'active'
+    };
+
+    const refills = db.chronicRefills.get(userId) || [];
+    refills.push(newRefill);
+    db.chronicRefills.set(userId, refills);
+    await FirestoreDataService.saveChronicRefill(newRefill);
+
+    res.status(201).json({
+      success: true,
+      refill: newRefill
+    });
+  });
+
+  app.put('/api/refills/:id/toggle-auto', async (req, res) => {
+    const userId = req.user?.id || 'usr-customer-1';
+    const refillId = req.params.id;
+    const refills = db.chronicRefills.get(userId) || [];
+    const refill = refills.find(r => r.id === refillId);
+
+    if (!refill) {
+      return res.status(404).json({ error: 'Refill record not found' });
+    }
+
+    refill.autoRefillEnabled = !refill.autoRefillEnabled;
+    db.chronicRefills.set(userId, refills);
+    await FirestoreDataService.saveChronicRefill(refill);
+
+    res.json({
+      success: true,
+      autoRefillEnabled: refill.autoRefillEnabled,
+      refill
     });
   });
 
@@ -3594,6 +4523,116 @@ async function startServer() {
       success: true,
       sessionsRevoked: revokedCount,
       message: `All active sessions for ${target.name} have been terminated.`
+    });
+  });
+
+  // Super Admin / Admin: Change Administrator Username
+  app.put('/api/admin/administrators/:id/username', requirePermission('administrators.edit'), (req, res) => {
+    const { id } = req.params;
+    const { username } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'حساب المشرف غير موجود.', code: 'ADMIN_NOT_FOUND' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason || 'ليس لديك صلاحية لتعديل هذا المشرف.' });
+    }
+
+    if (!username || typeof username !== 'string' || username.trim().length < 3) {
+      return res.status(400).json({ error: 'اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.' });
+    }
+
+    const cleanUsername = username.trim().toLowerCase();
+
+    // Check uniqueness across all users
+    const existing = Array.from(db.users.values()).find(
+      u => u.id !== target.id && u.username?.toLowerCase() === cleanUsername
+    );
+    if (existing) {
+      return res.status(400).json({ error: 'اسم المستخدم هذا مستخدم بالفعل من قبل حساب آخر.' });
+    }
+
+    const previousUsername = target.username || target.email;
+    target.username = cleanUsername;
+    target.updatedAt = new Date().toISOString();
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      'Administrator Username Changed',
+      'Administrator RBAC',
+      target.id,
+      `Administrator '${actor.name}' changed username for '${target.name}' from '${previousUsername}' to '${cleanUsername}'.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    const { passwordHash: _, salt: __, ...safeAdmin } = target;
+    res.json({
+      success: true,
+      administrator: safeAdmin,
+      message: `تم تغيير اسم المستخدم إلى ${cleanUsername} بنجاح.`
+    });
+  });
+
+  // Super Admin: Change / Reset Administrator Password
+  app.put('/api/admin/administrators/:id/password', requirePermission('administrators.change_password'), (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    const actor = req.user!;
+
+    const target = db.users.get(id);
+    if (!target) {
+      return res.status(404).json({ error: 'حساب المشرف غير موجود.', code: 'ADMIN_NOT_FOUND' });
+    }
+
+    const check = canManageAdmin(actor, target);
+    if (!check.allowed) {
+      return res.status(403).json({ error: check.reason || 'ليس لديك صلاحية لتعديل كلمة مرور هذا المشرف.' });
+    }
+
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+      return res.status(400).json({ error: 'كلمة المرور يجب أن لا تقل عن 8 أحرف.' });
+    }
+
+    const newSalt = generateSalt();
+    const newHash = hashPassword(newPassword, newSalt);
+
+    target.salt = newSalt;
+    target.passwordHash = newHash;
+    target.updatedAt = new Date().toISOString();
+
+    // Revoke all active sessions for the target admin
+    let revokedCount = 0;
+    for (const [token, sessionUser] of db.sessions.entries()) {
+      if (sessionUser.id === target.id) {
+        db.sessions.delete(token);
+        revokedCount++;
+      }
+    }
+
+    db.users.set(target.id, target);
+
+    logAuditEvent(
+      actor,
+      'Administrator Password Changed/Reset',
+      'Administrator Security',
+      target.id,
+      `Administrator '${actor.name}' changed/reset the password for '${target.name}' (${target.username || target.email}). ${revokedCount} active session(s) terminated.`,
+      'success',
+      undefined,
+      req.ip || '127.0.0.1'
+    );
+
+    res.json({
+      success: true,
+      message: `تم تحديث كلمة المرور للمشرف ${target.name} بنجاح وإنهاء كافة الجلسات السابقة.`,
+      sessionsRevoked: revokedCount
     });
   });
 

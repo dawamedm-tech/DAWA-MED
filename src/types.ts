@@ -506,6 +506,7 @@ export interface AuthUser {
   twoFactorExpiresAt?: number;
   token?: string;
   tokenExpiresAt?: number;
+  mustChangePassword?: boolean;
   lastLoginAt?: string;
   updatedAt?: string;
   avatarUrl?: string;
@@ -517,6 +518,9 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone: string;
+  role?: UserRole;
+  permissions?: Permission[];
+  mustChangePassword?: boolean;
   countryCode: string;
   city: string;
   streetAddress: string;
@@ -1070,6 +1074,128 @@ export interface RevenueAnalyticsResponse {
     netPayableUSD: number;
     subscriptionPlan: string;
   }[];
+}
+
+// ==========================================
+// PHASE A: CORE CLINICAL & CUSTOMER TYPES
+// ==========================================
+
+export type FamilyRelationship = 'me' | 'child' | 'parent' | 'dependent' | 'spouse';
+
+export interface FamilyProfile {
+  id: string;
+  userId: string;
+  name: string;
+  relationship: FamilyRelationship;
+  dob: string;
+  gender: 'male' | 'female' | 'other';
+  bloodGroup?: string;
+  allergies: string[];
+  chronicConditions: string[];
+  activeMedications: string[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChronicRefillRecord {
+  id: string;
+  userId: string;
+  profileId: string;
+  profileName: string;
+  medicineId: string;
+  medicineName: string;
+  genericName: string;
+  dosage: string;
+  quantity: number;
+  unitPriceUSD: number;
+  frequencyDays: number;
+  lastRefillDate: string;
+  nextRefillDate: string;
+  remainingDays: number;
+  remainingDoses: number;
+  prescriptionId?: string;
+  prescriptionExpiry?: string;
+  prescriptionValid: boolean;
+  autoRefillEnabled: boolean;
+  status: 'active' | 'paused' | 'needs_prescription' | 'completed';
+}
+
+export interface DrugInteractionWarning {
+  severity: 'low' | 'moderate' | 'high';
+  drugsInvolved: string[];
+  titleEn: string;
+  titleAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  clinicalAdviceEn: string;
+  clinicalAdviceAr: string;
+  isDuplicateActiveIngredient: boolean;
+  duplicateIngredientName?: string;
+  pharmacistReviewRequired: boolean;
+}
+
+export interface GenericAlternative {
+  id: string;
+  originalMedicineId: string;
+  name: string;
+  genericName: string;
+  activeIngredient: string;
+  strength: string;
+  dosageForm: string;
+  manufacturer: string;
+  priceUSD: number;
+  savingsUSD: number;
+  savingsPercentage: number;
+  isBioequivalentApproved: boolean;
+  inStock: boolean;
+  pharmacyId: string;
+  pharmacyName: string;
+  requiresPharmacistReview: boolean;
+}
+
+export interface SymptomGuidanceItem {
+  id: string;
+  symptomEn: string;
+  symptomAr: string;
+  category: string;
+  isEmergencyRedFlag: boolean;
+  redFlagWarningEn?: string;
+  redFlagWarningAr?: string;
+  recommendedOtcs: {
+    genericName: string;
+    brandExamples: string[];
+    purposeEn: string;
+    purposeAr: string;
+    maxDurationDays: number;
+  }[];
+  lifestyleAdviceEn: string[];
+  lifestyleAdviceAr: string[];
+  whenToSeeDoctorEn: string;
+  whenToSeeDoctorAr: string;
+}
+
+export interface PrescriptionAiOcrExtraction {
+  id: string;
+  prescriptionId?: string;
+  extractedAt: string;
+  doctorName?: string;
+  clinicName?: string;
+  datePrescribed?: string;
+  medicines: {
+    name: string;
+    genericName?: string;
+    dosage: string;
+    form?: string;
+    frequency: string;
+    duration: string;
+    instructions?: string;
+    isControlledDrug?: boolean;
+  }[];
+  confidenceScore: number;
+  status: 'awaiting_pharmacist_verification' | 'verified_by_pharmacist' | 'rejected_by_pharmacist';
+  pharmacistReviewNotes?: string;
+  disclaimer: string;
 }
 
 

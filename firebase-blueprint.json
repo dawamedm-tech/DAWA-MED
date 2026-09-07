@@ -144,12 +144,78 @@
         "timestamp": { "type": "string" }
       },
       "required": ["id", "deviceId", "temperature", "timestamp"]
+    },
+    "FamilyProfile": {
+      "title": "FamilyProfile",
+      "description": "Patient family member health record and allergy profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "relationship": { "type": "string", "enum": ["me", "child", "parent", "dependent", "spouse"] },
+        "dob": { "type": "string", "maxLength": 30 },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
+        "bloodGroup": { "type": "string", "maxLength": 10 },
+        "allergies": { "type": "array", "items": { "type": "string" } },
+        "chronicConditions": { "type": "array", "items": { "type": "string" } },
+        "activeMedications": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "relationship"]
+    },
+    "ChronicRefill": {
+      "title": "ChronicRefill",
+      "description": "1-click chronic prescription refill cycle tracking and remaining quantities",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "profileId": { "type": "string", "maxLength": 128 },
+        "medicineId": { "type": "string", "maxLength": 128 },
+        "medicineName": { "type": "string", "maxLength": 150 },
+        "quantity": { "type": "number" },
+        "frequencyDays": { "type": "number" },
+        "lastRefillDate": { "type": "string" },
+        "nextRefillDate": { "type": "string" },
+        "remainingDays": { "type": "number" },
+        "remainingDoses": { "type": "number" },
+        "prescriptionValid": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["active", "paused", "needs_prescription", "completed"] }
+      },
+      "required": ["id", "userId", "medicineId", "status"]
+    },
+    "PrescriptionAiOcr": {
+      "title": "PrescriptionAiOcr",
+      "description": "AI-extracted prescription metadata awaiting pharmacist clinical review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "prescriptionId": { "type": "string", "maxLength": 128 },
+        "extractedAt": { "type": "string" },
+        "confidenceScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["awaiting_pharmacist_verification", "verified_by_pharmacist", "rejected_by_pharmacist"] },
+        "disclaimer": { "type": "string" }
+      },
+      "required": ["id", "status", "confidenceScore"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": { "$ref": "UserProfile" },
       "description": "User profile directory with RBAC and security properties"
+    },
+    "/family_profiles/{profileId}": {
+      "schema": { "$ref": "FamilyProfile" },
+      "description": "Family health profile with allergies and dependent access"
+    },
+    "/chronic_refills/{refillId}": {
+      "schema": { "$ref": "ChronicRefill" },
+      "description": "Chronic prescription refill tracker"
+    },
+    "/prescription_ai_ocr/{ocrId}": {
+      "schema": { "$ref": "PrescriptionAiOcr" },
+      "description": "AI OCR clinical extraction record"
     },
     "/pharmacies/{pharmacyId}": {
       "schema": { "$ref": "Pharmacy" },

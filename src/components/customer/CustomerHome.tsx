@@ -52,9 +52,28 @@ import {
   Tag,
   Check,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Users,
+  Repeat,
+  Stethoscope,
+  DollarSign,
+  AlertOctagon,
+  ChevronDown
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { 
+  FamilyProfile, 
+  ChronicRefillRecord, 
+  GenericAlternative, 
+  DrugInteractionWarning, 
+  PrescriptionAiOcrExtraction 
+} from '../../types';
+import { FamilyHealthManager } from './FamilyHealthManager';
+import { ChronicRefillManager } from './ChronicRefillManager';
+import { ClinicalSafetyModal } from './ClinicalSafetyModal';
+import { GenericAlternativesModal } from './GenericAlternativesModal';
+import { SymptomTriageAssistant } from './SymptomTriageAssistant';
+import { PrescriptionAiScanner } from './PrescriptionAiScanner';
 
 export interface CustomerHomeProps {
   medicines: Medicine[];
@@ -127,6 +146,29 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
   const [isPharmaciesModalOpen, setIsPharmaciesModalOpen] = useState(false);
   const [isAllCatalogOpen, setIsAllCatalogOpen] = useState(false);
   const [selectedMedicineForDetail, setSelectedMedicineForDetail] = useState<Medicine | null>(null);
+
+  // Phase A: Clinical Safety, Refills, Family Health & AI Scanner
+  const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
+  const [activeFamilyProfile, setActiveFamilyProfile] = useState<FamilyProfile | null>({
+    id: 'fam-me',
+    userId: 'usr-customer-1',
+    name: 'Grace Muthoni',
+    relationship: 'me',
+    dob: '1988-06-14',
+    gender: 'female',
+    bloodGroup: 'A+',
+    allergies: ['Penicillin', 'Sulfa drugs'],
+    chronicConditions: ['Type-2 Diabetes', 'Hypertension'],
+    activeMedications: ['Metformin 500mg', 'Lisinopril 10mg'],
+    isPrimary: true
+  });
+  const [isRefillsModalOpen, setIsRefillsModalOpen] = useState(false);
+  const [isClinicalSafetyModalOpen, setIsClinicalSafetyModalOpen] = useState(false);
+  const [clinicalSafetyWarnings, setClinicalSafetyWarnings] = useState<DrugInteractionWarning[]>([]);
+  const [isGenericModalOpen, setIsGenericModalOpen] = useState(false);
+  const [selectedMedicineForGeneric, setSelectedMedicineForGeneric] = useState<Medicine | null>(null);
+  const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
+  const [isAiPrescriptionScannerOpen, setIsAiPrescriptionScannerOpen] = useState(false);
 
   // Search & Filtering
   const [searchQuery, setSearchQuery] = useState('');
@@ -313,10 +355,47 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
     }
   };
 
-  // Handle Checkout Submit
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle Checkout Submit with Clinical Pre-Screening
+  const handleCheckoutSubmit = async (e?: React.FormEvent, skipClinicalCheck = false) => {
+    if (e) e.preventDefault();
     if (cartItems.length === 0) return;
+
+    // Run clinical safety pre-screening if not already overridden with pharmacist consult
+    if (!skipClinicalCheck) {
+      try {
+        const medIds = cartItems.map(i => i.medicine.id);
+        const res = await fetch('/api/clinical/drug-interactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ medicineIds: medIds })
+        });
+        const data = await res.json();
+        let allWarnings: DrugInteractionWarning[] = data.warnings || [];
+
+        if (activeFamilyProfile && activeFamilyProfile.allergies && activeFamilyProfile.allergies.length > 0) {
+          const aRes = await fetch('/api/clinical/allergy-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              patientAllergies: activeFamilyProfile.allergies,
+              medicineIds: medIds
+            })
+          });
+          const aData = await aRes.json();
+          if (aData.warnings) {
+            allWarnings = [...allWarnings, ...aData.warnings];
+          }
+        }
+
+        if (allWarnings.length > 0) {
+          setClinicalSafetyWarnings(allWarnings);
+          setIsClinicalSafetyModalOpen(true);
+          return; // Pause order to show clinical warnings
+        }
+      } catch (err) {
+        console.error('Clinical pre-check error:', err);
+      }
+    }
 
     setIsSubmittingOrder(true);
 
@@ -446,6 +525,40 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
         ) : (
           /* Default Tab: Home Screen */
           <>
+            {/* Phase A: Family Health Profile & 1-Click Refill Bar */}
+            <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
+              <button
+                type="button"
+                onClick={() => setIsFamilyModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-950 border border-emerald-200/80 rounded-full text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+                id="btn-active-family-profile"
+              >
+                <Users className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span>
+                  {activeFamilyProfile 
+                    ? `${activeFamilyProfile.name} (${activeFamilyProfile.relationship === 'me' ? (isRtl ? 'أنا' : 'Self') : activeFamilyProfile.relationship})` 
+                    : (isRtl ? 'الملف الصحي العائلي' : 'Family Health Profile')}
+                </span>
+                {activeFamilyProfile?.allergies && activeFamilyProfile.allergies.length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" title="Active Allergy Alert" />
+                )}
+                <ChevronDown className="w-3 h-3 text-emerald-700 shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsRefillsModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-900 border border-teal-200 rounded-full text-xs font-bold transition-all shadow-2xs shrink-0 cursor-pointer"
+                id="btn-chronic-refills-header"
+              >
+                <Repeat className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                <span>{isRtl ? 'إعادة التعبئة بضغطة واحدة' : '1-Click Refills'}</span>
+                <span className="text-[10px] px-1.5 py-0.2 bg-emerald-600 text-white rounded-full font-extrabold">
+                  {isRtl ? 'مجاني' : 'Free'}
+                </span>
+              </button>
+            </div>
+
             {/* 2. Hero Section: Mint Card with Headline, Subtitle, and 3D Graphic */}
             <HeroBanner language={language} />
 
@@ -465,7 +578,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
               language={language}
               onOrderMedicine={() => {
                 // If prescription required or direct order
-                onOpenUploadRx();
+                setIsAiPrescriptionScannerOpen(true);
               }}
               onTrackOrder={() => {
                 setActiveTab('orders');
@@ -474,9 +587,50 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
                 setIsPharmaciesModalOpen(true);
               }}
               onMedicineReminder={() => {
-                onRoleChange('subscription');
+                setIsRefillsModalOpen(true);
               }}
             />
+
+            {/* Phase A: Clinical AI & Safety Hub Cards */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsAiPrescriptionScannerOpen(true)}
+                className="p-2.5 sm:p-3 bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/90 rounded-2xl flex items-center gap-2.5 text-left hover:border-emerald-300 transition-all cursor-pointer shadow-2xs group"
+                id="btn-open-ai-rx-scanner"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-4.5 h-4.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-bold text-neutral-900 block truncate">
+                    {isRtl ? 'المسح بالذكاء الاصطناعي' : 'AI Rx Scanner'}
+                  </span>
+                  <span className="text-[10.5px] text-emerald-700 font-medium block truncate">
+                    {isRtl ? 'استخراج الوصفة بـ Gemini' : 'Multimodal Gemini OCR'}
+                  </span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSymptomModalOpen(true)}
+                className="p-2.5 sm:p-3 bg-gradient-to-br from-teal-50 to-emerald-50/50 border border-teal-200/90 rounded-2xl flex items-center gap-2.5 text-left hover:border-teal-300 transition-all cursor-pointer shadow-2xs group"
+                id="btn-open-symptom-triage"
+              >
+                <div className="w-9 h-9 rounded-xl bg-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                  <Stethoscope className="w-4.5 h-4.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-bold text-neutral-900 block truncate">
+                    {isRtl ? 'دليل الأعراض والطوارئ' : 'Symptom Triage'}
+                  </span>
+                  <span className="text-[10.5px] text-teal-800 font-medium block truncate">
+                    {isRtl ? 'رصد العلامات الحمراء' : 'Red-Flag Emergency Check'}
+                  </span>
+                </div>
+              </button>
+            </div>
 
             {/* 5. Promotional Banner: 20% Off, DAWA20, Order Now, Product Render */}
             <PromotionalBanner
@@ -673,6 +827,30 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
 
             {/* Cart Items List */}
             <div className="p-4 overflow-y-auto flex-1 space-y-3">
+              {/* Patient Profile for this Order */}
+              {cartItems.length > 0 && (
+                <div className="p-2.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-700 shrink-0" />
+                    <div>
+                      <span className="text-[10px] text-emerald-800 font-semibold block">
+                        {isRtl ? 'الطلب للمريض:' : 'Ordering for Patient:'}
+                      </span>
+                      <span className="font-bold text-neutral-900">
+                        {activeFamilyProfile?.name || customerName}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsFamilyModalOpen(true)}
+                    className="text-[11px] font-bold text-emerald-700 hover:underline"
+                  >
+                    {isRtl ? 'تغيير المريض' : 'Switch Profile'}
+                  </button>
+                </div>
+              )}
+
               {cartItems.length === 0 ? (
                 <div className="py-16 text-center text-neutral-400 space-y-3">
                   <ShoppingBag className="w-12 h-12 mx-auto text-neutral-200" />
@@ -687,41 +865,58 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
               ) : (
                 <>
                   {cartItems.map((item) => (
-                    <div key={item.medicine.id} className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className="w-11 h-11 rounded-xl bg-white border border-neutral-200 p-1 flex items-center justify-center shrink-0">
-                          {item.medicine.imageUrl ? (
-                            <img src={item.medicine.imageUrl} alt={item.medicine.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />
-                          ) : (
-                            <span className="text-xs font-bold text-[#0E7A4B]">Rx</span>
-                          )}
+                    <div key={item.medicine.id} className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80 space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <div className="w-11 h-11 rounded-xl bg-white border border-neutral-200 p-1 flex items-center justify-center shrink-0">
+                            {item.medicine.imageUrl ? (
+                              <img src={item.medicine.imageUrl} alt={item.medicine.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />
+                            ) : (
+                              <span className="text-xs font-bold text-[#0E7A4B]">Rx</span>
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <h5 className="font-bold text-xs text-neutral-900 truncate">{item.medicine.name}</h5>
+                            <p className="text-[10px] text-neutral-500 truncate">{item.medicine.dosage}</p>
+                            <span className="text-xs font-extrabold text-[#0E7A4B]">
+                              {formatCurrency(item.medicine.priceUSD * item.quantity, selectedCountry, language)}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="min-w-0 flex-1">
-                          <h5 className="font-bold text-xs text-neutral-900 truncate">{item.medicine.name}</h5>
-                          <p className="text-[10px] text-neutral-500 truncate">{item.medicine.dosage}</p>
-                          <span className="text-xs font-extrabold text-[#0E7A4B]">
-                            {formatCurrency(item.medicine.priceUSD * item.quantity, selectedCountry, language)}
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-xl border border-neutral-200 shrink-0">
+                          <button
+                            onClick={() => onUpdateQuantity(item.medicine.id, -1)}
+                            className="w-5 h-5 rounded-lg text-neutral-600 hover:bg-neutral-100 flex items-center justify-center"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-bold text-neutral-900 min-w-3 text-center">
+                            {item.quantity}
                           </span>
+                          <button
+                            onClick={() => onUpdateQuantity(item.medicine.id, 1)}
+                            className="w-5 h-5 rounded-lg text-neutral-600 hover:bg-neutral-100 flex items-center justify-center"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
 
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-xl border border-neutral-200 shrink-0">
+                      {/* Generic Alternative Button */}
+                      <div className="pt-1.5 border-t border-neutral-200/60 flex items-center justify-between">
                         <button
-                          onClick={() => onUpdateQuantity(item.medicine.id, -1)}
-                          className="w-5 h-5 rounded-lg text-neutral-600 hover:bg-neutral-100 flex items-center justify-center"
+                          type="button"
+                          onClick={() => {
+                            setSelectedMedicineForGeneric(item.medicine);
+                            setIsGenericModalOpen(true);
+                          }}
+                          className="text-[10.5px] font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 cursor-pointer"
                         >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-xs font-bold text-neutral-900 min-w-3 text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => onUpdateQuantity(item.medicine.id, 1)}
-                          className="w-5 h-5 rounded-lg text-neutral-600 hover:bg-neutral-100 flex items-center justify-center"
-                        >
-                          <Plus className="w-3 h-3" />
+                          <DollarSign className="w-3 h-3 text-emerald-600" />
+                          <span>{isRtl ? 'البحث عن بديل جنيس أوفر' : 'Find Cheaper Generic Alternative'}</span>
                         </button>
                       </div>
                     </div>
@@ -827,6 +1022,109 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
           </div>
         </div>
       )}
+
+      {/* Phase A: Family Health Manager Modal */}
+      <FamilyHealthManager
+        isOpen={isFamilyModalOpen}
+        onClose={() => setIsFamilyModalOpen(false)}
+        language={language}
+        activeProfileId={activeFamilyProfile?.id}
+        onSelectProfile={(profile) => {
+          setActiveFamilyProfile(profile);
+          setCustomerName(profile.name);
+        }}
+      />
+
+      {/* Phase A: 1-Click Chronic Refill Manager Modal */}
+      <ChronicRefillManager
+        isOpen={isRefillsModalOpen}
+        onClose={() => setIsRefillsModalOpen(false)}
+        language={language}
+        onOrderPlaced={(order) => {
+          onPlaceOrder(order);
+          setActiveTab('orders');
+        }}
+      />
+
+      {/* Phase A: Clinical Safety & Drug Interaction Modal */}
+      <ClinicalSafetyModal
+        isOpen={isClinicalSafetyModalOpen}
+        onClose={() => setIsClinicalSafetyModalOpen(false)}
+        warnings={clinicalSafetyWarnings}
+        language={language}
+        onConfirmWithConsultation={() => {
+          setIsClinicalSafetyModalOpen(false);
+          handleCheckoutSubmit(undefined, true);
+        }}
+        onRemoveItem={(medName) => {
+          const matchedItem = cartItems.find(i => 
+            i.medicine.name.toLowerCase().includes(medName.toLowerCase()) || 
+            i.medicine.genericName.toLowerCase().includes(medName.toLowerCase())
+          );
+          if (matchedItem) {
+            onUpdateQuantity(matchedItem.medicine.id, -matchedItem.quantity);
+          }
+          setIsClinicalSafetyModalOpen(false);
+        }}
+      />
+
+      {/* Phase A: Approved Generic Alternatives Modal */}
+      <GenericAlternativesModal
+        isOpen={isGenericModalOpen}
+        onClose={() => {
+          setIsGenericModalOpen(false);
+          setSelectedMedicineForGeneric(null);
+        }}
+        medicine={selectedMedicineForGeneric}
+        language={language}
+        onSwitchToGeneric={(generic) => {
+          if (selectedMedicineForGeneric) {
+            onUpdateQuantity(selectedMedicineForGeneric.id, -99);
+            const genericMedObj: Medicine = {
+              ...selectedMedicineForGeneric,
+              id: generic.id,
+              name: generic.name,
+              genericName: generic.activeIngredient,
+              priceUSD: generic.priceUSD,
+              dosage: `${generic.strength} • ${generic.dosageForm}`,
+              manufacturer: generic.manufacturer,
+            };
+            onAddToCart(genericMedObj);
+          }
+        }}
+      />
+
+      {/* Phase A: Symptom Triage Assistant Modal */}
+      <SymptomTriageAssistant
+        isOpen={isSymptomModalOpen}
+        onClose={() => setIsSymptomModalOpen(false)}
+        language={language}
+        onSelectOtcMedicine={(otcName) => {
+          setSearchQuery(otcName);
+          setIsAllCatalogOpen(true);
+        }}
+      />
+
+      {/* Phase A: AI Prescription Scanner Modal */}
+      <PrescriptionAiScanner
+        isOpen={isAiPrescriptionScannerOpen}
+        onClose={() => setIsAiPrescriptionScannerOpen(false)}
+        language={language}
+        onConfirmOrderWithRx={(extraction) => {
+          const matchedMed = medicines.find(m => 
+            extraction.medicines.some(em => 
+              m.name.toLowerCase().includes(em.name.toLowerCase()) ||
+              m.genericName.toLowerCase().includes(em.name.toLowerCase())
+            )
+          );
+          if (matchedMed) {
+            onAddToCart(matchedMed);
+            setIsCartDrawerOpen(true);
+          } else {
+            setIsCartDrawerOpen(true);
+          }
+        }}
+      />
     </div>
   );
 };

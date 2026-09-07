@@ -619,6 +619,24 @@ export const DEFAULT_USERS: AuthUser[] = [
     lastLoginAt: new Date().toISOString()
   },
   {
+    id: 'usr-admin-system',
+    username: 'admin',
+    name: 'DAWA System Administrator',
+    phone: '+254 700 000 002',
+    email: 'admin@dawamed.com',
+    role: 'admin',
+    permissions: ROLE_PERMISSIONS.admin,
+    status: 'active',
+    isVerified: true,
+    preferredLanguage: 'ar',
+    countryCode: 'KE',
+    city: 'Nairobi',
+    streetAddress: 'DAWA Central Administrative HQ',
+    requires2FA: false,
+    is2FAVerified: true,
+    lastLoginAt: new Date().toISOString()
+  },
+  {
     id: 'usr-admin-mosa',
     username: 'mosa',
     name: 'Mosa (System Administrator)',
@@ -677,17 +695,18 @@ export const DEFAULT_USERS: AuthUser[] = [
     username: 'superadmin',
     name: 'DAWA MED System Super Admin',
     phone: '+254 700 000 001',
-    email: 'superadmin@dawamed.com',
+    email: 'dawa.med.m@gmail.com',
     role: 'super_admin',
     permissions: ROLE_PERMISSIONS.super_admin,
     status: 'active',
     isVerified: true,
-    preferredLanguage: 'en',
+    preferredLanguage: 'ar',
     countryCode: 'KE',
     city: 'Nairobi',
     streetAddress: 'DAWA Global Technology Operations',
-    requires2FA: true,
+    requires2FA: false,
     is2FAVerified: true,
+    mustChangePassword: true,
     lastLoginAt: new Date().toISOString()
   }
 ];

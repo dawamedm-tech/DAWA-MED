@@ -52,6 +52,30 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // FAMILY HEALTH PROFILES
+    match /family_profiles/{profileId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // CHRONIC PRESCRIPTION REFILLS
+    match /chronic_refills/{refillId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin() || isPharmacy());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin() || isPharmacy());
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // AI PRESCRIPTION OCR RECORDS
+    match /prescription_ai_ocr/{ocrId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isPharmacy() || isAdmin());
+      allow delete: if isAdmin();
+    }
+
     // PHARMACIES COLLECTION
     match /pharmacies/{pharmacyId} {
       allow read: if true; // Directory visible to patients

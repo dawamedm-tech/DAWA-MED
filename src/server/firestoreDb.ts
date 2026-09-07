@@ -14,7 +14,17 @@ import {
   limit 
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { AuthUser, Medicine, PharmacyPartner, SupportTicket, AuditLog, Order } from '../types';
+import { 
+  AuthUser, 
+  Medicine, 
+  PharmacyPartner, 
+  SupportTicket, 
+  AuditLog, 
+  Order, 
+  FamilyProfile, 
+  ChronicRefillRecord, 
+  PrescriptionAiOcrExtraction 
+} from '../types';
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const serverDb = getFirestore(app, firebaseConfig.firestoreDatabaseId);
@@ -328,6 +338,70 @@ export class FirestoreDataService {
     } catch (e) {
       console.error('Error fetching telemetry for order:', e);
       return null;
+    }
+  }
+
+  // --- FAMILY HEALTH PROFILES ---
+  static async getFamilyProfiles(userId: string): Promise<FamilyProfile[]> {
+    try {
+      const q = query(collection(serverDb, 'family_profiles'), where('userId', '==', userId));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => d.data() as FamilyProfile);
+    } catch (e) {
+      console.warn('Error fetching family profiles from Firestore:', e);
+      return [];
+    }
+  }
+
+  static async saveFamilyProfile(profile: FamilyProfile): Promise<void> {
+    try {
+      await setDoc(doc(serverDb, 'family_profiles', profile.id), {
+        ...profile,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (e) {
+      console.warn('Error saving family profile to Firestore:', e);
+    }
+  }
+
+  static async deleteFamilyProfile(profileId: string): Promise<void> {
+    try {
+      await deleteDoc(doc(serverDb, 'family_profiles', profileId));
+    } catch (e) {
+      console.warn('Error deleting family profile from Firestore:', e);
+    }
+  }
+
+  // --- CHRONIC REFILLS ---
+  static async getChronicRefills(userId: string): Promise<ChronicRefillRecord[]> {
+    try {
+      const q = query(collection(serverDb, 'chronic_refills'), where('userId', '==', userId));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => d.data() as ChronicRefillRecord);
+    } catch (e) {
+      console.warn('Error fetching chronic refills from Firestore:', e);
+      return [];
+    }
+  }
+
+  static async saveChronicRefill(refill: ChronicRefillRecord): Promise<void> {
+    try {
+      await setDoc(doc(serverDb, 'chronic_refills', refill.id), {
+        ...refill
+      }, { merge: true });
+    } catch (e) {
+      console.warn('Error saving chronic refill to Firestore:', e);
+    }
+  }
+
+  // --- AI PRESCRIPTION OCR ---
+  static async savePrescriptionAiOcr(ocr: PrescriptionAiOcrExtraction): Promise<void> {
+    try {
+      await setDoc(doc(serverDb, 'prescription_ai_ocr', ocr.id), {
+        ...ocr
+      }, { merge: true });
+    } catch (e) {
+      console.warn('Error saving prescription AI OCR to Firestore:', e);
     }
   }
 }

@@ -51,6 +51,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { PrescriptionUploadModal } from './components/PrescriptionUploadModal';
 import { ReceiptModal } from './components/ReceiptModal';
 import { AuthModal, AuthMode } from './components/AuthModal';
+import { UnifiedLoginPage, AuthScreenMode } from './components/UnifiedLoginPage';
 import { NotificationsModal } from './components/NotificationsModal';
 import { LiveReminderBanner } from './components/LiveReminderBanner';
 import { DawaMonthlySubscribeModal } from './components/DawaMonthlySubscribeModal';
@@ -83,6 +84,18 @@ function AppInner() {
   const [referralConfig, setReferralConfig] = useState<ReferralSystemConfig>(INITIAL_REFERRAL_CONFIG);
 
   // Modals & Overlays
+  const [authViewMode, setAuthViewMode] = useState<AuthScreenMode>(() => {
+    const path = window.location.pathname;
+    if (path === '/admin/login') return 'admin_login';
+    if (path === '/register') return 'register';
+    if (path === '/forgot-password') return 'forgot_password';
+    if (path === '/reset-password') return 'reset_code';
+    if (path === '/verify-otp') return '2fa_challenge';
+    return 'login';
+  });
+  const [isLoginViewActive, setIsLoginViewActive] = useState<boolean>(() => {
+    return ['/login', '/admin/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'].includes(window.location.pathname);
+  });
   const [isSplashOpen, setIsSplashOpen] = useState<boolean>(false);
   const [isUploadRxOpen, setIsUploadRxOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
@@ -101,6 +114,35 @@ function AppInner() {
   const [isLegalModalOpen, setIsLegalModalOpen] = useState<boolean>(false);
   const [isHealthTestsModalOpen, setIsHealthTestsModalOpen] = useState<boolean>(false);
 
+  // Sync auth URL paths with popstate
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const isAuthPath = ['/login', '/admin/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'].includes(path);
+      setIsLoginViewActive(isAuthPath);
+      if (path === '/admin/login') setAuthViewMode('admin_login');
+      else if (path === '/register') setAuthViewMode('register');
+      else if (path === '/forgot-password') setAuthViewMode('forgot_password');
+      else if (path === '/reset-password') setAuthViewMode('reset_code');
+      else if (path === '/verify-otp') setAuthViewMode('2fa_challenge');
+      else if (path === '/login') setAuthViewMode('login');
+      else if (path === '/admin') {
+        const savedRole = localStorage.getItem('dawa_user_role');
+        const token = localStorage.getItem('dawa_auth_token');
+        const adminRoles = ['admin', 'super_admin', 'medical_admin', 'operations_admin', 'support_admin', 'system_admin'];
+        if (!token || !adminRoles.includes(savedRole || '')) {
+          setIsLoginViewActive(true);
+          setAuthViewMode('admin_login');
+          window.history.replaceState(null, '', '/admin/login');
+        } else {
+          setCurrentRole('admin');
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // RTL & Arabic typography support
   useEffect(() => {
     if (language === 'ar') {
@@ -117,7 +159,6 @@ function AppInner() {
   // Session Verification on Mount
   useEffect(() => {
     const token = localStorage.getItem('dawa_auth_token');
-    const savedRole = localStorage.getItem('dawa_user_role') as UserRole;
     if (token) {
       fetch('/api/auth/verify-session', {
         headers: {
@@ -135,16 +176,50 @@ function AppInner() {
               email: data.user.email,
               phone: data.user.phone || prev.phone,
               isRegistered: true,
+              role: data.user.role,
+              permissions: data.user.permissions,
+              mustChangePassword: data.user.mustChangePassword,
               preferredLanguage: data.user.preferredLanguage || prev.preferredLanguage
             }));
             if (data.user.role) {
               localStorage.setItem('dawa_user_role', data.user.role);
+              const uRole = data.user.role;
+              const adminRoles = ['admin', 'super_admin', 'medical_admin', 'operations_admin', 'support_admin', 'system_admin'];
+              const isTargetAdmin = adminRoles.includes(uRole);
+              const targetRole: UserRole = isTargetAdmin ? 'admin' : (uRole as UserRole) || 'customer';
+
+              if (window.location.pathname === '/login' || window.location.pathname === '/admin/login') {
+                setIsLoginViewActive(false);
+                setCurrentRole(targetRole);
+              } else if (window.location.pathname === '/admin') {
+                if (isTargetAdmin) {
+                  setIsLoginViewActive(false);
+                  setCurrentRole('admin');
+                } else {
+                  // Block customer/driver/pharmacy from /admin
+                  setIsLoginViewActive(true);
+                  setAuthViewMode('admin_login');
+                  window.history.replaceState(null, '', '/admin/login');
+                }
+              }
+            }
+          } else {
+            // Not authenticated: if attempting to access /admin, redirect to admin login
+            if (window.location.pathname === '/admin') {
+              setIsLoginViewActive(true);
+              setAuthViewMode('admin_login');
+              window.history.replaceState(null, '', '/admin/login');
             }
           }
         })
         .catch(() => {
           // Keep local state on network interruption
         });
+    } else if (window.location.pathname === '/admin') {
+      // Direct access to /admin without token: redirect to login
+      setIsLoginViewActive(true);
+      setAuthViewMode('admin_login');
+      window.history.replaceState(null, '', '/admin/login');
     }
   }, []);
 
@@ -619,13 +694,32 @@ function AppInner() {
     setNotifications((prev) => [notif, ...prev]);
   };
 
-  // Open Auth Modal with specific mode (login, register, admin, pharmacy)
-  const handleOpenAuth = (mode: AuthMode = 'login') => {
-    setAuthModalMode(mode);
-    setIsAuthOpen(true);
+  // Unified Auth Router: routes to /login or /register for any authentication action
+  const handleOpenAuth = (mode: AuthMode | 'profile' | string = 'login') => {
+    if (mode === 'register') {
+      setAuthViewMode('register');
+      setIsLoginViewActive(true);
+      window.history.pushState(null, '', '/register');
+    } else if (mode === 'forgot_password') {
+      setAuthViewMode('forgot_password');
+      setIsLoginViewActive(true);
+      window.history.pushState(null, '', '/forgot-password');
+    } else if (mode === 'profile') {
+      if (userProfile?.isRegistered) {
+        setIsAuthOpen(true);
+      } else {
+        setAuthViewMode('register');
+        setIsLoginViewActive(true);
+        window.history.pushState(null, '', '/register');
+      }
+    } else {
+      setAuthViewMode('login');
+      setIsLoginViewActive(true);
+      window.history.pushState(null, '', '/login');
+    }
   };
 
-  // Sign out
+  // Sign out securely and return to unified login
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -639,6 +733,10 @@ function AppInner() {
       ...prev,
       isRegistered: false,
     }));
+    setCurrentRole('customer');
+    setAuthViewMode('login');
+    setIsLoginViewActive(true);
+    window.history.pushState(null, '', '/login');
   };
 
   // Find active reminder for top banner (first active reminder)
@@ -657,16 +755,62 @@ function AppInner() {
         selectedCountry={selectedCountry}
       />
 
-      {/* Main Global Header (Rendered for non-customer roles like Pharmacy, Driver, Admin, Support) */}
+      {isLoginViewActive ? (
+        <UnifiedLoginPage
+          key={authViewMode}
+          initialMode={authViewMode}
+          language={language}
+          onLanguageChange={setLanguage}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
+          onAuthSuccess={(user, token) => {
+            localStorage.setItem('dawa_auth_token', token);
+            if (user?.role) {
+              localStorage.setItem('dawa_user_role', user.role);
+            }
+            setUserProfile((prev) => ({
+              ...prev,
+              id: user.id || prev.id,
+              name: user.name || prev.name,
+              email: user.email || prev.email,
+              phone: user.phone || prev.phone,
+              isRegistered: true,
+              role: user.role,
+              permissions: user.permissions,
+              mustChangePassword: user.mustChangePassword,
+              preferredLanguage: user.preferredLanguage || prev.preferredLanguage,
+            }));
+            const uRole = user.role || 'customer';
+            const adminRoles = ['admin', 'super_admin', 'system_admin', 'medical_admin', 'operations_admin', 'support_admin'];
+            const targetRole: UserRole = adminRoles.includes(uRole)
+              ? 'admin'
+              : (uRole as UserRole) || 'customer';
+            setCurrentRole(targetRole);
+            setIsLoginViewActive(false);
+            window.history.pushState(null, '', `/${targetRole}`);
+          }}
+          onCancel={() => {
+            setIsLoginViewActive(false);
+            window.history.pushState(null, '', '/');
+          }}
+        />
+      ) : (
+        <>
+          {/* Main Global Header (Rendered for non-customer roles like Pharmacy, Driver, Admin, Support) */}
       {currentRole !== 'customer' && (
         <Header
           currentRole={currentRole}
           onRoleChange={(role) => {
-            if ((role === 'admin' || role === 'super_admin') && (!userProfile?.isRegistered || (localStorage.getItem('dawa_user_role') !== 'admin' && localStorage.getItem('dawa_user_role') !== 'super_admin'))) {
-              handleOpenAuth('admin');
-            } else {
-              setCurrentRole(role);
+            const adminRoles = ['admin', 'super_admin', 'system_admin', 'medical_admin', 'operations_admin', 'support_admin'];
+            const savedRole = localStorage.getItem('dawa_user_role') || userProfile?.role;
+            const isUserAdmin = adminRoles.includes(savedRole || '');
+            if (adminRoles.includes(role)) {
+              if (!userProfile?.isRegistered || !isUserAdmin) {
+                handleOpenAuth('admin');
+                return;
+              }
             }
+            setCurrentRole(role);
           }}
           language={language}
           onLanguageChange={setLanguage}
@@ -1067,6 +1211,8 @@ function AppInner() {
         onOpenLegal={() => setIsLegalModalOpen(true)}
         onOpenHealthTests={() => setIsHealthTestsModalOpen(true)}
       />
+        </>
+      )}
     </div>
   );
 }
