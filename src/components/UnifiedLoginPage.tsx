@@ -173,13 +173,25 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
         })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (!response.ok || !data.success) {
-        if (data.code === 'ACCOUNT_SUSPENDED') {
-          setErrorMsg(isRtl ? 'تم تجميد هذا الحساب من قبل إدارة الامتثال الطبي لـ دواء ميد.' : 'Account suspended by DAWA MED compliance.');
+      if (!response.ok || !data?.success) {
+        if (response.status === 401) {
+          setErrorMsg(isRtl ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' : 'Invalid email or password.');
+        } else if (response.status === 403) {
+          if (data?.code === 'ACCOUNT_NOT_ACTIVE') {
+            setErrorMsg(isRtl ? 'هذا الحساب غير مفعل.' : 'This account is not active.');
+          } else if (data?.code === 'FORBIDDEN_ADMIN_REQUIRED') {
+            setErrorMsg(isRtl ? 'ليس لديك صلاحية للوصول إلى لوحة الإدارة.' : 'You do not have permission to access the admin dashboard.');
+          } else {
+            setErrorMsg(isRtl ? 'تم تجميد هذا الحساب من قبل إدارة الامتثال الطبي لـ دواء ميد.' : 'Account suspended by DAWA MED compliance.');
+          }
+        } else if (response.status === 429) {
+          setErrorMsg(isRtl ? 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا.' : 'Too many login attempts, please try again later.');
+        } else if (response.status >= 500) {
+          setErrorMsg(isRtl ? 'حدث خطأ في الخادم. يرجى المحاولة لاحقًا.' : 'Server error. Please try again later.');
         } else {
-          setErrorMsg(data.error || (isRtl ? 'بيانات الدخول غير صحيحة، يرجى التحقق والمحاولة مجددًا.' : 'Invalid credentials, please try again.'));
+          setErrorMsg(data?.error || (isRtl ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' : 'Invalid email or password.'));
         }
         setIsLoading(false);
         return;
@@ -194,7 +206,7 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
 
       onAuthSuccess(data.user, data.token);
     } catch (err) {
-      setErrorMsg(isRtl ? 'حدث خطأ في الاتصال بالخادم، يرجى المحاولة لاحقًا.' : 'Server connection error, please try again.');
+      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 'Unable to connect to the server. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -208,7 +220,7 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
 
     const cleanUsername = adminUsername.trim();
     if (!cleanUsername) {
-      setErrorMsg(isRtl ? 'يرجى إدخال اسم المستخدم' : 'Please enter your username');
+      setErrorMsg(isRtl ? 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني' : 'Please enter your username or email');
       return;
     }
 
@@ -225,21 +237,29 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: cleanUsername,
+          identifier: cleanUsername,
+          email: cleanUsername,
           password: adminPassword
         })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (!response.ok || !data.success) {
-        if (data.code === 'ACCOUNT_SUSPENDED') {
-          setErrorMsg(isRtl ? 'تم تجميد هذا الحساب الإداري.' : 'Account suspended.');
-        } else if (data.code === 'FORBIDDEN_ADMIN_REQUIRED') {
-          setErrorMsg(isRtl ? 'ليس لديك صلاحية للوصول إلى لوحة الإدارة' : 'You do not have administrative privileges');
-        } else if (data.code === 'TOO_MANY_ATTEMPTS') {
-          setErrorMsg(isRtl ? 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا' : 'Too many attempts, please try again later');
+      if (!response.ok || !data?.success) {
+        if (response.status === 401) {
+          setErrorMsg(isRtl ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' : 'Invalid email or password.');
+        } else if (response.status === 403) {
+          if (data?.code === 'FORBIDDEN_ADMIN_REQUIRED') {
+            setErrorMsg(isRtl ? 'ليس لديك صلاحية للوصول إلى لوحة الإدارة.' : 'You do not have permission to access the admin dashboard.');
+          } else {
+            setErrorMsg(isRtl ? 'تم تجميد هذا الحساب الإداري.' : 'Administrative account suspended.');
+          }
+        } else if (response.status === 429) {
+          setErrorMsg(isRtl ? 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا.' : 'Too many attempts, please try again later.');
+        } else if (response.status >= 500) {
+          setErrorMsg(isRtl ? 'حدث خطأ في الخادم. يرجى المحاولة لاحقًا.' : 'Server error. Please try again later.');
         } else {
-          setErrorMsg(data.error || (isRtl ? 'بيانات تسجيل الدخول غير صحيحة' : 'Invalid administrative credentials'));
+          setErrorMsg(data?.error || (isRtl ? 'بيانات تسجيل الدخول غير صحيحة.' : 'Invalid credentials.'));
         }
         setIsLoading(false);
         return;
@@ -254,7 +274,7 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
 
       onAuthSuccess(data.user, data.token);
     } catch (err) {
-      setErrorMsg(isRtl ? 'حدث خطأ في الاتصال بالخادم، يرجى المحاولة لاحقًا.' : 'Server connection error, please try again.');
+      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 'Unable to connect to the server. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -651,11 +671,11 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
             <AuthInput
               id="admin-username"
               labelId="admin-username-label"
-              label={isRtl ? 'اسم المستخدم' : 'Username'}
+              label={isRtl ? 'اسم المستخدم أو البريد الإلكتروني' : 'Username or Email'}
               icon={<User className="w-4 h-4 text-[#8FA3BF]" />}
               value={adminUsername}
               onChange={(e) => setAdminUsername(e.target.value)}
-              placeholder="admin"
+              placeholder={isRtl ? 'superadmin أو dawa.med.m@gmail.com' : 'superadmin or dawa.med.m@gmail.com'}
               type="text"
               autoComplete="username"
               required

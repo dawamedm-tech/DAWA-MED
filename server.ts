@@ -69,6 +69,24 @@ async function startServer() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+  // CORS & Cross-Origin Request Headers Middleware
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-user-id, x-user-role, x-requested-with, Accept, Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
+    next();
+  });
+
   // In-memory production-simulated database repository
   const db = {
     otpRecords: new Map<string, {
@@ -526,6 +544,15 @@ async function startServer() {
         userRole: req.user.role
       });
     }
+
+    if (req.user.mustChangePassword && req.path !== '/api/auth/change-password' && req.path !== '/api/admin/change-password') {
+      return res.status(403).json({
+        error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
+        code: 'PASSWORD_CHANGE_REQUIRED',
+        mustChangePassword: true
+      });
+    }
+
     next();
   };
 
@@ -537,6 +564,15 @@ async function startServer() {
           code: 'UNAUTHORIZED'
         });
       }
+
+      if (req.user.mustChangePassword && req.path !== '/api/auth/change-password' && req.path !== '/api/admin/change-password') {
+        return res.status(403).json({
+          error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
+          code: 'PASSWORD_CHANGE_REQUIRED',
+          mustChangePassword: true
+        });
+      }
+
       if (!hasPermission(req.user, permission)) {
         logAuditEvent(
           req.user,
@@ -1024,21 +1060,41 @@ async function startServer() {
     });
   });
 
-  // Verify Session Token Endpoint
-  app.get('/api/auth/verify-session', (req, res) => {
-    if (req.user && req.sessionToken) {
+  // Verify Session Token Endpoint (Supports GET and POST)
+  const verifySessionHandler = (req: Request, res: Response) => {
+    let token = req.sessionToken;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.substring(7);
+    }
+    if (!token && req.body && req.body.token) {
+      token = req.body.token;
+    }
+
+    let user = req.user;
+    if (!user && token && db.sessions.has(token)) {
+      user = db.sessions.get(token);
+    }
+
+    if (user && token && db.sessions.has(token)) {
+      const { passwordHash: _, salt: __, ...safeUser } = user as any;
       return res.json({
         authenticated: true,
-        user: req.user,
-        role: req.user.role,
-        permissions: req.user.permissions || ROLE_PERMISSIONS[req.user.role] || []
+        success: true,
+        token,
+        user: safeUser,
+        role: user.role,
+        permissions: user.permissions || ROLE_PERMISSIONS[user.role] || []
       });
     }
     return res.json({
       authenticated: false,
+      success: false,
       user: null
     });
-  });
+  };
+
+  app.get('/api/auth/verify-session', verifySessionHandler);
+  app.post('/api/auth/verify-session', verifySessionHandler);
 
   // Authenticated User Change Own Password
   app.post('/api/auth/change-password', requireAuth, (req, res) => {
@@ -1720,8 +1776,9 @@ async function startServer() {
     });
   });
 
-  app.post('/api/auth/send-otp', (req, res) => {
-    const { phone, countryCode } = req.body;
+  const sendOtpHandler = (req: Request, res: Response) => {
+    const phone = req.body.phone || req.body.identifier;
+    const { countryCode } = req.body;
     if (!phone || typeof phone !== 'string' || phone.trim().length < 6) {
       return res.status(400).json({ error: 'Valid phone number is required.' });
     }
@@ -1756,10 +1813,14 @@ async function startServer() {
       expiresInSeconds: 300,
       sandboxOtp: isDev ? otpCode : undefined
     });
-  });
+  };
 
-  app.post('/api/auth/verify-otp', (req, res) => {
-    const { phone, code, role } = req.body;
+  app.post('/api/auth/send-otp', sendOtpHandler);
+  app.post('/api/auth/otp/request', sendOtpHandler);
+
+  const verifyOtpHandler = (req: Request, res: Response) => {
+    const phone = req.body.phone || req.body.identifier;
+    const { code, role } = req.body;
     if (!phone || !code) {
       return res.status(400).json({ error: 'Phone and OTP code are required.' });
     }
@@ -1837,7 +1898,10 @@ async function startServer() {
       token: sessionToken,
       user: userProfile
     });
-  });
+  };
+
+  app.post('/api/auth/verify-otp', verifyOtpHandler);
+  app.post('/api/auth/otp/verify', verifyOtpHandler);
 
   // Forgot Password: Support Email or Phone Number with Cryptographic Token / OTP
   app.post('/api/auth/forgot-password', async (req, res) => {

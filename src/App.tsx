@@ -997,20 +997,22 @@ function AppInner() {
             language={language}
             medicines={medicines}
             currentUser={(() => {
-              const matchedDefault = DEFAULT_USERS.find((u) => u.role === currentRole);
+              const effectiveRole = (userProfile.role || currentRole) as UserRole;
+              const matchedDefault = DEFAULT_USERS.find((u) => u.role === effectiveRole);
               return {
-                id: userProfile.id || matchedDefault?.id || `usr-${currentRole}-1`,
-                username: userProfile.username || matchedDefault?.username || currentRole,
-                name: matchedDefault?.name || userProfile.name || 'DAWA Administrator',
-                email: matchedDefault?.email || userProfile.email || `${currentRole}@dawamed.com`,
-                role: currentRole as UserRole,
-                permissions: (ROLE_PERMISSIONS[currentRole as keyof typeof ROLE_PERMISSIONS] || ROLE_PERMISSIONS.admin) as any,
+                id: userProfile.id || matchedDefault?.id || `usr-${effectiveRole}-1`,
+                username: userProfile.username || matchedDefault?.username || effectiveRole,
+                name: userProfile.name || matchedDefault?.name || 'DAWA Administrator',
+                email: userProfile.email || matchedDefault?.email || `${effectiveRole}@dawamed.com`,
+                role: effectiveRole,
+                permissions: (userProfile.permissions || ROLE_PERMISSIONS[effectiveRole as keyof typeof ROLE_PERMISSIONS] || ROLE_PERMISSIONS.admin) as any,
                 status: 'active',
                 isVerified: true,
-                countryCode: matchedDefault?.countryCode || userProfile.countryCode || selectedCountry.code,
-                city: matchedDefault?.city || userProfile.city || selectedCountry.sampleCity,
-                streetAddress: matchedDefault?.streetAddress || userProfile.streetAddress || 'DAWA HQ',
-                preferredLanguage: matchedDefault?.preferredLanguage || userProfile.preferredLanguage || language,
+                mustChangePassword: userProfile.mustChangePassword,
+                countryCode: userProfile.countryCode || matchedDefault?.countryCode || selectedCountry.code,
+                city: userProfile.city || matchedDefault?.city || selectedCountry.sampleCity,
+                streetAddress: userProfile.streetAddress || matchedDefault?.streetAddress || 'DAWA HQ',
+                preferredLanguage: userProfile.preferredLanguage || matchedDefault?.preferredLanguage || language,
                 lastLoginAt: new Date().toISOString()
               };
             })()}
