@@ -22,6 +22,8 @@ import {
   AuthFooterLink,
   getSafeDialCode
 } from './auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 export type AuthMode = 'login' | 'register' | 'admin' | 'pharmacy_register' | 'forgot_password';
 
@@ -300,15 +302,53 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  // Social Login Demo
-  const handleSocialLogin = (provider: 'google' | 'facebook') => {
-    setIdentifier('patient@dawamed.com');
-    setLoginPassword('DawaMed@2026!Secure');
-    setSuccessMsg(
-      isRtl 
-        ? `تم تسجيل الدخول السريع عبر ${provider === 'google' ? 'Google' : 'Facebook'}`
-        : `Connected via ${provider === 'google' ? 'Google' : 'Facebook'}`
-    );
+  // Real Firebase Google Sign-In with Server-Side ID Token Verification
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const userCredential = await signInWithPopup(auth, provider);
+      const idToken = await userCredential.user.getIdToken();
+
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        setErrorMsg(
+          data?.error || 
+          (isRtl ? 'فشل التحقق من حساب Google لدى خادم المنصة.' : 'Google authentication verification failed on server.')
+        );
+        return;
+      }
+
+      setSuccessMsg(
+        isRtl 
+          ? `تم تسجيل الدخول بنجاح عبر Google (${data.user.name || data.user.email})` 
+          : `Signed in successfully with Google (${data.user.name || data.user.email})`
+      );
+
+      onSaveProfile(data.user, data.token);
+      onClose();
+    } catch (err: any) {
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setErrorMsg(isRtl ? 'تم إغلاق نافذة تسجيل الدخول بواسطة المستخدم.' : 'Google sign-in popup was closed.');
+      } else if (err?.code === 'auth/popup-blocked') {
+        setErrorMsg(isRtl ? 'تم حظر النافذة المنبثقة من قبل المتصفح. يرجى السماح بالنوافذ المنبثقة.' : 'Popup was blocked by browser. Please allow popups.');
+      } else {
+        setErrorMsg(err?.message || (isRtl ? 'حدث خطأ أثناء تسجيل الدخول بواسطة Google.' : 'Error during Google sign-in.'));
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -401,24 +441,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             <AuthDivider text={isRtl ? 'أو عبر' : 'Or with'} className="my-3.5" />
 
-            {/* Social Buttons: Two in one horizontal row */}
-            <div className="flex flex-row justify-center items-center gap-3 w-full max-w-[260px] mx-auto">
+            {/* Google Sign In Button */}
+            <div className="flex justify-center items-center w-full max-w-[260px] mx-auto">
               <button
                 type="button"
-                onClick={() => handleSocialLogin('facebook')}
-                className="w-full max-w-[124px] flex-1 h-[44px] rounded-[11px] bg-[#1877F2] hover:bg-[#166FE5] text-white flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer"
-                title="Facebook"
-              >
-                <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSocialLogin('google')}
-                className="w-full max-w-[124px] flex-1 h-[44px] rounded-[11px] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full h-[44px] rounded-[11px] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] flex items-center justify-center gap-2.5 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[13px] font-medium text-[#374151]"
                 title="Google"
+                aria-label="Google Sign In"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
@@ -426,6 +457,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z" />
                   <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
                 </svg>
+                <span>{isRtl ? 'المتابعة بواسطة Google' : 'Continue with Google'}</span>
               </button>
             </div>
 

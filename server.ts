@@ -50,6 +50,17 @@ import { iotTelemetryService } from './src/server/iotTelemetryService';
 import { productionHealthService } from './src/server/productionHealthService';
 import { clinicalService } from './src/server/clinicalService';
 import { geminiOcrService } from './src/server/geminiOcrService';
+import firebaseConfig from './firebase-applet-config.json';
+import { hashPassword, verifyPassword, generateSalt } from './src/server/cryptoAuth';
+import { SessionService } from './src/server/sessionService';
+import { verifyFirebaseGoogleIdToken } from './src/server/firebaseAuthAdmin';
+import { 
+  loginRateLimiter, 
+  adminLoginRateLimiter, 
+  googleAuthRateLimiter, 
+  passwordResetRateLimiter, 
+  twoFactorRateLimiter 
+} from './src/server/rateLimiter';
 
 
 // Extend Express Request interface for authenticated user
@@ -176,68 +187,13 @@ async function startServer() {
     } as SiteSettings
   };
 
-  // Cryptographic Password Hashing & Verification
-  const hashPassword = (password: string, salt: string): string => {
-    return crypto.createHmac('sha256', salt).update(password).digest('hex');
-  };
-
-  const generateSalt = (): string => {
-    return crypto.randomBytes(16).toString('hex');
-  };
-
-  const verifyPassword = (password: string, user: AuthUser): boolean => {
-    if (!user.passwordHash || !user.salt) {
-      // Standard demo/seed account fallback
-      return true;
-    }
-    const computed = hashPassword(password, user.salt);
-    return computed === user.passwordHash;
-  };
-
-  // In-Memory Rate Limiting & Brute-Force Protection
-  interface FailedAttemptEntry {
-    count: number;
-    firstAttempt: number;
-    lockedUntil: number;
-  }
-  const failedLoginAttempts = new Map<string, FailedAttemptEntry>();
-
-  const checkRateLimit = (key: string): { isLocked: boolean; remainingSec: number } => {
-    const entry = failedLoginAttempts.get(key);
-    if (!entry) return { isLocked: false, remainingSec: 0 };
-    const now = Date.now();
-    if (entry.lockedUntil > now) {
-      return { isLocked: true, remainingSec: Math.ceil((entry.lockedUntil - now) / 1000) };
-    }
-    // If window expired (15 minutes), clean up
-    if (now - entry.firstAttempt > 15 * 60 * 1000) {
-      failedLoginAttempts.delete(key);
-      return { isLocked: false, remainingSec: 0 };
-    }
-    return { isLocked: false, remainingSec: 0 };
-  };
-
-  const recordFailedAttempt = (key: string) => {
-    const now = Date.now();
-    const entry = failedLoginAttempts.get(key) || { count: 0, firstAttempt: now, lockedUntil: 0 };
-    entry.count += 1;
-    if (entry.count >= 5) {
-      entry.lockedUntil = now + 15 * 60 * 1000; // 15-minute lockout
-    }
-    failedLoginAttempts.set(key, entry);
-  };
-
-  const clearFailedAttempts = (key: string) => {
-    failedLoginAttempts.delete(key);
-  };
-
-  // Populate initial users with initialized credentials
+  // Populate initial users with Scrypt-hashed credentials and security states
   DEFAULT_USERS.forEach((u) => {
     if (u.email?.toLowerCase() === 'dawa.med.m@gmail.com' || u.id === 'usr-superadmin-1') {
-      // Primary Super Admin: initialized with secure cryptographic hash & force password change requirement
+      // Primary Super Admin: initialized with OWASP-compliant Scrypt KDF & force password change requirement
       // The initial temporary password is never stored as plain-text in code/storage/logs
       const superAdminSalt = '46249728a6aa359bf0e9f71a47a06959';
-      const superAdminHash = '881ae7793c80720f6b3e8b37f9170e93d86532b336f065998911f7669f0f230f';
+      const superAdminScryptHash = '$scrypt$N=16384,r=8,p=1$074b5ef3d7156b037ddec1b10cc8d1edb58d08d3c8e9c1c694395729626b2da91e059311230ac8b76ea53c65c8d549a59033bbdd1782156ab2f6a08aa50562c4';
       db.users.set(u.id, {
         ...u,
         email: 'dawa.med.m@gmail.com',
@@ -245,19 +201,19 @@ async function startServer() {
         permissions: ROLE_PERMISSIONS.super_admin,
         status: 'active',
         isVerified: true,
-        requires2FA: false,
+        requires2FA: true,
         mustChangePassword: true,
         salt: superAdminSalt,
-        passwordHash: superAdminHash
+        passwordHash: superAdminScryptHash
       });
       return;
     }
-    const salt = generateSalt();
     const defaultPassword = process.env.ADMIN_INITIAL_PASSWORD || 'DawaMed@2026!Secure';
+    const { hash, salt } = hashPassword(defaultPassword);
     db.users.set(u.id, {
       ...u,
       salt,
-      passwordHash: hashPassword(defaultPassword, salt)
+      passwordHash: hash
     });
   });
 
@@ -465,39 +421,25 @@ async function startServer() {
            role === 'medical_admin' || role === 'operations_admin' || role === 'support_admin';
   };
 
-  const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-    const headerUserId = req.headers['x-user-id'] as string;
-    const headerUserRole = req.headers['x-user-role'] as UserRole;
+  const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : null;
 
-    if (token && db.sessions.has(token)) {
-      req.user = db.sessions.get(token);
-      req.sessionToken = token;
-    } else if (headerUserId && db.users.has(headerUserId)) {
-      const u = db.users.get(headerUserId);
-      // Only non-admin contextual lookup without session token; Admin roles require verified session token
-      if (u && !isAnyAdminRole(u.role)) {
-        req.user = u;
+      if (token) {
+        // Look up persistent Firestore-backed session
+        const sessionUser = await SessionService.getSession(token);
+        if (sessionUser) {
+          req.user = sessionUser as AuthUser;
+          req.sessionToken = token;
+        } else if (db.sessions.has(token)) {
+          // Fast in-memory mirror check
+          req.user = db.sessions.get(token);
+          req.sessionToken = token;
+        }
       }
-    } else if (headerUserRole && !isAnyAdminRole(headerUserRole)) {
-      const found = Array.from(db.users.values()).find((u) => u.role === headerUserRole);
-      if (found) {
-        req.user = found;
-      } else {
-        req.user = {
-          id: `usr-context-${headerUserRole}`,
-          name: `Contextual ${headerUserRole}`,
-          role: headerUserRole,
-          permissions: ROLE_PERMISSIONS[headerUserRole] || [],
-          status: 'active',
-          isVerified: true,
-          preferredLanguage: 'en',
-          countryCode: 'KE',
-          city: 'Nairobi',
-          streetAddress: 'DAWA MED Operations Hub'
-        };
-      }
+    } catch (err) {
+      console.warn('⚠️ authMiddleware session check error:', err);
     }
     next();
   };
@@ -516,6 +458,17 @@ async function startServer() {
         error: 'Account Suspended: Your access has been temporarily restricted by administration.',
         code: 'ACCOUNT_SUSPENDED'
       });
+    }
+    if (req.user.mustChangePassword) {
+      const allowedPaths = ['/api/auth/change-password', '/api/admin/change-password', '/api/auth/logout', '/api/auth/verify-session'];
+      if (!allowedPaths.includes(req.path)) {
+        return res.status(403).json({
+          error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات.',
+          code: 'MUST_CHANGE_PASSWORD',
+          legacyCode: 'PASSWORD_CHANGE_REQUIRED',
+          mustChangePassword: true
+        });
+      }
     }
     next();
   };
@@ -545,12 +498,16 @@ async function startServer() {
       });
     }
 
-    if (req.user.mustChangePassword && req.path !== '/api/auth/change-password' && req.path !== '/api/admin/change-password') {
-      return res.status(403).json({
-        error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
-        code: 'PASSWORD_CHANGE_REQUIRED',
-        mustChangePassword: true
-      });
+    if (req.user.mustChangePassword) {
+      const allowedPaths = ['/api/auth/change-password', '/api/admin/change-password', '/api/auth/logout', '/api/auth/verify-session'];
+      if (!allowedPaths.includes(req.path)) {
+        return res.status(403).json({
+          error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
+          code: 'MUST_CHANGE_PASSWORD',
+          legacyCode: 'PASSWORD_CHANGE_REQUIRED',
+          mustChangePassword: true
+        });
+      }
     }
 
     next();
@@ -565,12 +522,16 @@ async function startServer() {
         });
       }
 
-      if (req.user.mustChangePassword && req.path !== '/api/auth/change-password' && req.path !== '/api/admin/change-password') {
-        return res.status(403).json({
-          error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
-          code: 'PASSWORD_CHANGE_REQUIRED',
-          mustChangePassword: true
-        });
+      if (req.user.mustChangePassword) {
+        const allowedPaths = ['/api/auth/change-password', '/api/admin/change-password', '/api/auth/logout', '/api/auth/verify-session'];
+        if (!allowedPaths.includes(req.path)) {
+          return res.status(403).json({
+            error: 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام العمليات الإدارية.',
+            code: 'MUST_CHANGE_PASSWORD',
+            legacyCode: 'PASSWORD_CHANGE_REQUIRED',
+            mustChangePassword: true
+          });
+        }
       }
 
       if (!hasPermission(req.user, permission)) {
@@ -651,8 +612,7 @@ async function startServer() {
       });
     }
 
-    const salt = generateSalt();
-    const passwordHash = hashPassword(password, salt);
+    const { hash: passwordHash, salt } = hashPassword(password);
     const userId = `usr-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`;
 
     const newUser: AuthUser = {
@@ -685,9 +645,14 @@ async function startServer() {
     };
 
     db.users.set(newUser.id, newUser);
+    await FirestoreDataService.saveUser(newUser).catch(err => console.warn('Firestore user save notice:', err));
 
     // Create persistent session
     const sessionToken = `dawa_sec_${crypto.randomBytes(24).toString('hex')}`;
+    await SessionService.createSession(sessionToken, newUser, {
+      ip: req.ip || '127.0.0.1',
+      userAgent: req.headers['user-agent'] as string
+    });
     db.sessions.set(sessionToken, newUser);
 
     // Dispatch Multilingual Welcome Email
@@ -725,7 +690,7 @@ async function startServer() {
   });
 
   // Standard Login (Customer, Pharmacy, Driver, Support, Admin)
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const { identifier, password } = req.body;
 
     if (!identifier) {
@@ -738,7 +703,7 @@ async function startServer() {
     const rateLimitKey = `${clientIp}_${cleanIdentifier}`;
 
     // 1. Rate Limiting & Brute-Force Defense
-    const rateCheck = checkRateLimit(rateLimitKey);
+    const rateCheck = loginRateLimiter.check(rateLimitKey);
     if (rateCheck.isLocked) {
       logAuditEvent(
         { id: 'rate-limited', name: identifier, role: 'customer' },
@@ -765,7 +730,7 @@ async function startServer() {
     );
 
     if (!user) {
-      recordFailedAttempt(rateLimitKey);
+      loginRateLimiter.recordFailure(rateLimitKey);
       logAuditEvent(
         { id: 'anon', name: identifier, role: 'customer' },
         'Login Failed: User Not Found',
@@ -782,10 +747,11 @@ async function startServer() {
       });
     }
 
-    // Verify Password
+    // Verify Password with Scrypt & constant-time check
     if (password && user.passwordHash && user.salt) {
-      if (!verifyPassword(password, user)) {
-        recordFailedAttempt(rateLimitKey);
+      const authResult = verifyPassword(password, user);
+      if (!authResult.isValid) {
+        loginRateLimiter.recordFailure(rateLimitKey);
         logAuditEvent(
           user,
           'Login Failed: Invalid Password',
@@ -800,6 +766,16 @@ async function startServer() {
           error: 'بيانات تسجيل الدخول غير صحيحة',
           code: 'INVALID_CREDENTIALS'
         });
+      }
+
+      if (authResult.needsUpgrade) {
+        // Upgrade legacy HMAC hash to Scrypt
+        const upgraded = hashPassword(password);
+        user.passwordHash = upgraded.hash;
+        user.salt = upgraded.salt;
+        user.updatedAt = new Date().toISOString();
+        db.users.set(user.id, user);
+        FirestoreDataService.saveUser(user).catch(err => console.warn('User hash upgrade persist notice:', err));
       }
     }
 
@@ -829,10 +805,10 @@ async function startServer() {
     }
 
     // Reset rate limiter on valid credentials
-    clearFailedAttempts(rateLimitKey);
+    loginRateLimiter.clear(rateLimitKey);
 
     // If user is Admin or Super Admin attempting regular login and 2FA is required
-    if (isAnyAdminRole(user.role) && user.requires2FA) {
+    if (isAnyAdminRole(user.role) && (user.requires2FA || user.role === 'super_admin')) {
       return res.json({
         success: true,
         requires2FA: true,
@@ -845,6 +821,12 @@ async function startServer() {
       ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
       : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
     user.lastLoginAt = new Date().toISOString();
+    
+    // Save to durable Firestore session store & fast local cache
+    await SessionService.createSession(sessionToken, user, { 
+      ip: clientIp, 
+      userAgent: req.headers['user-agent'] as string 
+    });
     db.sessions.set(sessionToken, user);
 
     logAuditEvent(
@@ -878,7 +860,7 @@ async function startServer() {
     }
 
     // 1. Brute-force rate limiting
-    const rateCheck = checkRateLimit(rateLimitKey);
+    const rateCheck = adminLoginRateLimiter.check(rateLimitKey);
     if (rateCheck.isLocked) {
       logAuditEvent(
         { id: 'rate-limited-admin', name: rawIdentifier, role: 'customer' },
@@ -905,7 +887,7 @@ async function startServer() {
     );
 
     if (!user) {
-      recordFailedAttempt(rateLimitKey);
+      adminLoginRateLimiter.recordFailure(rateLimitKey);
       logAuditEvent(
         { id: 'unauthorized-admin', name: rawIdentifier, role: 'customer' },
         'Admin Portal Login Failed: User Not Found',
@@ -924,7 +906,7 @@ async function startServer() {
 
     // Verify Admin Role & Privileges
     if (!isAnyAdminRole(user.role)) {
-      recordFailedAttempt(rateLimitKey);
+      adminLoginRateLimiter.recordFailure(rateLimitKey);
       logAuditEvent(
         user,
         'Admin Portal Login Blocked: Non-Admin Role Attempt',
@@ -941,23 +923,36 @@ async function startServer() {
       });
     }
 
-    // Verify Password
-    if (user.passwordHash && user.salt && !verifyPassword(password, user)) {
-      recordFailedAttempt(rateLimitKey);
-      logAuditEvent(
-        user,
-        'Admin Login Failed: Incorrect Password',
-        'Admin Security Gate',
-        user.id,
-        `Failed administrative login for '${user.name}' (${user.username || user.email}). Bad password.`,
-        'denied',
-        'INVALID_ADMIN_PASSWORD',
-        clientIp
-      );
-      return res.status(401).json({
-        error: 'بيانات تسجيل الدخول غير صحيحة',
-        code: 'INVALID_CREDENTIALS'
-      });
+    // Verify Password with Scrypt
+    if (user.passwordHash && user.salt) {
+      const authResult = verifyPassword(password, user);
+      if (!authResult.isValid) {
+        adminLoginRateLimiter.recordFailure(rateLimitKey);
+        logAuditEvent(
+          user,
+          'Admin Login Failed: Incorrect Password',
+          'Admin Security Gate',
+          user.id,
+          `Failed administrative login for '${user.name}' (${user.username || user.email}). Bad password.`,
+          'denied',
+          'INVALID_ADMIN_PASSWORD',
+          clientIp
+        );
+        return res.status(401).json({
+          error: 'بيانات تسجيل الدخول غير صحيحة',
+          code: 'INVALID_CREDENTIALS'
+        });
+      }
+
+      if (authResult.needsUpgrade) {
+        // Auto-upgrade legacy hash to Scrypt
+        const upgraded = hashPassword(password);
+        user.passwordHash = upgraded.hash;
+        user.salt = upgraded.salt;
+        user.updatedAt = new Date().toISOString();
+        db.users.set(user.id, user);
+        FirestoreDataService.saveUser(user).catch(err => console.warn('Admin hash upgrade persist notice:', err));
+      }
     }
 
     // Check account status
@@ -976,12 +971,16 @@ async function startServer() {
     }
 
     // Clear failed attempts on success
-    clearFailedAttempts(rateLimitKey);
+    adminLoginRateLimiter.clear(rateLimitKey);
 
-    // If 2FA not required
-    if (!user.requires2FA) {
+    // If 2FA not required (super_admin strictly requires 2FA)
+    if (!user.requires2FA && user.role !== 'super_admin') {
       const adminSessionToken = `dawa_adm_${crypto.randomBytes(32).toString('hex')}`;
       user.lastLoginAt = new Date().toISOString();
+      await SessionService.createSession(adminSessionToken, user, { 
+        ip: clientIp, 
+        userAgent: req.headers['user-agent'] as string 
+      });
       db.sessions.set(adminSessionToken, user);
 
       logAuditEvent(
@@ -1060,25 +1059,200 @@ async function startServer() {
     });
   });
 
+  // Google Firebase Authentication Endpoint (Server-Side ID Token Verification & RBAC Resolution)
+  app.post('/api/auth/google', async (req: Request, res: Response) => {
+    const { idToken } = req.body;
+    const clientIp = req.ip || '127.0.0.1';
+
+    // Rate limiting
+    const rateCheck = googleAuthRateLimiter.check(clientIp);
+    if (rateCheck.isLocked) {
+      return res.status(429).json({
+        error: 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا',
+        code: 'TOO_MANY_ATTEMPTS',
+        retryAfter: rateCheck.remainingSec
+      });
+    }
+
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({ 
+        error: 'رمز التحقق الخاص بـ Google مطلوب (idToken is required).', 
+        code: 'MISSING_ID_TOKEN' 
+      });
+    }
+
+    try {
+      // 1. Verify via firebase-admin SDK / official verifier
+      const adminVerifyResult = await verifyFirebaseGoogleIdToken(idToken);
+      let firebaseUid = '';
+      let cleanEmail = '';
+      let displayName = '';
+
+      if (adminVerifyResult.success && adminVerifyResult.user.uid && adminVerifyResult.user.email) {
+        firebaseUid = adminVerifyResult.user.uid;
+        cleanEmail = adminVerifyResult.user.email.toLowerCase().trim();
+        displayName = adminVerifyResult.user.name || cleanEmail.split('@')[0] || 'Google User';
+      } else {
+        // Backup official Google Identity Toolkit lookup
+        const verifyUrl = `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseConfig.apiKey}`;
+        const lookupResponse = await fetch(verifyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+
+        const lookupData = await lookupResponse.json();
+
+        if (!lookupResponse.ok || !lookupData?.users || lookupData.users.length === 0) {
+          googleAuthRateLimiter.recordFailure(clientIp);
+          logAuditEvent(
+            { id: 'failed-google-auth', name: 'Google Auth Attempt', role: 'customer' },
+            'Google Auth Failed: Invalid ID Token',
+            'Auth Gate',
+            'unknown',
+            `Google Identity verification rejected ID token. IP: ${clientIp}`,
+            'denied',
+            'TOKEN_VERIFICATION_FAILED',
+            clientIp
+          );
+          return res.status(401).json({
+            error: 'فشل التحقق من صحة حساب Google لدى خوادم التحقق الرسمية (Invalid Google ID Token).',
+            code: 'TOKEN_VERIFICATION_FAILED'
+          });
+        }
+
+        const googleUser = lookupData.users[0];
+        firebaseUid = googleUser.localId;
+        cleanEmail = (googleUser.email || '').toLowerCase().trim();
+        const emailVerified = Boolean(googleUser.emailVerified);
+        displayName = googleUser.displayName || cleanEmail.split('@')[0] || 'Google User';
+
+        if (!cleanEmail || !emailVerified) {
+          return res.status(403).json({
+            error: 'حساب Google هذا غير موثق بالبريد الإلكتروني (Unverified Google email).',
+            code: 'UNVERIFIED_GOOGLE_EMAIL'
+          });
+        }
+      }
+
+      googleAuthRateLimiter.clear(clientIp);
+
+      // 2. Server-Side RBAC & Identity Resolution
+      // Lookup in existing system users by firebaseUid OR cleanEmail
+      let matchedUser = Array.from(db.users.values()).find(
+        u => (u.firebaseUid && u.firebaseUid === firebaseUid) ||
+             (u.email && u.email.toLowerCase().trim() === cleanEmail)
+      );
+
+      let finalRole: UserRole = 'customer';
+      let finalPermissions = ROLE_PERMISSIONS.customer;
+
+      if (matchedUser) {
+        // Associated existing server-side record
+        matchedUser.firebaseUid = firebaseUid;
+        matchedUser.isVerified = true;
+        matchedUser.lastLoginAt = new Date().toISOString();
+
+        finalRole = matchedUser.role;
+        finalPermissions = matchedUser.permissions || ROLE_PERMISSIONS[matchedUser.role] || [];
+      } else {
+        // Brand-new Google user:
+        // Strictly verify if this email is the configured Super Admin email
+        if (cleanEmail === 'dawa.med.m@gmail.com') {
+          finalRole = 'super_admin';
+          finalPermissions = ROLE_PERMISSIONS.super_admin;
+        } else {
+          // Normal public Google user: MUST STRICTLY BE A CUSTOMER
+          finalRole = 'customer';
+          finalPermissions = ROLE_PERMISSIONS.customer;
+        }
+
+        matchedUser = {
+          id: finalRole === 'super_admin' ? 'usr-superadmin-1' : `usr-g-${firebaseUid.substring(0, 10)}`,
+          firebaseUid,
+          name: displayName,
+          phone: '',
+          email: cleanEmail,
+          role: finalRole,
+          permissions: finalPermissions,
+          status: 'active',
+          isVerified: true,
+          preferredLanguage: 'ar',
+          countryCode: 'KE',
+          city: 'Nairobi',
+          streetAddress: 'DAWA Customer Address',
+          createdAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString()
+        };
+
+        db.users.set(matchedUser.id, matchedUser);
+        FirestoreDataService.saveUser(matchedUser).catch(err => console.warn('Google user sync notice:', err));
+      }
+
+      // 3. Issue secure server-side session token
+      const sessionToken = (finalRole === 'super_admin' || finalRole === 'admin')
+        ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
+        : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
+
+      await SessionService.createSession(sessionToken, matchedUser, {
+        ip: clientIp,
+        userAgent: req.headers['user-agent'] as string
+      });
+      db.sessions.set(sessionToken, matchedUser);
+
+      logAuditEvent(
+        matchedUser,
+        `User Authentication: Google Sign-In Successful (${finalRole})`,
+        'Auth Gate',
+        matchedUser.id,
+        `User '${matchedUser.name}' authenticated via Google Firebase. Role: ${finalRole}. UID: ${firebaseUid}`,
+        'success',
+        undefined,
+        clientIp
+      );
+
+      const { passwordHash: _, salt: __, ...safeUser } = matchedUser as any;
+      return res.json({
+        success: true,
+        token: sessionToken,
+        user: safeUser,
+        role: finalRole,
+        permissions: finalPermissions
+      });
+    } catch (err: any) {
+      console.error('Error in /api/auth/google:', err);
+      return res.status(500).json({
+        error: 'حدث خطأ غير متوقع أثناء معالجة تسجيل الدخول بـ Google.',
+        code: 'GOOGLE_AUTH_ERROR'
+      });
+    }
+  });
+
   // Verify Session Token Endpoint (Supports GET and POST)
-  const verifySessionHandler = (req: Request, res: Response) => {
+  const verifySessionHandler = async (req: Request, res: Response) => {
     let token = req.sessionToken;
     if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-      token = req.headers.authorization.substring(7);
+      token = req.headers.authorization.substring(7).trim();
     }
     if (!token && req.body && req.body.token) {
-      token = req.body.token;
+      token = String(req.body.token).trim();
     }
 
     let user = req.user;
-    if (!user && token && db.sessions.has(token)) {
-      user = db.sessions.get(token);
+    if (!user && token) {
+      const sessionUser = await SessionService.getSession(token);
+      if (sessionUser) {
+        user = sessionUser as AuthUser;
+      } else if (db.sessions.has(token)) {
+        user = db.sessions.get(token);
+      }
     }
 
-    if (user && token && db.sessions.has(token)) {
+    if (user && token) {
       const { passwordHash: _, salt: __, ...safeUser } = user as any;
       return res.json({
         authenticated: true,
+        isValid: true,
         success: true,
         token,
         user: safeUser,
@@ -1088,6 +1262,7 @@ async function startServer() {
     }
     return res.json({
       authenticated: false,
+      isValid: false,
       success: false,
       user: null
     });
@@ -1097,7 +1272,7 @@ async function startServer() {
   app.post('/api/auth/verify-session', verifySessionHandler);
 
   // Authenticated User Change Own Password
-  app.post('/api/auth/change-password', requireAuth, (req, res) => {
+  app.post('/api/auth/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const user = req.user;
 
@@ -1123,7 +1298,8 @@ async function startServer() {
 
     // Verify current password if user has password hash and currentPassword provided
     if (user.passwordHash && user.salt && currentPassword) {
-      if (!verifyPassword(currentPassword, user)) {
+      const authResult = verifyPassword(currentPassword, user);
+      if (!authResult.isValid) {
         logAuditEvent(
           user,
           'Self Password Change Failed',
@@ -1138,25 +1314,36 @@ async function startServer() {
       }
     }
 
-    const newSalt = generateSalt();
-    const newHash = hashPassword(newPassword, newSalt);
+    const { hash, salt } = hashPassword(newPassword);
 
-    user.salt = newSalt;
-    user.passwordHash = newHash;
+    user.salt = salt;
+    user.passwordHash = hash;
     user.mustChangePassword = false;
     user.updatedAt = new Date().toISOString();
 
     db.users.set(user.id, user);
-    if (req.sessionToken && db.sessions.has(req.sessionToken)) {
-      db.sessions.set(req.sessionToken, user);
-    }
+    await FirestoreDataService.saveUser(user).catch(err => console.warn('Firestore user save notice on password change:', err));
+
+    // Revoke all older sessions for security
+    await SessionService.revokeAllUserSessions(user.id);
+
+    // Issue new session token
+    const freshToken = isAnyAdminRole(user.role)
+      ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
+      : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
+
+    await SessionService.createSession(freshToken, user, {
+      ip: req.ip || '127.0.0.1',
+      userAgent: req.headers['user-agent'] as string
+    });
+    db.sessions.set(freshToken, user);
 
     logAuditEvent(
       user,
       'User Password Changed (Self-Service / Force Update)',
       'Account Security',
       user.id,
-      `User '${user.name}' (${user.username || user.email}) updated password. Force password change condition fulfilled.`,
+      `User '${user.name}' (${user.username || user.email}) updated password using Scrypt KDF. Force password change condition fulfilled.`,
       'success',
       undefined,
       req.ip || '127.0.0.1'
@@ -1165,6 +1352,7 @@ async function startServer() {
     const { passwordHash: _, salt: __, ...safeUser } = user;
     res.json({
       success: true,
+      token: freshToken,
       user: safeUser,
       mustChangePassword: false,
       message: 'تم تحديث كلمة المرور بنجاح. يمكنك الآن متابعة استخدام لوحة الإدارة بأمان.'
@@ -1172,7 +1360,7 @@ async function startServer() {
   });
 
   // Admin Change Password Endpoint (Backward compatibility alias)
-  app.post('/api/admin/change-password', requireAuth, (req, res) => {
+  app.post('/api/admin/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const user = req.user;
 
@@ -1197,7 +1385,8 @@ async function startServer() {
     }
 
     if (user.passwordHash && user.salt && currentPassword) {
-      if (!verifyPassword(currentPassword, user)) {
+      const authResult = verifyPassword(currentPassword, user);
+      if (!authResult.isValid) {
         logAuditEvent(
           user,
           'Password Change Failed: Incorrect Current Password',
@@ -1212,18 +1401,28 @@ async function startServer() {
       }
     }
 
-    const newSalt = generateSalt();
-    const newHash = hashPassword(newPassword, newSalt);
+    const { hash, salt } = hashPassword(newPassword);
 
-    user.salt = newSalt;
-    user.passwordHash = newHash;
+    user.salt = salt;
+    user.passwordHash = hash;
     user.mustChangePassword = false;
     user.updatedAt = new Date().toISOString();
 
     db.users.set(user.id, user);
-    if (req.sessionToken && db.sessions.has(req.sessionToken)) {
-      db.sessions.set(req.sessionToken, user);
-    }
+    await FirestoreDataService.saveUser(user).catch(err => console.warn('Firestore user save notice on admin password change:', err));
+
+    // Revoke all older sessions
+    await SessionService.revokeAllUserSessions(user.id);
+
+    const freshToken = isAnyAdminRole(user.role)
+      ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
+      : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
+
+    await SessionService.createSession(freshToken, user, {
+      ip: req.ip || '127.0.0.1',
+      userAgent: req.headers['user-agent'] as string
+    });
+    db.sessions.set(freshToken, user);
 
     logAuditEvent(
       user,
@@ -1239,6 +1438,7 @@ async function startServer() {
     const { passwordHash: _, salt: __, ...safeUser } = user;
     res.json({
       success: true,
+      token: freshToken,
       user: safeUser,
       mustChangePassword: false,
       message: 'تم تحديث كلمة المرور بنجاح. يمكنك الآن متابعة استخدام لوحة الإدارة بأمان.'
@@ -1246,7 +1446,7 @@ async function startServer() {
   });
 
   // Admin Reset Password for ANY User (Customer, Pharmacy, Driver, Support, Admin)
-  app.post('/api/admin/users/:id/change-password', requirePermission('users.change_password'), (req, res) => {
+  app.post('/api/admin/users/:id/change-password', requirePermission('users.change_password'), async (req, res) => {
     const { id } = req.params;
     const { newPassword, requireChangeOnLogin, notifyUser } = req.body;
     const actor = req.user!;
@@ -1279,8 +1479,7 @@ async function startServer() {
       return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
     }
 
-    const newSalt = generateSalt();
-    const newHash = hashPassword(newPassword, newSalt);
+    const { hash: newHash, salt: newSalt } = hashPassword(newPassword);
 
     targetUser.salt = newSalt;
     targetUser.passwordHash = newHash;
@@ -1289,16 +1488,16 @@ async function startServer() {
       (targetUser as any).mustChangePasswordOnNextLogin = true;
     }
 
-    // Terminate all existing sessions for this user across all devices for security
-    let revokedSessionCount = 0;
+    // Terminate all existing sessions for this user across Firestore and memory
+    const revokedSessionCount = await SessionService.revokeAllUserSessions(targetUser.id);
     for (const [token, sessionUser] of db.sessions.entries()) {
       if (sessionUser.id === targetUser.id) {
         db.sessions.delete(token);
-        revokedSessionCount++;
       }
     }
 
     db.users.set(targetUser.id, targetUser);
+    await FirestoreDataService.saveUser(targetUser).catch(err => console.warn('Firestore user save notice:', err));
 
     // Immutable Audit Log — ZERO secrets, passwords or tokens stored in logs!
     logAuditEvent(
@@ -1321,8 +1520,19 @@ async function startServer() {
   });
 
   // Verify Admin 2FA Code & Issue Admin Session Token
-  app.post('/api/auth/admin/verify-2fa', (req, res) => {
+  app.post('/api/auth/admin/verify-2fa', async (req, res) => {
     const { twoFactorTicket, code } = req.body;
+    const clientIp = req.ip || '127.0.0.1';
+
+    // 2FA Rate limiting per IP
+    const rateCheck = twoFactorRateLimiter.check(clientIp);
+    if (rateCheck.isLocked) {
+      return res.status(429).json({
+        error: 'محاولات تحقق كثيرة، يرجى المحاولة لاحقًا',
+        code: 'TOO_MANY_ATTEMPTS',
+        retryAfter: rateCheck.remainingSec
+      });
+    }
 
     if (!twoFactorTicket || !code) {
       return res.status(400).json({ error: '2FA Ticket and 6-digit verification code are required.' });
@@ -1330,6 +1540,7 @@ async function startServer() {
 
     const sessionRecord = db.twoFactorPendingSessions.get(twoFactorTicket);
     if (!sessionRecord) {
+      twoFactorRateLimiter.recordFailure(clientIp);
       return res.status(400).json({ error: '2FA session has expired or is invalid. Please sign in again.' });
     }
 
@@ -1340,6 +1551,7 @@ async function startServer() {
 
     if (sessionRecord.attempts >= 3) {
       db.twoFactorPendingSessions.delete(twoFactorTicket);
+      twoFactorRateLimiter.recordFailure(clientIp);
       return res.status(403).json({ error: 'Too many incorrect 2FA attempts. Session locked for security.' });
     }
 
@@ -1348,10 +1560,14 @@ async function startServer() {
 
     if (!isValid) {
       sessionRecord.attempts += 1;
+      twoFactorRateLimiter.recordFailure(clientIp);
       return res.status(400).json({
         error: `Incorrect 2FA verification code. ${3 - sessionRecord.attempts} attempt(s) remaining.`
       });
     }
+
+    // Clear rate limit on successful verification
+    twoFactorRateLimiter.clear(clientIp);
 
     // 2FA Verified Successfully
     db.twoFactorPendingSessions.delete(twoFactorTicket);
@@ -1366,6 +1582,10 @@ async function startServer() {
     db.users.set(user.id, user);
 
     const adminSessionToken = `dawa_adm_${crypto.randomBytes(32).toString('hex')}`;
+    await SessionService.createSession(adminSessionToken, user, {
+      ip: req.ip || '127.0.0.1',
+      userAgent: req.headers['user-agent'] as string
+    });
     db.sessions.set(adminSessionToken, user);
 
     logAuditEvent(
@@ -1379,10 +1599,11 @@ async function startServer() {
       req.ip || '127.0.0.1'
     );
 
+    const { passwordHash: _, salt: __, ...safeUser } = user as any;
     res.json({
       success: true,
       token: adminSessionToken,
-      user,
+      user: safeUser,
       message: 'Two-factor authentication verified successfully.'
     });
   });
@@ -1427,8 +1648,7 @@ async function startServer() {
 
     db.pharmacies.unshift(newPharmacy);
 
-    const salt = generateSalt();
-    const passwordHash = hashPassword(password, salt);
+    const { hash: passwordHash, salt } = hashPassword(password);
     const userId = `usr-pharma-${Date.now()}`;
 
     const newPharmacyUser: AuthUser = {
@@ -1489,17 +1709,18 @@ async function startServer() {
   });
 
   // User & Admin Logout (Invalidates active session token)
-  app.post('/api/auth/logout', (req, res) => {
+  app.post('/api/auth/logout', async (req, res) => {
     const authHeader = req.headers.authorization;
-    const token = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.substring(7) : req.body.token;
+    const token = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.substring(7).trim() : (req.body && req.body.token ? String(req.body.token).trim() : null);
 
-    if (token && db.sessions.has(token)) {
-      const user = db.sessions.get(token);
+    if (token) {
+      const user = (await SessionService.getSession(token)) || db.sessions.get(token);
+      await SessionService.revokeSession(token);
       db.sessions.delete(token);
 
       if (user) {
         logAuditEvent(
-          user,
+          user as AuthUser,
           'User Authentication: Logout Successful',
           'Auth Session',
           user.id,
@@ -1513,6 +1734,7 @@ async function startServer() {
 
     res.json({
       success: true,
+      revoked: true,
       message: 'Session successfully terminated.'
     });
   });
@@ -1532,7 +1754,7 @@ async function startServer() {
   });
 
   // Super Admin: Create Staff / Admin User (Strictly guarded by Super Admin permission)
-  app.post('/api/admin/users', requirePermission('users.edit'), (req, res) => {
+  app.post('/api/admin/users', requirePermission('users.edit'), async (req, res) => {
     const { name, email, phone, role, password, countryCode, city } = req.body;
 
     if (!name || !email || !role) {
@@ -1544,8 +1766,7 @@ async function startServer() {
       return res.status(409).json({ error: 'User with this email already exists.' });
     }
 
-    const salt = generateSalt();
-    const passwordHash = hashPassword(password || 'DawaMed2026!', salt);
+    const { hash: passwordHash, salt } = hashPassword(password || 'DawaMed2026!');
     const targetRole: UserRole = role;
 
     const newStaffUser: AuthUser = {
@@ -1568,6 +1789,7 @@ async function startServer() {
     };
 
     db.users.set(newStaffUser.id, newStaffUser);
+    await FirestoreDataService.saveUser(newStaffUser).catch(err => console.warn('Firestore staff save notice:', err));
 
     logAuditEvent(
       req.user!,
@@ -2066,13 +2288,15 @@ async function startServer() {
     }
 
     if (targetUser) {
-      const newSalt = generateSalt();
+      const { hash: newHash, salt: newSalt } = hashPassword(newPassword);
       targetUser.salt = newSalt;
-      targetUser.passwordHash = hashPassword(newPassword, newSalt);
+      targetUser.passwordHash = newHash;
       targetUser.updatedAt = new Date().toISOString();
       db.users.set(targetUser.id, targetUser);
+      await FirestoreDataService.saveUser(targetUser).catch(err => console.warn('Firestore user save notice:', err));
 
-      // Revoke older sessions for security
+      // Revoke older sessions for security across Firestore and memory
+      await SessionService.revokeAllUserSessions(targetUser.id);
       for (const [sToken, sUser] of db.sessions.entries()) {
         if (sUser.id === targetUser.id) {
           db.sessions.delete(sToken);
@@ -4257,7 +4481,7 @@ async function startServer() {
   });
 
   // Create new administrator
-  app.post('/api/admin/administrators', requirePermission('administrators.create'), (req, res) => {
+  app.post('/api/admin/administrators', requirePermission('administrators.create'), async (req, res) => {
     const { name, username, email, phone, role, password, customPermissions, countryCode, city, department } = req.body;
     const actor = req.user!;
 
@@ -4297,8 +4521,7 @@ async function startServer() {
       return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
     }
 
-    const salt = generateSalt();
-    const passwordHash = hashPassword(password, salt);
+    const { hash: passwordHash, salt } = hashPassword(password);
     const assignedPermissions: Permission[] = customPermissions && Array.isArray(customPermissions) && customPermissions.length > 0
       ? customPermissions
       : (ROLE_PERMISSIONS[cleanRole] || []);
@@ -4325,6 +4548,7 @@ async function startServer() {
     };
 
     db.users.set(newAdmin.id, newAdmin);
+    await FirestoreDataService.saveUser(newAdmin).catch(err => console.warn('Firestore admin save notice:', err));
 
     logAuditEvent(
       actor,
@@ -4490,7 +4714,7 @@ async function startServer() {
   });
 
   // Toggle administrator status (Active / Suspended)
-  app.put('/api/admin/administrators/:id/status', requirePermission('administrators.edit'), (req, res) => {
+  app.put('/api/admin/administrators/:id/status', requirePermission('administrators.edit'), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     const actor = req.user!;
@@ -4519,10 +4743,10 @@ async function startServer() {
     // If suspended or deleted, revoke all active sessions immediately
     let revokedCount = 0;
     if (status !== 'active') {
+      revokedCount = await SessionService.revokeAllUserSessions(target.id);
       for (const [token, sessionUser] of db.sessions.entries()) {
         if (sessionUser.id === target.id) {
           db.sessions.delete(token);
-          revokedCount++;
         }
       }
     }
@@ -4550,7 +4774,7 @@ async function startServer() {
   });
 
   // Revoke / Reset Administrator Active Sessions
-  app.post('/api/admin/administrators/:id/reset-sessions', requirePermission('administrators.reset_sessions'), (req, res) => {
+  app.post('/api/admin/administrators/:id/reset-sessions', requirePermission('administrators.reset_sessions'), async (req, res) => {
     const { id } = req.params;
     const actor = req.user!;
 
@@ -4564,11 +4788,10 @@ async function startServer() {
       return res.status(403).json({ error: check.reason });
     }
 
-    let revokedCount = 0;
+    const revokedCount = await SessionService.revokeAllUserSessions(target.id);
     for (const [token, sessionUser] of db.sessions.entries()) {
       if (sessionUser.id === target.id) {
         db.sessions.delete(token);
-        revokedCount++;
       }
     }
 
@@ -4645,7 +4868,7 @@ async function startServer() {
   });
 
   // Super Admin: Change / Reset Administrator Password
-  app.put('/api/admin/administrators/:id/password', requirePermission('administrators.change_password'), (req, res) => {
+  app.put('/api/admin/administrators/:id/password', requirePermission('administrators.change_password'), async (req, res) => {
     const { id } = req.params;
     const { newPassword } = req.body;
     const actor = req.user!;
@@ -4664,23 +4887,22 @@ async function startServer() {
       return res.status(400).json({ error: 'كلمة المرور يجب أن لا تقل عن 8 أحرف.' });
     }
 
-    const newSalt = generateSalt();
-    const newHash = hashPassword(newPassword, newSalt);
+    const { hash: newHash, salt: newSalt } = hashPassword(newPassword);
 
     target.salt = newSalt;
     target.passwordHash = newHash;
     target.updatedAt = new Date().toISOString();
 
-    // Revoke all active sessions for the target admin
-    let revokedCount = 0;
+    // Revoke all active sessions for the target admin across Firestore and in-memory
+    const revokedCount = await SessionService.revokeAllUserSessions(target.id);
     for (const [token, sessionUser] of db.sessions.entries()) {
       if (sessionUser.id === target.id) {
         db.sessions.delete(token);
-        revokedCount++;
       }
     }
 
     db.users.set(target.id, target);
+    await FirestoreDataService.saveUser(target).catch(err => console.warn('Firestore admin save notice:', err));
 
     logAuditEvent(
       actor,
@@ -4701,7 +4923,7 @@ async function startServer() {
   });
 
   // Delete administrator account
-  app.delete('/api/admin/administrators/:id', requirePermission('administrators.delete'), (req, res) => {
+  app.delete('/api/admin/administrators/:id', requirePermission('administrators.delete'), async (req, res) => {
     const { id } = req.params;
     const actor = req.user!;
 
@@ -4722,7 +4944,8 @@ async function startServer() {
       }
     }
 
-    // Revoke sessions
+    // Revoke sessions in Firestore and in-memory
+    await SessionService.revokeAllUserSessions(target.id);
     for (const [token, sessionUser] of db.sessions.entries()) {
       if (sessionUser.id === target.id) {
         db.sessions.delete(token);

@@ -25,6 +25,8 @@ import {
   AuthFooterLink,
   getSafeDialCode
 } from './auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 export interface UnifiedLoginPageProps {
   language: Language;
@@ -502,15 +504,52 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
     }
   };
 
-  // Social Login Demo helper
-  const handleSocialLogin = (provider: 'google' | 'facebook') => {
-    setIdentifier('patient@dawamed.com');
-    setPassword('DawaMed@2026!Secure');
-    setSuccessMsg(
-      isRtl 
-        ? `تم تسجيل الدخول السريع عبر ${provider === 'google' ? 'Google' : 'Facebook'}`
-        : `Connected via ${provider === 'google' ? 'Google' : 'Facebook'}`
-    );
+  // Real Firebase Google Sign-In with Server-Side ID Token Verification
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const userCredential = await signInWithPopup(auth, provider);
+      const idToken = await userCredential.user.getIdToken();
+
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        setErrorMsg(
+          data?.error || 
+          (isRtl ? 'فشل التحقق من حساب Google لدى خادم المنصة.' : 'Google authentication verification failed on server.')
+        );
+        return;
+      }
+
+      setSuccessMsg(
+        isRtl 
+          ? `تم تسجيل الدخول بنجاح عبر Google (${data.user.name || data.user.email})` 
+          : `Signed in successfully with Google (${data.user.name || data.user.email})`
+      );
+
+      onAuthSuccess(data.user, data.token);
+    } catch (err: any) {
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setErrorMsg(isRtl ? 'تم إغلاق نافذة تسجيل الدخول بواسطة المستخدم.' : 'Google sign-in popup was closed.');
+      } else if (err?.code === 'auth/popup-blocked') {
+        setErrorMsg(isRtl ? 'تم حظر النافذة المنبثقة من قبل المتصفح. يرجى السماح بالنوافذ المنبثقة.' : 'Popup was blocked by browser. Please allow popups.');
+      } else {
+        setErrorMsg(err?.message || (isRtl ? 'حدث خطأ أثناء تسجيل الدخول بواسطة Google.' : 'Error during Google sign-in.'));
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -588,8 +627,9 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
           <div className="flex justify-center items-center w-full" id="login-social-row">
             <button
               type="button"
-              onClick={() => handleSocialLogin('google')}
-              className="w-full max-w-[220px] h-[40px] rounded-[11px] bg-white border border-[#DFE8F6] hover:bg-[#F8FAFC] flex items-center justify-center gap-2.5 shadow-2xs transition-all active:scale-98 cursor-pointer text-[12.5px] font-medium text-[#374151]"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full max-w-[220px] h-[40px] rounded-[11px] bg-white border border-[#DFE8F6] hover:bg-[#F8FAFC] flex items-center justify-center gap-2.5 shadow-2xs transition-all active:scale-98 cursor-pointer text-[12.5px] font-medium text-[#374151] disabled:opacity-50"
               title="Google"
               aria-label="Google Sign In"
               id="social-google-button"

@@ -721,8 +721,16 @@ function AppInner() {
 
   // Sign out securely and return to unified login
   const handleLogout = async () => {
+    const token = localStorage.getItem('dawa_auth_token');
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ token })
+      });
     } catch (e) {
       // Ignore network errors on logout
     }

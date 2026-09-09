@@ -480,6 +480,7 @@ export interface UserAddress {
 
 export interface AuthUser {
   id: string;
+  firebaseUid?: string;
   username?: string;
   name: string;
   phone?: string;
@@ -507,6 +508,7 @@ export interface AuthUser {
   token?: string;
   tokenExpiresAt?: number;
   mustChangePassword?: boolean;
+  createdAt?: string;
   lastLoginAt?: string;
   updatedAt?: string;
   avatarUrl?: string;

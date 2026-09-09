@@ -180,6 +180,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // AUTH SESSIONS (Production Session Store with SHA-256 Token Hashes)
+    match /auth_sessions/{tokenHash} {
+      allow read, write: if true;
+    }
+
     // DEFAULT CATCH-ALL
     match /{document=**} {
       allow read, write: if false;
