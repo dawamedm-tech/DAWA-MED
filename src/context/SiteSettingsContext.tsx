@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { SiteSettings } from '../types';
+import { brandingService } from '../services/brandingService';
 
 interface SiteSettingsContextType {
   settings: SiteSettings | null;
@@ -43,7 +44,7 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const fetchSettings = useCallback(async () => {
     try {
-      const res = await fetch('/api/site-settings');
+      const res = await fetch('/api/site-settings?ts=' + Date.now());
       if (res.ok) {
         const data = await res.json();
         setSettings(prev => ({ ...prev, ...data }));
@@ -58,6 +59,27 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     fetchSettings();
+
+    // Subscribe to real-time branding updates from Firestore
+    const unsubBranding = brandingService.subscribe((branding) => {
+      setSettings(prev => ({
+        ...prev,
+        logoUrl: branding.logoUrl || '',
+        siteName: branding.siteName || prev.siteName,
+        siteNameAr: branding.siteNameAr || prev.siteNameAr,
+        siteNameFr: branding.siteNameFr || prev.siteNameFr,
+        tagline: branding.tagline || prev.tagline,
+        taglineAr: branding.taglineAr || prev.taglineAr,
+        taglineFr: branding.taglineFr || prev.taglineFr,
+        primaryBrandColor: branding.primaryColor || prev.primaryBrandColor,
+        logoFileName: branding.logoFileName || prev.logoFileName,
+        logoUpdatedAt: branding.logoUpdatedAt || prev.logoUpdatedAt
+      }));
+    });
+
+    return () => {
+      unsubBranding();
+    };
   }, [fetchSettings]);
 
   const updateLocalSettings = useCallback((newSettings: Partial<SiteSettings>) => {
@@ -80,3 +102,4 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 };
 
 export const useSiteSettings = () => useContext(SiteSettingsContext);
+

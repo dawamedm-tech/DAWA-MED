@@ -418,4 +418,30 @@ export class FirestoreDataService {
       console.warn('Error saving prescription AI OCR to Firestore:', e);
     }
   }
+
+  // --- PLATFORM BRANDING & SETTINGS (settings/platform) ---
+  static async getPlatformBranding(): Promise<any | null> {
+    try {
+      const snap = await getDoc(doc(serverDb, 'settings', 'platform'));
+      if (snap.exists()) {
+        return snap.data();
+      }
+      return null;
+    } catch (e) {
+      console.warn('Error fetching platform branding from Firestore:', e);
+      return null;
+    }
+  }
+
+  static async savePlatformBranding(brandingData: Record<string, any>): Promise<void> {
+    try {
+      await setDoc(doc(serverDb, 'settings', 'platform'), {
+        ...brandingData,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (e) {
+      console.warn('Error saving platform branding to Firestore:', e);
+    }
+  }
 }
+

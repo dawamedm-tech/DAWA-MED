@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSiteSettings } from '../../context/SiteSettingsContext';
+import React, { useState, useEffect } from 'react';
+import { useBranding } from '../../hooks/useBranding';
 
 interface AuthLogoProps {
   size?: number;
@@ -8,23 +8,31 @@ interface AuthLogoProps {
 }
 
 export const AuthLogo: React.FC<AuthLogoProps> = ({ size = 72, className = '' }) => {
-  const { settings } = useSiteSettings();
+  const branding = useBranding();
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [branding.logoUrl]);
+
+  const hasLogo = Boolean(branding.logoUrl && !imgError);
 
   return (
     <div 
-      className={`w-[72px] h-[72px] rounded-full border-2 border-[#A7F3D0] bg-white flex items-center justify-center p-2.5 shadow-2xs shrink-0 select-none relative mt-1 ${className}`}
+      className={`rounded-full border-2 border-[#A7F3D0] bg-white flex items-center justify-center p-2 shadow-2xs shrink-0 select-none relative mt-1 ${className}`}
       id="auth-logo-container"
       style={{ width: `${size}px`, height: `${size}px` }}
     >
-      {settings?.logoUrl ? (
+      {hasLogo ? (
         <img 
-          src={settings.logoUrl} 
-          alt="DAWA MED" 
-          className="w-full h-full object-contain"
+          src={branding.logoUrl} 
+          alt={branding.siteName || 'DAWA MED'} 
+          className="w-full h-full object-contain transition-transform duration-200 hover:scale-105"
           referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
         />
       ) : (
-        <svg className="w-9 h-9" viewBox="0 0 48 48" fill="none">
+        <svg className="w-3/5 h-3/5" viewBox="0 0 48 48" fill="none">
           <circle cx="24" cy="24" r="21" fill="#E8F5EE" />
           {/* Symmetrical medical cross in DAWA MED primary green #0E7A4B */}
           <rect x="20.5" y="11" width="7" height="26" rx="3.5" fill="#0E7A4B" />
@@ -37,3 +45,4 @@ export const AuthLogo: React.FC<AuthLogoProps> = ({ size = 72, className = '' })
     </div>
   );
 };
+

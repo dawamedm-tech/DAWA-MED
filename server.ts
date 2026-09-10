@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import fs from 'fs';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { 
@@ -53,11 +54,12 @@ import { geminiOcrService } from './src/server/geminiOcrService';
 import firebaseConfig from './firebase-applet-config.json';
 import { hashPassword, verifyPassword, generateSalt } from './src/server/cryptoAuth';
 import { SessionService } from './src/server/sessionService';
-import { verifyFirebaseGoogleIdToken } from './src/server/firebaseAuthAdmin';
+import { verifyFirebaseGoogleIdToken, verifyFirebaseIdToken } from './src/server/firebaseAuthAdmin';
 import { 
   loginRateLimiter, 
   adminLoginRateLimiter, 
   googleAuthRateLimiter, 
+  socialAuthRateLimiter,
   passwordResetRateLimiter, 
   twoFactorRateLimiter 
 } from './src/server/rateLimiter';
@@ -79,6 +81,16 @@ async function startServer() {
 
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Persistent branding storage directory
+  const brandingUploadsDir = path.join(process.cwd(), 'public', 'uploads', 'branding');
+  if (!fs.existsSync(brandingUploadsDir)) {
+    fs.mkdirSync(brandingUploadsDir, { recursive: true });
+  }
+  app.use('/uploads/branding', express.static(brandingUploadsDir, {
+    maxAge: '1d',
+    etag: true
+  }));
 
   // CORS & Cross-Origin Request Headers Middleware
   app.use((req, res, next) => {
@@ -1057,8 +1069,12 @@ async function startServer() {
     });
   });
 
-  // Google Firebase Authentication Endpoint (Server-Side ID Token Verification & RBAC Resolution)
-  app.post('/api/auth/google', async (req: Request, res: Response) => {
+  // Unified Social Authentication Handler (Google, Facebook, etc.)
+  const handleSocialAuth = async (
+    providerName: 'google' | 'facebook',
+    req: Request,
+    res: Response
+  ) => {
     let idToken = req.body?.idToken;
     const authHeader = req.headers.authorization;
     if (!idToken && authHeader && authHeader.startsWith('Bearer ')) {
@@ -1067,8 +1083,8 @@ async function startServer() {
 
     const clientIp = req.ip || '127.0.0.1';
 
-    // Rate limiting
-    const rateCheck = googleAuthRateLimiter.check(clientIp);
+    // Rate limiting per IP
+    const rateCheck = socialAuthRateLimiter.check(clientIp);
     if (rateCheck.isLocked) {
       return res.status(429).json({
         error: 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا',
@@ -1079,47 +1095,62 @@ async function startServer() {
 
     if (!idToken || typeof idToken !== 'string') {
       return res.status(400).json({ 
-        error: 'رمز التحقق الخاص بـ Google مطلوب (idToken is required).', 
+        error: providerName === 'facebook'
+          ? 'رمز التحقق الخاص بـ Facebook مطلوب (idToken is required).'
+          : 'رمز التحقق الخاص بـ Google مطلوب (idToken is required).', 
         code: 'MISSING_ID_TOKEN' 
       });
     }
 
     try {
-      // 1. Verify via firebase-admin SDK (RS256 cryptographically validated against project gen-lang-client-0240923987)
-      const adminVerifyResult = await verifyFirebaseGoogleIdToken(idToken);
+      // 1. Multi-Layer Cryptographic ID Token Verification
+      const verifyResult = await verifyFirebaseIdToken(idToken, providerName);
 
-      if (!adminVerifyResult.success) {
-        googleAuthRateLimiter.recordFailure(clientIp);
-        const errorDetail = 'error' in adminVerifyResult ? (adminVerifyResult as any).error : 'Verification rejected';
+      if (verifyResult.success === false) {
+        const failure = verifyResult as { success: false; error: string; code: string };
+        socialAuthRateLimiter.recordFailure(clientIp);
+        const errorDetail = failure.error || 'Verification rejected';
         logAuditEvent(
-          { id: 'failed-google-auth', name: 'Google Auth Attempt', role: 'customer' },
-          'Google Auth Failed: Invalid ID Token',
+          { id: `failed-${providerName}-auth`, name: `${providerName} Auth Attempt`, role: 'customer' },
+          `${providerName.toUpperCase()} Auth Failed: Invalid ID Token`,
           'Auth Gate',
           'unknown',
-          `Google verification rejected ID token: ${errorDetail}. IP: ${clientIp}`,
+          `${providerName} verification rejected ID token: ${errorDetail}. IP: ${clientIp}`,
           'denied',
-          'TOKEN_VERIFICATION_FAILED',
+          failure.code || 'TOKEN_VERIFICATION_FAILED',
           clientIp
         );
+
+        if (providerName === 'facebook' && failure.code === 'FACEBOOK_CREDENTIALS_REQUIRED') {
+          return res.status(501).json({
+            error: failure.error,
+            code: 'FACEBOOK_CREDENTIALS_REQUIRED',
+            provider: 'facebook'
+          });
+        }
+
         return res.status(401).json({
-          error: 'فشل التحقق من صحة حساب Google لدى خوادم التحقق الرسمية (Invalid Google ID Token).',
-          code: 'TOKEN_VERIFICATION_FAILED'
+          error: failure.error || (providerName === 'facebook' 
+            ? 'فشل التحقق من حساب Facebook لدى خوادم التحقق الرسمية.' 
+            : 'فشل التحقق من صحة حساب Google لدى خوادم التحقق الرسمية (Invalid Google ID Token).'),
+          code: failure.code || 'TOKEN_VERIFICATION_FAILED',
+          provider: providerName
         });
       }
 
-      if (!adminVerifyResult.user.uid || !adminVerifyResult.user.email) {
-        googleAuthRateLimiter.recordFailure(clientIp);
+      if (!verifyResult.user.uid || !verifyResult.user.email) {
+        socialAuthRateLimiter.recordFailure(clientIp);
         return res.status(401).json({
-          error: 'حساب Google لا يتضمن معلومات تعريف كافية.',
-          code: 'INCOMPLETE_GOOGLE_PROFILE'
+          error: `حساب ${providerName} لا يتضمن معلومات تعريف كافية.`,
+          code: 'INCOMPLETE_SOCIAL_PROFILE'
         });
       }
 
-      googleAuthRateLimiter.clear(clientIp);
+      socialAuthRateLimiter.clear(clientIp);
 
-      const firebaseUid = adminVerifyResult.user.uid;
-      const cleanEmail = adminVerifyResult.user.email.toLowerCase().trim();
-      const displayName = adminVerifyResult.user.name || cleanEmail.split('@')[0] || 'Google User';
+      const firebaseUid = verifyResult.user.uid;
+      const cleanEmail = verifyResult.user.email.toLowerCase().trim();
+      const displayName = verifyResult.user.name || cleanEmail.split('@')[0] || `${providerName} User`;
 
       // 2. Server-Side RBAC & Identity Resolution from Firestore
       // Authoritative lookup: search by verified Firebase UID first
@@ -1147,7 +1178,8 @@ async function startServer() {
 
       // If no server-side record exists, securely provision brand-new user with STRICT 'customer' role
       if (!matchedUser) {
-        const newUserId = `usr-g-${firebaseUid.substring(0, 12)}`;
+        const prefix = providerName === 'facebook' ? 'usr-fb-' : 'usr-g-';
+        const newUserId = `${prefix}${firebaseUid.substring(0, 12)}`;
         matchedUser = {
           id: newUserId,
           firebaseUid,
@@ -1191,10 +1223,10 @@ async function startServer() {
 
       logAuditEvent(
         matchedUser,
-        `User Authentication: Google Sign-In Successful (${finalRole})`,
+        `User Authentication: ${providerName.toUpperCase()} Sign-In Successful (${finalRole})`,
         'Auth Gate',
         matchedUser.id,
-        `User '${matchedUser.name}' authenticated via Google Firebase. Role: ${finalRole}. UID: ${firebaseUid}`,
+        `User '${matchedUser.name}' authenticated via ${providerName}. Role: ${finalRole}. UID: ${firebaseUid}`,
         'success',
         undefined,
         clientIp
@@ -1206,15 +1238,32 @@ async function startServer() {
         token: sessionToken,
         user: safeUser,
         role: finalRole,
-        permissions: finalPermissions
+        permissions: finalPermissions,
+        provider: providerName
       });
     } catch (err: any) {
-      console.error('Error in /api/auth/google:', err);
+      console.error(`Error in /api/auth/${providerName}:`, err);
       return res.status(500).json({
-        error: 'حدث خطأ غير متوقع أثناء معالجة تسجيل الدخول بـ Google.',
-        code: 'GOOGLE_AUTH_ERROR'
+        error: `حدث خطأ غير متوقع أثناء معالجة تسجيل الدخول بـ ${providerName}.`,
+        code: `${providerName.toUpperCase()}_AUTH_ERROR`
       });
     }
+  };
+
+  // Google Firebase Authentication Endpoint
+  app.post('/api/auth/google', (req: Request, res: Response) => {
+    return handleSocialAuth('google', req, res);
+  });
+
+  // Facebook Firebase Authentication Endpoint
+  app.post('/api/auth/facebook', (req: Request, res: Response) => {
+    return handleSocialAuth('facebook', req, res);
+  });
+
+  // Generic Social Auth Endpoint
+  app.post('/api/auth/social', (req: Request, res: Response) => {
+    const provider = req.body?.provider === 'facebook' ? 'facebook' : 'google';
+    return handleSocialAuth(provider, req, res);
   });
 
   // Verify Session Token Endpoint (Supports GET and POST)
@@ -4330,7 +4379,7 @@ async function startServer() {
   });
 
   // Admin update site settings
-  app.put('/api/admin/site-settings', requirePermission('settings.site_manage'), (req, res) => {
+  app.put('/api/admin/site-settings', requirePermission('settings.site_manage'), async (req, res) => {
     const updates = req.body;
     db.siteSettings = {
       ...db.siteSettings,
@@ -4338,6 +4387,28 @@ async function startServer() {
       updatedAt: new Date().toISOString(),
       updatedBy: req.user!.name
     };
+
+    // Durable Cloud Sync: Persist branding configuration to Firestore (settings/platform)
+    try {
+      await FirestoreDataService.savePlatformBranding({
+        siteName: db.siteSettings.siteName,
+        siteNameAr: db.siteSettings.siteNameAr,
+        siteNameFr: db.siteSettings.siteNameFr,
+        tagline: db.siteSettings.tagline,
+        taglineAr: db.siteSettings.taglineAr,
+        taglineFr: db.siteSettings.taglineFr,
+        primaryColor: db.siteSettings.primaryBrandColor,
+        logoUrl: db.siteSettings.logoUrl || '',
+        logoFileName: db.siteSettings.logoFileName || null,
+        logoFileType: db.siteSettings.logoFileType || null,
+        logoFileSizeKb: db.siteSettings.logoFileSizeKb || null,
+        logoUpdatedAt: db.siteSettings.logoUpdatedAt || null,
+        updatedBy: req.user!.name,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (persistErr) {
+      console.warn('[Site Settings] Firestore persistence notice:', persistErr);
+    }
 
     logAuditEvent(
       req.user!,
@@ -4357,8 +4428,8 @@ async function startServer() {
     });
   });
 
-  // Upload & Store Custom Site Logo (Base64 / Protected Storage)
-  app.post('/api/admin/site-settings/logo', requirePermission('settings.site_manage'), (req, res) => {
+  // Upload & Store Official Brand Logo (Production Durable Storage + Firestore settings/platform)
+  app.post('/api/admin/site-settings/logo', requirePermission('settings.site_manage'), async (req, res) => {
     const { logoData, fileName, fileType, fileSizeKb } = req.body;
 
     if (!logoData || typeof logoData !== 'string') {
@@ -4369,36 +4440,125 @@ async function startServer() {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
     const isBase64Image = logoData.startsWith('data:image/');
     const mimeMatch = logoData.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
-    const mimeType = fileType || (mimeMatch ? mimeMatch[1] : undefined);
+    const mimeType = (fileType || (mimeMatch ? mimeMatch[1] : 'image/png')).toLowerCase();
 
-    if (mimeType && !allowedTypes.includes(mimeType.toLowerCase())) {
+    if (!allowedTypes.includes(mimeType)) {
       return res.status(400).json({
         error: `Unsupported file type (${mimeType}). Supported formats are PNG, JPG, WEBP, and SVG.`
       });
     }
 
-    // File size check: Limit to 2MB (2048 KB)
-    const estimatedSizeKb = fileSizeKb || Math.round((logoData.length * 3) / 4 / 1024);
-    if (estimatedSizeKb > 2048) {
+    let fileBuffer: Buffer;
+    if (isBase64Image) {
+      const base64Content = logoData.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
+      fileBuffer = Buffer.from(base64Content, 'base64');
+    } else {
+      fileBuffer = Buffer.from(logoData, 'utf-8');
+    }
+
+    // File size validation: Limit to 2MB (2048 KB)
+    const actualSizeKb = Math.round(fileBuffer.length / 1024);
+    if (actualSizeKb > 2048) {
       return res.status(400).json({
-        error: `File size exceeds the 2MB limit (Uploaded size: ${estimatedSizeKb} KB). Please upload a smaller image.`
+        error: `File size exceeds the 2MB limit (Uploaded size: ${actualSizeKb} KB). Please upload a smaller image.`
       });
     }
 
-    db.siteSettings.logoUrl = logoData;
-    db.siteSettings.logoFileName = fileName || 'site-logo.png';
-    db.siteSettings.logoFileType = mimeType || 'image/png';
-    db.siteSettings.logoFileSizeKb = estimatedSizeKb;
+    // Security Verification: Magic Bytes & Malicious Code Inspection
+    if (mimeType === 'image/svg+xml') {
+      const svgText = fileBuffer.toString('utf-8');
+      const lowerSvg = svgText.toLowerCase();
+      // Block executable scripts, iframes, foreignObjects, and event handlers
+      if (
+        lowerSvg.includes('<script') ||
+        lowerSvg.includes('javascript:') ||
+        lowerSvg.includes('onload') ||
+        lowerSvg.includes('onerror') ||
+        lowerSvg.includes('<iframe') ||
+        lowerSvg.includes('<foreignobject')
+      ) {
+        return res.status(400).json({
+          error: 'الملف المرفوع يحتوي على عناصر غير مسموح بها لأسباب أمنية (Malicious or unsafe SVG content detected).'
+        });
+      }
+    } else {
+      // Validate binary image signatures (Magic bytes)
+      const isPng = fileBuffer.length >= 8 && fileBuffer[0] === 0x89 && fileBuffer[1] === 0x50 && fileBuffer[2] === 0x4e && fileBuffer[3] === 0x47;
+      const isJpeg = fileBuffer.length >= 3 && fileBuffer[0] === 0xff && fileBuffer[1] === 0xd8 && fileBuffer[2] === 0xff;
+      const isWebp = fileBuffer.length >= 12 && fileBuffer.toString('ascii', 0, 4) === 'RIFF' && fileBuffer.toString('ascii', 8, 12) === 'WEBP';
+
+      // Check against executable signatures (MZ / ELF / Java)
+      const isExe = fileBuffer.length >= 2 && fileBuffer[0] === 0x4d && fileBuffer[1] === 0x5a;
+      const isElf = fileBuffer.length >= 4 && fileBuffer[0] === 0x7f && fileBuffer[1] === 0x45 && fileBuffer[2] === 0x4c && fileBuffer[3] === 0x46;
+
+      if (isExe || isElf) {
+        return res.status(400).json({
+          error: 'تم رفض الملف: تم اكتشاف نوع ملف تنفيذي غير مسموح به.'
+        });
+      }
+
+      if (!isPng && !isJpeg && !isWebp) {
+        return res.status(400).json({
+          error: 'تم رفض الملف: تنسيق الصورة غير متطابق مع الترويسة القياسية للصورة.'
+        });
+      }
+    }
+
+    // Determine target extension
+    let ext = 'png';
+    if (mimeType.includes('svg')) ext = 'svg';
+    else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
+    else if (mimeType.includes('webp')) ext = 'webp';
+
+    const safeFilename = `dawa-logo-${Date.now()}-${crypto.randomBytes(6).toString('hex')}.${ext}`;
+    const storageDir = path.join(process.cwd(), 'public', 'uploads', 'branding');
+    if (!fs.existsSync(storageDir)) {
+      fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    const filePath = path.join(storageDir, safeFilename);
+    fs.writeFileSync(filePath, fileBuffer);
+
+    // Public durable URL served by the platform
+    const publicLogoUrl = `/uploads/branding/${safeFilename}`;
+
+    // Update in-memory site settings
+    db.siteSettings.logoUrl = publicLogoUrl;
+    db.siteSettings.logoFileName = fileName || safeFilename;
+    db.siteSettings.logoFileType = mimeType;
+    db.siteSettings.logoFileSizeKb = actualSizeKb;
     db.siteSettings.logoUpdatedAt = new Date().toISOString();
     db.siteSettings.updatedAt = new Date().toISOString();
     db.siteSettings.updatedBy = req.user!.name;
+
+    // Durable Cloud Storage: Persist to Firestore settings/platform document
+    try {
+      await FirestoreDataService.savePlatformBranding({
+        logoUrl: publicLogoUrl,
+        logoFileName: fileName || safeFilename,
+        logoFileType: mimeType,
+        logoFileSizeKb: actualSizeKb,
+        logoUpdatedAt: db.siteSettings.logoUpdatedAt,
+        siteName: db.siteSettings.siteName || 'DAWA MED',
+        siteNameAr: db.siteSettings.siteNameAr || 'دواء ميد',
+        siteNameFr: db.siteSettings.siteNameFr || 'DAWA MED',
+        tagline: db.siteSettings.tagline,
+        taglineAr: db.siteSettings.taglineAr,
+        taglineFr: db.siteSettings.taglineFr,
+        primaryColor: db.siteSettings.primaryBrandColor || '#0E7A4B',
+        updatedBy: req.user!.name,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (saveErr) {
+      console.warn('[Site Logo] Firestore save notice:', saveErr);
+    }
 
     logAuditEvent(
       req.user!,
       'Site Logo Uploaded & Deployed',
       'Site Settings',
       'logo',
-      `Administrator '${req.user!.name}' updated brand logo (${fileName || 'logo'}, ${estimatedSizeKb} KB).`,
+      `Administrator '${req.user!.name}' updated brand logo (${fileName || safeFilename}, ${actualSizeKb} KB).`,
       'success',
       undefined,
       req.ip || '127.0.0.1'
@@ -4406,14 +4566,14 @@ async function startServer() {
 
     res.json({
       success: true,
-      message: 'Site logo uploaded and propagated across all platform components successfully.',
-      logoUrl: db.siteSettings.logoUrl,
+      message: 'تم تحديث الشعار الرسمي للمنصة وحفظه في التخزين الدائم بنجاح.',
+      logoUrl: publicLogoUrl,
       settings: db.siteSettings
     });
   });
 
-  // Reset Logo to Default Brand Visual
-  app.post('/api/admin/site-settings/reset-logo', requirePermission('settings.site_manage'), (req, res) => {
+  // Reset Logo to Default Brand Visual (Syncs Firestore settings/platform)
+  app.post('/api/admin/site-settings/reset-logo', requirePermission('settings.site_manage'), async (req, res) => {
     db.siteSettings.logoUrl = '';
     db.siteSettings.logoFileName = undefined;
     db.siteSettings.logoFileType = undefined;
@@ -4421,6 +4581,21 @@ async function startServer() {
     db.siteSettings.logoUpdatedAt = undefined;
     db.siteSettings.updatedAt = new Date().toISOString();
     db.siteSettings.updatedBy = req.user!.name;
+
+    // Persist reset to Firestore settings/platform
+    try {
+      await FirestoreDataService.savePlatformBranding({
+        logoUrl: '',
+        logoFileName: null,
+        logoFileType: null,
+        logoFileSizeKb: null,
+        logoUpdatedAt: new Date().toISOString(),
+        updatedBy: req.user!.name,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (resetErr) {
+      console.warn('[Reset Logo] Firestore reset notice:', resetErr);
+    }
 
     logAuditEvent(
       req.user!,

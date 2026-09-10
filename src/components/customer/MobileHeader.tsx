@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Language, CountryConfig, UserRole, UserProfile, NotificationItem } from '../../types';
 import { COUNTRIES } from '../../data/mockData';
+import { BrandLogo } from '../BrandLogo';
 
 interface MobileHeaderProps {
   language: Language;
@@ -85,30 +86,13 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             </button>
           </div>
 
-          {/* Center: DAWA MED Logo + Tagline */}
+          {/* Center: Unified Platform Brand Logo */}
           <div 
-            className="flex items-center gap-1.5 sm:gap-2 cursor-pointer transition-transform active:scale-98"
+            className="flex items-center cursor-pointer transition-transform active:scale-98"
             onClick={() => onRoleChange('customer')}
             id="mobile-header-brand"
           >
-            {/* Medical Shield with '+' inside */}
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#0E7A4B] flex items-center justify-center text-white shadow-2xs shrink-0 relative overflow-hidden">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#0E7A4B" />
-                <line x1="12" y1="8" x2="12" y2="16" stroke="white" strokeWidth="2.6" />
-                <line x1="8" y1="12" x2="16" y2="12" stroke="white" strokeWidth="2.6" />
-              </svg>
-            </div>
-
-            {/* Brand Text */}
-            <div className="flex flex-col items-start leading-none">
-              <span className="text-sm sm:text-base font-black tracking-tight text-[#0E7A4B]">
-                DAWA MED
-              </span>
-              <span className="text-[7px] sm:text-[7.5px] font-bold text-[#0E7A4B]/80 tracking-wider uppercase">
-                CARE. CONNECT. DELIVER.
-              </span>
-            </div>
+            <BrandLogo size="sm" language={language} />
           </div>
 
           {/* End Side: Notification Bell (Left in RTL, Right in LTR) */}
@@ -145,13 +129,9 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             {/* Drawer Header */}
             <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-[#F8FAF9]">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#0E7A4B] flex items-center justify-center text-white text-xs font-black">
-                  +
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-neutral-900 text-xs">DAWA MED</h4>
-                  <p className="text-[10px] text-neutral-500">{selectedCountry.name} • {selectedCountry.currency}</p>
-                </div>
+                <BrandLogo size="sm" language={language} />
+                <span className="text-[10px] text-neutral-400">|</span>
+                <p className="text-[10px] text-neutral-500 font-medium">{selectedCountry.name} • {selectedCountry.currency}</p>
               </div>
 
               <button

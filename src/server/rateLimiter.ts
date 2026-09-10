@@ -80,5 +80,6 @@ export class RateLimiter {
 export const loginRateLimiter = new RateLimiter({ maxAttempts: 5, lockoutMs: 15 * 60 * 1000 });
 export const adminLoginRateLimiter = new RateLimiter({ maxAttempts: 5, lockoutMs: 15 * 60 * 1000 });
 export const googleAuthRateLimiter = new RateLimiter({ maxAttempts: 10, lockoutMs: 5 * 60 * 1000 });
+export const socialAuthRateLimiter = googleAuthRateLimiter;
 export const passwordResetRateLimiter = new RateLimiter({ maxAttempts: 5, lockoutMs: 15 * 60 * 1000 });
 export const twoFactorRateLimiter = new RateLimiter({ maxAttempts: 3, lockoutMs: 10 * 60 * 1000 });
