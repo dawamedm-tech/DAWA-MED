@@ -81,6 +81,20 @@ export class FirestoreDataService {
     }
   }
 
+  static async getUserByFirebaseUid(firebaseUid: string): Promise<AuthUser | null> {
+    try {
+      const q = query(collection(serverDb, 'users'), where('firebaseUid', '==', firebaseUid), limit(1));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        return snap.docs[0].data() as AuthUser;
+      }
+      return null;
+    } catch (e) {
+      console.error('Error fetching user by firebaseUid:', e);
+      return null;
+    }
+  }
+
   static async saveUser(user: AuthUser): Promise<void> {
     try {
       await setDoc(doc(serverDb, 'users', user.id), {

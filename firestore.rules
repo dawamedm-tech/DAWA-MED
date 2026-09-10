@@ -44,11 +44,20 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // USERS COLLECTION
+    // USERS COLLECTION (Enforce Strict Privilege Boundaries)
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin() || isSupport());
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(userId) && (
+        !('role' in request.resource.data) || request.resource.data.role == 'customer'
+      ) && (
+        !('permissions' in request.resource.data)
+      );
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          isOwner(userId) && 
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permissions', 'isVerified', 'status'])
+        )
+      );
       allow delete: if isAdmin();
     }
 
@@ -182,7 +191,11 @@ service cloud.firestore {
 
     // AUTH SESSIONS (Production Session Store with SHA-256 Token Hashes)
     match /auth_sessions/{tokenHash} {
-      allow read, write: if true;
+      // Disallow collection queries/listing to prevent session enumeration
+      allow list: if false;
+      // Allow point get/create/update for token validation and state management
+      allow get, create, update: if true;
+      allow delete: if false;
     }
 
     // DEFAULT CATCH-ALL

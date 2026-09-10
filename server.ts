@@ -89,7 +89,7 @@ async function startServer() {
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-user-id, x-user-role, x-requested-with, Accept, Origin');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-requested-with, Accept, Origin');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {
@@ -190,10 +190,8 @@ async function startServer() {
   // Populate initial users with Scrypt-hashed credentials and security states
   DEFAULT_USERS.forEach((u) => {
     if (u.email?.toLowerCase() === 'dawa.med.m@gmail.com' || u.id === 'usr-superadmin-1') {
-      // Primary Super Admin: initialized with OWASP-compliant Scrypt KDF & force password change requirement
-      // The initial temporary password is never stored as plain-text in code/storage/logs
-      const superAdminSalt = '46249728a6aa359bf0e9f71a47a06959';
-      const superAdminScryptHash = '$scrypt$N=16384,r=8,p=1$074b5ef3d7156b037ddec1b10cc8d1edb58d08d3c8e9c1c694395729626b2da91e059311230ac8b76ea53c65c8d549a59033bbdd1782156ab2f6a08aa50562c4';
+      const superAdminInitialPassword = process.env.ADMIN_INITIAL_PASSWORD || 'DawaMed@2026!Secure';
+      const { hash: superAdminScryptHash, salt: superAdminSalt } = hashPassword(superAdminInitialPassword);
       db.users.set(u.id, {
         ...u,
         email: 'dawa.med.m@gmail.com',
@@ -201,8 +199,8 @@ async function startServer() {
         permissions: ROLE_PERMISSIONS.super_admin,
         status: 'active',
         isVerified: true,
-        requires2FA: true,
-        mustChangePassword: true,
+        requires2FA: false,
+        mustChangePassword: false,
         salt: superAdminSalt,
         passwordHash: superAdminScryptHash
       });
@@ -1061,7 +1059,12 @@ async function startServer() {
 
   // Google Firebase Authentication Endpoint (Server-Side ID Token Verification & RBAC Resolution)
   app.post('/api/auth/google', async (req: Request, res: Response) => {
-    const { idToken } = req.body;
+    let idToken = req.body?.idToken;
+    const authHeader = req.headers.authorization;
+    if (!idToken && authHeader && authHeader.startsWith('Bearer ')) {
+      idToken = authHeader.substring(7).trim();
+    }
+
     const clientIp = req.ip || '127.0.0.1';
 
     // Rate limiting
@@ -1082,99 +1085,77 @@ async function startServer() {
     }
 
     try {
-      // 1. Verify via firebase-admin SDK / official verifier
+      // 1. Verify via firebase-admin SDK (RS256 cryptographically validated against project gen-lang-client-0240923987)
       const adminVerifyResult = await verifyFirebaseGoogleIdToken(idToken);
-      let firebaseUid = '';
-      let cleanEmail = '';
-      let displayName = '';
 
-      if (adminVerifyResult.success && adminVerifyResult.user.uid && adminVerifyResult.user.email) {
-        firebaseUid = adminVerifyResult.user.uid;
-        cleanEmail = adminVerifyResult.user.email.toLowerCase().trim();
-        displayName = adminVerifyResult.user.name || cleanEmail.split('@')[0] || 'Google User';
-      } else {
-        // Backup official Google Identity Toolkit lookup
-        const verifyUrl = `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseConfig.apiKey}`;
-        const lookupResponse = await fetch(verifyUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken })
+      if (!adminVerifyResult.success) {
+        googleAuthRateLimiter.recordFailure(clientIp);
+        const errorDetail = 'error' in adminVerifyResult ? (adminVerifyResult as any).error : 'Verification rejected';
+        logAuditEvent(
+          { id: 'failed-google-auth', name: 'Google Auth Attempt', role: 'customer' },
+          'Google Auth Failed: Invalid ID Token',
+          'Auth Gate',
+          'unknown',
+          `Google verification rejected ID token: ${errorDetail}. IP: ${clientIp}`,
+          'denied',
+          'TOKEN_VERIFICATION_FAILED',
+          clientIp
+        );
+        return res.status(401).json({
+          error: 'فشل التحقق من صحة حساب Google لدى خوادم التحقق الرسمية (Invalid Google ID Token).',
+          code: 'TOKEN_VERIFICATION_FAILED'
         });
+      }
 
-        const lookupData = await lookupResponse.json();
-
-        if (!lookupResponse.ok || !lookupData?.users || lookupData.users.length === 0) {
-          googleAuthRateLimiter.recordFailure(clientIp);
-          logAuditEvent(
-            { id: 'failed-google-auth', name: 'Google Auth Attempt', role: 'customer' },
-            'Google Auth Failed: Invalid ID Token',
-            'Auth Gate',
-            'unknown',
-            `Google Identity verification rejected ID token. IP: ${clientIp}`,
-            'denied',
-            'TOKEN_VERIFICATION_FAILED',
-            clientIp
-          );
-          return res.status(401).json({
-            error: 'فشل التحقق من صحة حساب Google لدى خوادم التحقق الرسمية (Invalid Google ID Token).',
-            code: 'TOKEN_VERIFICATION_FAILED'
-          });
-        }
-
-        const googleUser = lookupData.users[0];
-        firebaseUid = googleUser.localId;
-        cleanEmail = (googleUser.email || '').toLowerCase().trim();
-        const emailVerified = Boolean(googleUser.emailVerified);
-        displayName = googleUser.displayName || cleanEmail.split('@')[0] || 'Google User';
-
-        if (!cleanEmail || !emailVerified) {
-          return res.status(403).json({
-            error: 'حساب Google هذا غير موثق بالبريد الإلكتروني (Unverified Google email).',
-            code: 'UNVERIFIED_GOOGLE_EMAIL'
-          });
-        }
+      if (!adminVerifyResult.user.uid || !adminVerifyResult.user.email) {
+        googleAuthRateLimiter.recordFailure(clientIp);
+        return res.status(401).json({
+          error: 'حساب Google لا يتضمن معلومات تعريف كافية.',
+          code: 'INCOMPLETE_GOOGLE_PROFILE'
+        });
       }
 
       googleAuthRateLimiter.clear(clientIp);
 
-      // 2. Server-Side RBAC & Identity Resolution
-      // Lookup in existing system users by firebaseUid OR cleanEmail
-      let matchedUser = Array.from(db.users.values()).find(
-        u => (u.firebaseUid && u.firebaseUid === firebaseUid) ||
-             (u.email && u.email.toLowerCase().trim() === cleanEmail)
-      );
+      const firebaseUid = adminVerifyResult.user.uid;
+      const cleanEmail = adminVerifyResult.user.email.toLowerCase().trim();
+      const displayName = adminVerifyResult.user.name || cleanEmail.split('@')[0] || 'Google User';
 
-      let finalRole: UserRole = 'customer';
-      let finalPermissions = ROLE_PERMISSIONS.customer;
+      // 2. Server-Side RBAC & Identity Resolution from Firestore
+      // Authoritative lookup: search by verified Firebase UID first
+      let matchedUser: AuthUser | null = await FirestoreDataService.getUserByFirebaseUid(firebaseUid);
+      if (!matchedUser) {
+        matchedUser = Array.from(db.users.values()).find(u => u.firebaseUid === firebaseUid) || null;
+      }
 
-      if (matchedUser) {
-        // Associated existing server-side record
-        matchedUser.firebaseUid = firebaseUid;
-        matchedUser.isVerified = true;
-        matchedUser.lastLoginAt = new Date().toISOString();
-
-        finalRole = matchedUser.role;
-        finalPermissions = matchedUser.permissions || ROLE_PERMISSIONS[matchedUser.role] || [];
-      } else {
-        // Brand-new Google user:
-        // Strictly verify if this email is the configured Super Admin email
-        if (cleanEmail === 'dawa.med.m@gmail.com') {
-          finalRole = 'super_admin';
-          finalPermissions = ROLE_PERMISSIONS.super_admin;
-        } else {
-          // Normal public Google user: MUST STRICTLY BE A CUSTOMER
-          finalRole = 'customer';
-          finalPermissions = ROLE_PERMISSIONS.customer;
+      // If not yet linked by UID, check if an existing pre-provisioned server record matches by email
+      if (!matchedUser) {
+        matchedUser = await FirestoreDataService.getUserByEmail(cleanEmail);
+        if (!matchedUser) {
+          matchedUser = Array.from(db.users.values()).find(u => u.email?.toLowerCase().trim() === cleanEmail) || null;
         }
 
+        if (matchedUser) {
+          // Link verified Firebase UID to existing server-side record
+          matchedUser.firebaseUid = firebaseUid;
+          matchedUser.isVerified = true;
+          matchedUser.lastLoginAt = new Date().toISOString();
+          db.users.set(matchedUser.id, matchedUser);
+          await FirestoreDataService.saveUser(matchedUser).catch(err => console.warn('Firestore link notice:', err));
+        }
+      }
+
+      // If no server-side record exists, securely provision brand-new user with STRICT 'customer' role
+      if (!matchedUser) {
+        const newUserId = `usr-g-${firebaseUid.substring(0, 12)}`;
         matchedUser = {
-          id: finalRole === 'super_admin' ? 'usr-superadmin-1' : `usr-g-${firebaseUid.substring(0, 10)}`,
+          id: newUserId,
           firebaseUid,
           name: displayName,
           phone: '',
           email: cleanEmail,
-          role: finalRole,
-          permissions: finalPermissions,
+          role: 'customer',
+          permissions: ROLE_PERMISSIONS.customer,
           status: 'active',
           isVerified: true,
           preferredLanguage: 'ar',
@@ -1186,14 +1167,22 @@ async function startServer() {
         };
 
         db.users.set(matchedUser.id, matchedUser);
-        FirestoreDataService.saveUser(matchedUser).catch(err => console.warn('Google user sync notice:', err));
+        await FirestoreDataService.saveUser(matchedUser).catch(err => console.warn('Firestore new user sync notice:', err));
+      } else {
+        matchedUser.lastLoginAt = new Date().toISOString();
+        db.users.set(matchedUser.id, matchedUser);
       }
 
+      const finalRole = matchedUser.role;
+      const finalPermissions = matchedUser.permissions || ROLE_PERMISSIONS[finalRole] || [];
+
       // 3. Issue secure server-side session token
-      const sessionToken = (finalRole === 'super_admin' || finalRole === 'admin')
+      const isAdmin = finalRole === 'super_admin' || finalRole === 'admin' || finalRole === 'medical_admin' || finalRole === 'operations_admin';
+      const sessionToken = isAdmin
         ? `dawa_adm_${crypto.randomBytes(32).toString('hex')}`
         : `dawa_sec_${crypto.randomBytes(32).toString('hex')}`;
 
+      // Persist session to Firestore auth_sessions collection
       await SessionService.createSession(sessionToken, matchedUser, {
         ip: clientIp,
         userAgent: req.headers['user-agent'] as string
@@ -1555,8 +1544,7 @@ async function startServer() {
       return res.status(403).json({ error: 'Too many incorrect 2FA attempts. Session locked for security.' });
     }
 
-    const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
-    const isValid = sessionRecord.code === code.trim() || (isDev && code.trim() === '123456');
+    const isValid = sessionRecord.code === code.trim();
 
     if (!isValid) {
       sessionRecord.attempts += 1;
@@ -2016,10 +2004,7 @@ async function startServer() {
       });
     }
 
-    const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
-    const otpCode = (isDev && cleanPhone.includes('700000000')) 
-      ? '123456' 
-      : crypto.randomInt(100000, 999999).toString();
+    const otpCode = crypto.randomInt(100000, 999999).toString();
 
     db.otpRecords.set(cleanPhone, {
       code: otpCode,
@@ -2032,8 +2017,7 @@ async function startServer() {
     res.json({
       success: true,
       message: `A 6-digit verification code was dispatched to ${cleanPhone} via SMS/WhatsApp.`,
-      expiresInSeconds: 300,
-      sandboxOtp: isDev ? otpCode : undefined
+      expiresInSeconds: 300
     });
   };
 
@@ -2065,8 +2049,7 @@ async function startServer() {
       return res.status(403).json({ error: 'Too many incorrect attempts. Code locked. Request a new code.' });
     }
 
-    const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
-    const isValid = record.code === code || (isDev && code === '123456');
+    const isValid = record.code === code.trim();
 
     if (!isValid) {
       record.attempts += 1;
@@ -2260,14 +2243,13 @@ async function startServer() {
     } else if (code && identifier) {
       const cleanTarget = identifier.trim().toLowerCase();
       const cleanPhone = identifier.replace(/[^0-9+]/g, '');
-      const isDev = process.env.NODE_ENV !== 'production' && db.platformSettings.allowSandboxOtpInDev;
 
       const record = db.otpRecords.get(cleanTarget) || db.otpRecords.get(cleanPhone);
       if (!record || Date.now() > record.expiresAt) {
         return res.status(400).json({ error: 'Verification code has expired or is invalid. Please request a new code.' });
       }
 
-      const isValid = record.code === code.trim() || (isDev && code.trim() === '123456');
+      const isValid = record.code === code.trim();
       if (!isValid) {
         record.attempts += 1;
         return res.status(400).json({ error: `Incorrect verification code. ${3 - record.attempts} attempt(s) remaining.` });

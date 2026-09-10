@@ -112,6 +112,15 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
   const [editingBody, setEditingBody] = useState('');
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
+  // Helper to obtain server-verified bearer token headers
+  const getAuthHeaders = (includeContentType = true): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('dawa_auth_token') : null;
+    return {
+      ...(includeContentType ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  };
+
   // Fetch settings & logs on mount
   useEffect(() => {
     fetchSettings();
@@ -122,7 +131,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
   const fetchSettings = async () => {
     try {
       const res = await fetch('/api/admin/email/settings', {
-        headers: { 'x-user-role': currentUser?.role || 'super_admin' }
+        headers: getAuthHeaders(false)
       });
       if (res.ok) {
         const data = await res.json();
@@ -136,7 +145,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
   const fetchLogs = async () => {
     try {
       const res = await fetch('/api/admin/email/logs', {
-        headers: { 'x-user-role': currentUser?.role || 'super_admin' }
+        headers: getAuthHeaders(false)
       });
       if (res.ok) {
         const data = await res.json();
@@ -150,7 +159,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
   const fetchTemplates = async () => {
     try {
       const res = await fetch('/api/admin/email/templates', {
-        headers: { 'x-user-role': currentUser?.role || 'super_admin' }
+        headers: getAuthHeaders(false)
       });
       if (res.ok) {
         const data = await res.json();
@@ -168,10 +177,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
     try {
       const res = await fetch('/api/admin/email/test-connection', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-role': currentUser?.role || 'super_admin'
-        },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ provider: provider || settings.activeProvider })
       });
       const data = await res.json();
@@ -199,10 +205,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
     try {
       const res = await fetch('/api/admin/email/settings', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-role': currentUser?.role || 'super_admin'
-        },
+        headers: getAuthHeaders(true),
         body: JSON.stringify(settings)
       });
       const data = await res.json();
@@ -230,10 +233,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
     try {
       const res = await fetch('/api/admin/email/send-test', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-role': currentUser?.role || 'super_admin'
-        },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
           recipient: testRecipient,
           templateId: testTemplateId,
@@ -320,10 +320,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
     try {
       const res = await fetch(`/api/admin/email/templates/${selectedTemplate.id}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-role': currentUser?.role || 'super_admin'
-        },
+        headers: getAuthHeaders(true),
         body: JSON.stringify(updates)
       });
       const data = await res.json();
@@ -348,7 +345,7 @@ export const EmailSettingsManager: React.FC<EmailSettingsManagerProps> = ({
     try {
       const res = await fetch(`/api/admin/email/retry/${logId}`, {
         method: 'POST',
-        headers: { 'x-user-role': currentUser?.role || 'super_admin' }
+        headers: getAuthHeaders(false)
       });
       const data = await res.json();
       if (data.success) {

@@ -41,8 +41,8 @@ export function verifyPassword(
   const { passwordHash, salt } = storedCredentials;
 
   if (!passwordHash || !salt) {
-    // Seed/demo account fallback without password credentials
-    return { isValid: true, needsUpgrade: false };
+    // Missing credentials - reject authentication immediately
+    return { isValid: false, needsUpgrade: false };
   }
 
   // 1. Check if stored hash is Scrypt (modern standard)

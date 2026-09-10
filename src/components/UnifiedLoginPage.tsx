@@ -518,7 +518,10 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
 
       const response = await fetch('/api/auth/google', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
         body: JSON.stringify({ idToken })
       });
 
@@ -527,7 +530,7 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
       if (!response.ok || !data?.success) {
         setErrorMsg(
           data?.error || 
-          (isRtl ? 'فشل التحقق من حساب Google لدى خادم المنصة.' : 'Google authentication verification failed on server.')
+          (isRtl ? 'تعذر تسجيل الدخول بواسطة Google. يرجى المحاولة مرة أخرى.' : 'Failed to sign in with Google. Please try again.')
         );
         return;
       }

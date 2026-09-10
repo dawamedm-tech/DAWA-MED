@@ -64,6 +64,8 @@ import { LegalPagesModal } from './components/LegalPagesModal';
 import { SystemHealthTestsModal } from './components/SystemHealthTestsModal';
 import { SupportDashboard } from './components/SupportDashboard';
 import { Footer } from './components/Footer';
+import { signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
 
 function AppInner() {
   const { language, setLanguage, isRtl } = useLanguage();
@@ -733,6 +735,13 @@ function AppInner() {
       });
     } catch (e) {
       // Ignore network errors on logout
+    }
+
+    // Also sign out from client Firebase Auth SDK if signed in
+    try {
+      await signOut(auth);
+    } catch (e) {
+      // Ignore Firebase sign out error
     }
     localStorage.removeItem('dawa_auth_token');
     localStorage.removeItem('dawa_user_id');
