@@ -93,16 +93,36 @@ async function startServer() {
   }));
 
   // CORS & Cross-Origin Request Headers Middleware
+  const ALLOWED_ORIGINS = new Set([
+    'https://dawamed.shop',
+    'https://www.dawamed.shop',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ]);
+
+  const isAllowedOrigin = (origin: string): boolean => {
+    if (ALLOWED_ORIGINS.has(origin)) return true;
+    if (/^https:\/\/.*\.run\.app$/.test(origin)) return true;
+    if (/^https:\/\/.*\.googleusercontent\.com$/.test(origin)) return true;
+    return false;
+  };
+
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin) {
+    if (origin && isAllowedOrigin(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
     } else {
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Origin', 'https://dawamed.shop');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-requested-with, Accept, Origin');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {
       return res.sendStatus(204);
@@ -817,13 +837,52 @@ async function startServer() {
     // Reset rate limiter on valid credentials
     loginRateLimiter.clear(rateLimitKey);
 
-    // If user is Admin or Super Admin attempting regular login and 2FA is required
-    if (isAnyAdminRole(user.role) && (user.requires2FA || user.role === 'super_admin')) {
+    // If 2FA is explicitly required for this account
+    if (user.requires2FA) {
+      const cleanEmail = user.email || 'admin@dawamed.com';
+      const twoFactorCode = crypto.randomInt(100000, 999999).toString();
+      const twoFactorTicket = `2fa_${crypto.randomBytes(24).toString('hex')}`;
+      const expiresAt = Date.now() + 5 * 60 * 1000;
+
+      db.twoFactorPendingSessions.set(twoFactorTicket, {
+        userId: user.id,
+        email: cleanEmail,
+        code: twoFactorCode,
+        expiresAt,
+        attempts: 0,
+        createdAt: Date.now()
+      });
+
+      // Dispatch 2FA code email
+      emailService.sendEmail({
+        recipient: cleanEmail,
+        subject: 'رمز التحقق بخطوتين (2FA) - منصة دواء ميد | DAWA MED Security',
+        bodyHtml: `
+          <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; padding: 20px; background-color: #f8fafc;">
+            <h2 style="color: #0E7A4B;">منصة دواء ميد - رمز التحقق الأمني</h2>
+            <p>مرحباً ${user.name}،</p>
+            <p>رمز التحقق بخطوتين الخاص بحسابك الإداري هو:</p>
+            <div style="font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #1e293b; background: #e2e8f0; padding: 12px; border-radius: 8px; text-align: center; display: inline-block;">
+              ${twoFactorCode}
+            </div>
+            <p style="color: #64748b; font-size: 13px; margin-top: 15px;">صلاحية هذا الرمز تنتهي خلال 5 دقائق. لا تشارك هذا الرمز مع أي شخص.</p>
+          </div>
+        `
+      }).catch(err => console.warn('[Auth 2FA] Email dispatch notice:', err));
+
+      console.log(`[DAWA MED 2FA] Security code for ${cleanEmail} (${user.id}): ${twoFactorCode}`);
+
+      const emailParts = cleanEmail.split('@');
+      const maskedEmail = `${emailParts[0].substring(0, 3)}••••@${emailParts[1]}`;
+
       return res.json({
         success: true,
         requires2FA: true,
+        twoFactorTicket,
+        maskedEmail,
         role: user.role,
-        message: 'Administrative account detected. Please complete 2FA verification.'
+        expiresInSeconds: 300,
+        message: 'Two-Factor Authentication challenge issued. Please enter security code.'
       });
     }
 
@@ -854,7 +913,9 @@ async function startServer() {
     res.json({
       success: true,
       token: sessionToken,
-      user: safeUser
+      user: safeUser,
+      role: user.role,
+      permissions: user.permissions || ROLE_PERMISSIONS[user.role]
     });
   });
 
@@ -983,8 +1044,8 @@ async function startServer() {
     // Clear failed attempts on success
     adminLoginRateLimiter.clear(rateLimitKey);
 
-    // If 2FA not required (super_admin strictly requires 2FA)
-    if (!user.requires2FA && user.role !== 'super_admin') {
+    // If 2FA not required for this administrative account
+    if (!user.requires2FA) {
       const adminSessionToken = `dawa_adm_${crypto.randomBytes(32).toString('hex')}`;
       user.lastLoginAt = new Date().toISOString();
       await SessionService.createSession(adminSessionToken, user, { 

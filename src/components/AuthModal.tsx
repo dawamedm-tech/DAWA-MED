@@ -119,10 +119,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         body: JSON.stringify({ identifier: cleanIdentifier, password: loginPassword })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data.success) {
-        setErrorMsg(data.error || (isRtl ? 'بيانات الدخول غير صحيحة، يرجى المحاولة مجددًا.' : 'Invalid credentials, please try again.'));
+      if (!res.ok || !data?.success) {
+        console.error('[DAWA MED AuthModal] Login response error:', res.status, data);
+        if (res.status === 401) {
+          setErrorMsg(isRtl ? 'بيانات تسجيل الدخول غير صحيحة.' : 'Invalid login credentials.');
+        } else if (res.status === 403) {
+          setErrorMsg(data?.error || (isRtl ? 'الحساب موقوف أو غير مفعّل.' : 'Account suspended or inactive.'));
+        } else if (res.status === 429) {
+          setErrorMsg(isRtl ? 'محاولات تسجيل دخول كثيرة، يرجى المحاولة لاحقًا.' : 'Too many login attempts, please try again later.');
+        } else {
+          setErrorMsg(data?.error || (isRtl ? 'بيانات الدخول غير صحيحة، يرجى المحاولة مجددًا.' : 'Invalid credentials, please try again.'));
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.requires2FA) {
+        window.location.href = '/login';
+        return;
+      }
+
+      if (!data.user) {
+        console.error('[DAWA MED AuthModal] Missing user profile in response:', data);
+        setErrorMsg(data?.error || (isRtl ? 'تعذر إتمام الدخول، يرجى المحاولة مجددًا.' : 'Could not complete login, please try again.'));
         setIsLoading(false);
         return;
       }
@@ -154,8 +175,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onSwitchRole(targetRole);
       }
       onClose();
-    } catch (err) {
-      setErrorMsg(isRtl ? 'حدث خطأ في الاتصال بالخادم.' : 'Server connection error.');
+    } catch (err: any) {
+      console.error('[DAWA MED AuthModal] Network or runtime exception during login:', err);
+      setErrorMsg(isRtl ? 'تعذر تسجيل الدخول حاليًا. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.' : 'Unable to sign in currently. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

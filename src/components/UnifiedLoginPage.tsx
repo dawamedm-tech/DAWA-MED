@@ -206,9 +206,17 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
         return;
       }
 
+      if (!data?.user || !data?.token) {
+        console.error('[DAWA MED UnifiedLoginPage] Missing user profile or session token in response:', data);
+        setErrorMsg(data?.error || (isRtl ? 'تعذر إتمام الدخول، يرجى المحاولة مجددًا.' : 'Could not complete login, please try again.'));
+        setIsLoading(false);
+        return;
+      }
+
       onAuthSuccess(data.user, data.token);
-    } catch (err) {
-      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 'Unable to connect to the server. Please try again.');
+    } catch (err: any) {
+      console.error('[DAWA MED UnifiedLoginPage] Network or server error during login:', err);
+      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.' : 'Unable to connect to the server. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -274,9 +282,17 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
         return;
       }
 
+      if (!data?.user || !data?.token) {
+        console.error('[DAWA MED UnifiedLoginPage] Admin login missing user profile or token:', data);
+        setErrorMsg(data?.error || (isRtl ? 'تعذر إتمام الدخول، يرجى المحاولة مجددًا.' : 'Could not complete login, please try again.'));
+        setIsLoading(false);
+        return;
+      }
+
       onAuthSuccess(data.user, data.token);
-    } catch (err) {
-      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 'Unable to connect to the server. Please try again.');
+    } catch (err: any) {
+      console.error('[DAWA MED UnifiedLoginPage] Admin login network error:', err);
+      setErrorMsg(isRtl ? 'تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.' : 'Unable to connect to the server. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
