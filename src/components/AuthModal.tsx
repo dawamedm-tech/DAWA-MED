@@ -22,7 +22,7 @@ import {
   AuthFooterLink,
   getSafeDialCode
 } from './auth';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 export type AuthMode = 'login' | 'register' | 'admin' | 'pharmacy_register' | 'forgot_password';
@@ -354,6 +354,65 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
+  // Real Firebase Facebook Sign-In with Server-Side ID Token Verification
+  const handleFacebookSignIn = async () => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const provider = new FacebookAuthProvider();
+      provider.addScope('email');
+      provider.addScope('public_profile');
+      const userCredential = await signInWithPopup(auth, provider);
+      const idToken = await userCredential.user.getIdToken();
+
+      const response = await fetch('/api/auth/facebook', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ idToken })
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        if (data?.code === 'FACEBOOK_CREDENTIALS_REQUIRED' || response.status === 501) {
+          setErrorMsg(data?.error || 'NOT VERIFIED — META/FACEBOOK CREDENTIALS REQUIRED: يلزم تفعيل مزود Facebook وإدخال بيانات Meta App ID و App Secret في لوحة Firebase Console.');
+        } else {
+          setErrorMsg(
+            data?.error || 
+            (isRtl ? 'تعذر تسجيل الدخول بواسطة Facebook. يرجى المحاولة مرة أخرى.' : 'Failed to sign in with Facebook. Please try again.')
+          );
+        }
+        return;
+      }
+
+      setSuccessMsg(
+        isRtl 
+          ? `تم تسجيل الدخول بنجاح عبر Facebook (${data.user.name || data.user.email})` 
+          : `Signed in successfully with Facebook (${data.user.name || data.user.email})`
+      );
+
+      onSaveProfile(data.user, data.token);
+      onClose();
+    } catch (err: any) {
+      if (err?.code === 'auth/operation-not-allowed' || err?.code === 'auth/configuration-not-found') {
+        setErrorMsg('NOT VERIFIED — META/FACEBOOK CREDENTIALS REQUIRED: يلزم تفعيل مزود Facebook وإدخال بيانات Meta App ID و App Secret في لوحة Firebase Console.');
+      } else if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setErrorMsg(isRtl ? 'تم إغلاق نافذة تسجيل الدخول بواسطة المستخدم.' : 'Facebook sign-in popup was closed.');
+      } else if (err?.code === 'auth/popup-blocked') {
+        setErrorMsg(isRtl ? 'تم حظر النافذة المنبثقة من قبل المتصفح. يرجى السماح بالنوافذ المنبثقة.' : 'Popup was blocked by browser. Please allow popups.');
+      } else {
+        setErrorMsg(err?.message || (isRtl ? 'حدث خطأ أثناء تسجيل الدخول بواسطة Facebook.' : 'Error during Facebook sign-in.'));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-xs overflow-y-auto"
@@ -442,25 +501,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </AuthPrimaryButton>
             </form>
 
-            <AuthDivider text={isRtl ? 'أو عبر' : 'Or with'} className="my-3.5" />
+            <AuthDivider text={isRtl ? 'أو عبر الحسابات الاجتماعية' : 'Or with social accounts'} className="my-3.5" />
 
-            {/* Google Sign In Button */}
-            <div className="flex justify-center items-center w-full max-w-[260px] mx-auto">
+            {/* Social Sign In Buttons: Google and Facebook */}
+            <div className="grid grid-cols-2 gap-2.5 w-full max-w-[340px] mx-auto" id="modal-login-social-row">
+              {/* Google Sign In Button */}
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full h-[44px] rounded-[11px] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] flex items-center justify-center gap-2.5 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[13px] font-medium text-[#374151]"
+                className="w-full h-[42px] rounded-[11px] bg-white border border-[#DFE8F6] hover:bg-[#F8FAFC] flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[12.5px] font-medium text-[#374151]"
                 title="Google"
                 aria-label="Google Sign In"
+                id="modal-social-google-button"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
                   <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.34 24 12 24z" />
                   <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z" />
                   <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
                 </svg>
-                <span>{isRtl ? 'المتابعة بواسطة Google' : 'Continue with Google'}</span>
+                <span>Google</span>
+              </button>
+
+              {/* Facebook Sign In Button */}
+              <button
+                type="button"
+                onClick={handleFacebookSignIn}
+                disabled={isLoading}
+                className="w-full h-[42px] rounded-[11px] bg-[#1877F2] hover:bg-[#166fe5] text-white border border-[#1877F2] flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[12.5px] font-medium"
+                title="Facebook"
+                aria-label="Facebook Sign In"
+                id="modal-social-facebook-button"
+              >
+                <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                <span>Facebook</span>
               </button>
             </div>
 
@@ -624,6 +701,45 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8FA3BF] mt-3">
               <ShieldCheck className="w-3.5 h-3.5 text-[#0E7A4B]" />
               <span>{isRtl ? 'حماية بياناتك الطبية مشفرة بالكامل 256-bit' : '256-bit Encrypted Health Data Protection'}</span>
+            </div>
+
+            {/* Social Sign Up Divider */}
+            <AuthDivider text={isRtl ? 'أو التسجيل عبر' : 'Or sign up with'} className="my-3" />
+
+            {/* Social Sign Up Buttons */}
+            <div className="grid grid-cols-2 gap-2.5 w-full max-w-[340px] mx-auto" id="modal-register-social-row">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full h-[41px] rounded-[11px] bg-white border border-[#DFE8F6] hover:bg-[#F8FAFC] flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[12.5px] font-medium text-[#374151]"
+                title="Google"
+                aria-label="Google Sign Up"
+                id="modal-reg-social-google-button"
+              >
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.34 24 12 24z" />
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z" />
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                </svg>
+                <span>Google</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleFacebookSignIn}
+                disabled={isLoading}
+                className="w-full h-[41px] rounded-[11px] bg-[#1877F2] hover:bg-[#166fe5] text-white border border-[#1877F2] flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 text-[12.5px] font-medium"
+                title="Facebook"
+                aria-label="Facebook Sign Up"
+                id="modal-reg-social-facebook-button"
+              >
+                <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                <span>Facebook</span>
+              </button>
             </div>
 
             <AuthDivider className="my-3" />
